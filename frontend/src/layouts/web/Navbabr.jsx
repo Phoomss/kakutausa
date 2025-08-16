@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
 import {
   Search,
-  ShoppingCart,
-  User,
-  Heart,
   Menu,
   X,
   Phone,
-  Mail,
-  MapPin,
   ChevronDown
 } from 'lucide-react';
+import { NavLink } from 'react-router';
 import logo from "/logo.webp";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
-    'Home',
-    'About',
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
     {
       name: 'Products',
-      submenu: ['All Product', 'Air Clamp', 'Horizontal Handle']
+      submenu: [
+        { name: 'All Product', path: '/products' },
+        { name: 'Air Clamp', path: '/products/air-clamp' },
+        { name: 'Horizontal Handle', path: '/products/horizontal-handle' }
+      ]
     },
-    'Contact Us'
+    { name: 'Contact Us', path: '/contact' }
   ];
 
   return (
@@ -56,21 +55,16 @@ const Navbar = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <a href="/" className="flex items-center">
+              <NavLink to="/" className="flex items-center">
                 <img src={logo} alt="Logo" className="h-10 w-auto" />
-              </a>
+              </NavLink>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               {categories.map((category, index) => (
                 <div key={index} className="relative group">
-                  {typeof category === 'string' ? (
-                    <button className="text-gray-700 hover:text-red-600 font-medium transition-colors duration-200 relative">
-                      {category}
-                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
-                    </button>
-                  ) : (
+                  {category.submenu ? (
                     <div>
                       <button
                         className="text-gray-700 hover:text-red-600 font-medium transition-colors duration-200 relative flex items-center"
@@ -89,17 +83,32 @@ const Navbar = () => {
                           onMouseLeave={() => setIsProductsMenuOpen(false)}
                         >
                           {category.submenu.map((item, subIndex) => (
-                            <a
+                            <NavLink
                               key={subIndex}
-                              href="#"
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600 transition-colors duration-200"
+                              to={item.path}
+                              className={({ isActive }) =>
+                                `block px-4 py-2 text-sm transition-colors duration-200 ${
+                                  isActive ? "text-red-600 bg-gray-100" : "text-gray-700 hover:text-red-600 hover:bg-gray-100"
+                                }`
+                              }
                             >
-                              {item}
-                            </a>
+                              {item.name}
+                            </NavLink>
                           ))}
                         </div>
                       )}
                     </div>
+                  ) : (
+                    <NavLink
+                      to={category.path}
+                      className={({ isActive }) =>
+                        `text-gray-700 hover:text-red-600 font-medium transition-colors duration-200 relative ${
+                          isActive ? "text-red-600" : ""
+                        }`
+                      }
+                    >
+                      {category.name}
+                    </NavLink>
                   )}
                 </div>
               ))}
@@ -121,9 +130,8 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* User Actions */}
+            {/* Mobile Menu Button */}
             <div className="flex items-center space-x-4">
-              {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-2 text-gray-700 hover:text-red-600 transition-colors duration-200"
@@ -156,26 +164,38 @@ const Navbar = () => {
             <div className="px-4 pt-2 pb-4 space-y-1">
               {categories.map((category, index) => (
                 <div key={index}>
-                  {typeof category === 'string' ? (
-                    <button className="block w-full text-left px-3 py-2 text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-md transition-colors duration-200">
-                      {category}
-                    </button>
-                  ) : (
+                  {category.submenu ? (
                     <div>
-                      <button className="block w-full text-left px-3 py-2 text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-md transition-colors duration-200 font-medium">
+                      <span className="block w-full text-left px-3 py-2 text-gray-700 font-medium">
                         {category.name}
-                      </button>
+                      </span>
                       <div className="ml-4 space-y-1">
                         {category.submenu.map((item, subIndex) => (
-                          <button
+                          <NavLink
                             key={subIndex}
-                            className="block w-full text-left px-3 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                            to={item.path}
+                            className={({ isActive }) =>
+                              `block w-full text-left px-3 py-2 text-sm transition-colors duration-200 ${
+                                isActive ? "text-red-600 bg-gray-50" : "text-gray-600 hover:text-red-600 hover:bg-gray-50"
+                              }`
+                            }
                           >
-                            {item}
-                          </button>
+                            {item.name}
+                          </NavLink>
                         ))}
                       </div>
                     </div>
+                  ) : (
+                    <NavLink
+                      to={category.path}
+                      className={({ isActive }) =>
+                        `block w-full text-left px-3 py-2 rounded-md transition-colors duration-200 ${
+                          isActive ? "text-red-600 bg-gray-50" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"
+                        }`
+                      }
+                    >
+                      {category.name}
+                    </NavLink>
                   )}
                 </div>
               ))}
