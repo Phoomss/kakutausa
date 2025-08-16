@@ -1,8 +1,9 @@
 import React from 'react'
+import WebLayout from './layouts/web/WebLayout'
 
 const App = () => {
   return (
-    <div>App</div>
+    <WebLayout/>
   )
 }
 
