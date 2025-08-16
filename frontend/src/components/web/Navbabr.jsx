@@ -183,18 +183,6 @@ const Navbar = () => {
           </div>
         )}
       </nav>
-
-      {/* Demo Content */}
-      <div className="bg-gray-100 py-20">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            All American Bushing
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Industrial bushing solutions with offices in the US and Japan
-          </p>
-        </div>
-      </div>
     </div>
   );
 };
