@@ -1,11 +1,21 @@
+<<<<<<< HEAD
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 
 function App() {
   const [count, setCount] = useState(0)
+=======
+import React from 'react'
+import WebLayout from './layouts/web/WebLayout'
+import { Route, Routes } from 'react-router'
+import HomePage from './pages/web/HomePage'
+import AboutPage from './pages/web/AboutPage'
+import ProductPage from './pages/web/ProductPage'
+>>>>>>> develop
 
   return (
+<<<<<<< HEAD
     <>
       <div>
         <a href="https://vite.dev" target="_blank">
@@ -28,6 +38,15 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </>
+=======
+    <Routes>
+      <Route element={<WebLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/products" element={<ProductPage />} />
+      </Route>
+    </Routes>
+>>>>>>> develop
   )
 }
 
