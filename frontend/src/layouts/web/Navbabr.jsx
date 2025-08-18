@@ -18,12 +18,12 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
     {
-      name: 'Products',
-      submenu: [
-        { name: 'All Product', path: '/products' },
-        { name: 'Air Clamp', path: '/products/air-clamp' },
-        { name: 'Horizontal Handle', path: '/products/horizontal-handle' }
-      ]
+      name: 'Products', path: 'products'
+      // submenu: [
+      //   { name: 'All Product', path: '/products' },
+      //   { name: 'Air Clamp', path: '/products/air-clamp' },
+      //   { name: 'Horizontal Handle', path: '/products/horizontal-handle' }
+      // ]
     },
     { name: 'Contact Us', path: '/contact' }
   ];

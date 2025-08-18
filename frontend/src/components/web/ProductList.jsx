@@ -47,10 +47,10 @@ const ProductList = () => {
                 <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">
                   {product.name}
                 </h3>
-                <p className="text-red-600 font-bold mb-4 text-center">{product.price}</p>
+                {/* <p className="text-red-600 font-bold mb-4 text-center">{product.price}</p>
                 <button className="mt-auto bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition w-full">
                   Buy Now
-                </button>
+                </button> */}
               </div>
             </div>
           ))}
