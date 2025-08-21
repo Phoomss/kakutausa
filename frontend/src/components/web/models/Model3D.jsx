@@ -1,8 +1,8 @@
 import React, { Suspense, useRef, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
-import { RotateCcw, RotateCw, Download, Eye, Grid3X3, Box, Move3D } from "lucide-react";
-
+import { RotateCcw, RotateCw, Download, Eye, Grid3X3, Box, Move3D, ArrowLeft } from "lucide-react";
+import { useNavigate } from 'react-router';
 const ModelViewer = React.lazy(() => import("./ModelViewer"));
 
 export default function Model3D() {
@@ -14,6 +14,7 @@ export default function Model3D() {
   const [cameraResetFn, setCameraResetFn] = useState(null);
   const [loading, setLoading] = useState(true);
   const canvasRef = useRef();
+  const navigate = useNavigate();
 
   // Loader 5 วิ
   useEffect(() => {
@@ -43,17 +44,22 @@ export default function Model3D() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-        {/* Header */}
-        <div className="px-6 py-4 border-b text-center">
-          <h1 className="text-red-600 text-lg sm:text-xl font-bold">
-            Toggle Clamp Form C
-          </h1>
-          <p className="text-gray-700 text-sm sm:text-base">
-            Vertical series • AL756 - 1520
-          </p>
+      <div className="px-6 py-4 border-b flex items-center justify-between">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center text-gray-600 hover:text-red-500"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back
+        </button>
+        <div className="text-center flex-1">
+          <h1 className="text-red-600 text-lg sm:text-xl font-bold">FA 200</h1>
+          <p className="text-gray-700 text-sm sm:text-base">Latch Type Clamp</p>
         </div>
+      </div>
 
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+       
         {/* 3D Viewer */}
         <div className="relative w-full h-[500px]">
           <Canvas
@@ -107,11 +113,10 @@ export default function Model3D() {
                 <button
                   key={label}
                   onClick={() => setter(!state)}
-                  className={`p-2 rounded-xl transition-all duration-300 ${
-                    state
-                      ? "bg-red-500 text-white hover:bg-red-400"
-                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                  }`}
+                  className={`p-2 rounded-xl transition-all duration-300 ${state
+                    ? "bg-red-500 text-white hover:bg-red-400"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                    }`}
                   title={label}
                 >
                   <Icon size={18} />
@@ -155,11 +160,10 @@ export default function Model3D() {
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                className={`px-2 py-1 rounded-lg text-xs transition-all duration-300 ${
-                  viewMode === mode
-                    ? "bg-red-500 text-white"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                }`}
+                className={`px-2 py-1 rounded-lg text-xs transition-all duration-300 ${viewMode === mode
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  }`}
               >
                 {mode.toUpperCase()}
               </button>
