@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-import React from 'react'
-
-const ProductDetail = () => {
-  return (
-    <div>ProductDetail</div>
-  )
-}
-
-export default ProductDetail
-=======
 import React, { useState, Suspense } from "react";
 import { useParams, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
@@ -205,4 +194,3 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
->>>>>>> ba03df272fd3802adc37f8d62e22632e3de0a2ed
