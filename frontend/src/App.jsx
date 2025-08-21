@@ -5,6 +5,7 @@ import HomePage from './pages/web/HomePage'
 import AboutPage from './pages/web/AboutPage'
 import ProductPage from './pages/web/ProductPage'
 import ProductDetailPage from './pages/web/ProductDetailPage'
+import Model3D from './components/web/models/Model3D';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/products" element={<ProductPage />} />
         <Route path="/products/:id" element={<ProductDetailPage />} />
+        <Route path="/products/:id/generatemodel" element={<Model3D />} />
       </Route>
     </Routes>
   )

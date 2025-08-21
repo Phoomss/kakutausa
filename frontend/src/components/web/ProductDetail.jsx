@@ -1,10 +1,7 @@
-import React, { useState, Suspense } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
 
-// ตัวอย่างข้อมูลสินค้า
 const products = [
   {
     id: 2,
@@ -12,7 +9,6 @@ const products = [
     description:
       "Ideal for lightweight materials and light work production or assembly operations. Supplied with nylon spindle but stainless steel models supplied with stainless steel spindle.",
     image: "/products/HH150.jpg",
-    model3DUrl: "/models/HH150.glb",
     category: "Horizontal Handle",
     specs: {
       inch: {
@@ -35,7 +31,6 @@ const products = [
     description:
       "The most popular Latch Type clamp is supplied with latch plate. Dipped red vinyl handle grip provided for secure holding purpose. Stainless steel model also available.",
     image: "/products/FA200.jpg",
-    model3DUrl: "/models/FA200.glb",
     category: "Latch Type Clamp",
     specs: {
       inch: {
@@ -49,22 +44,20 @@ const products = [
         Weight: "0.8 kg",
       },
     },
-  },
+  }
 ];
-
-// Component โหลดไฟล์ GLB
-const Model = ({ url }) => {
-  const gltf = useGLTF(url, true);
-  return <primitive object={gltf.scene} />;
-};
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [unit, setUnit] = useState("inch"); // เลือกหน่วย
-  const [view, setView] = useState("image"); // Image / 3D toggle
+  const [unit, setUnit] = useState("inch");
+  const [view, setView] = useState("image");
 
   const product = products.find((p) => p.id === Number(id));
+
+  const handleClick = (productId) => {
+    navigate(`/products/${productId}/generatemodel`);
+  };
 
   if (!product) {
     return (
@@ -97,22 +90,17 @@ const ProductDetail = () => {
           {/* Toggle Buttons */}
           <div className="flex justify-center space-x-4 p-3 bg-gray-100">
             <button
-              className={`px-4 py-2 rounded-lg ${
-                view === "image"
-                  ? "bg-red-500 text-white"
-                  : "bg-gray-200 text-gray-600"
-              }`}
+              className={`px-4 py-2 rounded-lg ${view === "image"
+                ? "bg-red-500 text-white"
+                : "bg-gray-200 text-gray-600"
+                }`}
               onClick={() => setView("image")}
             >
               Image
             </button>
             <button
-              className={`px-4 py-2 rounded-lg ${
-                view === "3d"
-                  ? "bg-red-500 text-white"
-                  : "bg-gray-200 text-gray-600"
-              }`}
-              onClick={() => setView("3d")}
+              className="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300"
+              onClick={() => handleClick(product.id)}
             >
               3D Model
             </button>
@@ -143,21 +131,19 @@ const ProductDetail = () => {
             {/* Unit Switch */}
             <div className="flex space-x-4 mb-5">
               <button
-                className={`px-4 py-2 rounded-lg ${
-                  unit === "inch"
-                    ? "bg-red-500 text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
+                className={`px-4 py-2 rounded-lg ${unit === "inch"
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-200 text-gray-600"
+                  }`}
                 onClick={() => setUnit("inch")}
               >
                 Inch
               </button>
               <button
-                className={`px-4 py-2 rounded-lg ${
-                  unit === "metric"
-                    ? "bg-red-500 text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
+                className={`px-4 py-2 rounded-lg ${unit === "metric"
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-200 text-gray-600"
+                  }`}
                 onClick={() => setUnit("metric")}
               >
                 Metric
