@@ -1,18 +1,30 @@
 import React from "react";
 
-// ตัวอย่างข้อมูลหมวดหมู่
+
 const categories = [
   {
-    name: "Toggle Clamps",
-    image: "/images/toggle-clamp.jpg",
+    name: "Horizontal Handle",
+    image: "/images/horizontal-handle.jpg",
   },
   {
-    name: "Air Clamps",
-    image: "/images/air-clamp.jpg",
+    name: "Latch Type",
+    image: "/images/latch-type.jpg",
   },
   {
-    name: "Handles",
-    image: "/images/handle.jpg",
+    name: "Special Hold Down",
+    image: "/images/special-hold-down.jpg",
+  },
+  {
+    name: "Squeeze Action",
+    image: "/images/squeeze-action.jpg",
+  },
+  {
+    name: "Straight Line Action",
+    image: "/images/straight-line.jpg",
+  },
+  {
+    name: "Vertical Handle",
+    image: "/images/vertical-handle.jpg",
   },
   {
     name: "Custom Solutions",
