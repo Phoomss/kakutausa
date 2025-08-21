@@ -1,8 +1,10 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState, Suspense } from "react";
+import { useParams, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 
-// ตัวอย่างข้อมูล (จริง ๆ ควร fetch จาก API / DB)
+// ตัวอย่างข้อมูลสินค้า
 const products = [
   {
     id: 2,
@@ -10,6 +12,7 @@ const products = [
     description:
       "Ideal for lightweight materials and light work production or assembly operations. Supplied with nylon spindle but stainless steel models supplied with stainless steel spindle.",
     image: "/products/HH150.jpg",
+    model3DUrl: "/models/HH150.glb", // URL ไฟล์ 3D
     category: "Horizontal Handle",
     specs: {
       inch: {
@@ -32,6 +35,7 @@ const products = [
     description:
       "The most popular Latch Type clamp is supplied with latch plate. Dipped red vinyl handle grip provided for secure holding purpose. Stainless steel model also available.",
     image: "/products/FA200.jpg",
+    model3DUrl: "/models/FA200.glb",
     category: "Latch Type Clamp",
     specs: {
       inch: {
@@ -48,10 +52,17 @@ const products = [
   },
 ];
 
+// Component โหลดไฟล์ GLB
+const Model = ({ url }) => {
+  const gltf = useGLTF(url, true);
+  return <primitive object={gltf.scene} />;
+};
+
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [unit, setUnit] = useState("inch"); // เลือกหน่วย
+  const [view, setView] = useState("image"); // Image / 3D toggle
 
   const product = products.find((p) => p.id === Number(id));
 
@@ -81,13 +92,48 @@ const ProductDetail = () => {
       </button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        {/* Product Image */}
+        {/* Image / 3D Viewer */}
         <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-[400px] object-cover"
-          />
+          {/* Toggle Buttons */}
+          <div className="flex justify-center space-x-4 p-3 bg-gray-100">
+            <button
+              className={`px-4 py-2 rounded-lg ${
+                view === "image"
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-200 text-gray-600"
+              }`}
+              onClick={() => setView("image")}
+            >
+              Image
+            </button>
+            <button
+              className={`px-4 py-2 rounded-lg ${
+                view === "3d"
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-200 text-gray-600"
+              }`}
+              onClick={() => setView("3d")}
+            >
+              3D Model
+            </button>
+          </div>
+
+          {view === "image" ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-[400px] object-cover"
+            />
+          ) : (
+            <Canvas className="w-full h-[400px]">
+              <ambientLight intensity={0.5} />
+              <directionalLight position={[10, 10, 5]} intensity={1} />
+              <Suspense fallback={<p>Loading 3D Model...</p>}>
+                <Model url={product.model3DUrl} />
+              </Suspense>
+              <OrbitControls />
+            </Canvas>
+          )}
         </div>
 
         {/* Product Info */}
