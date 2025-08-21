@@ -12,7 +12,7 @@ const products = [
     description:
       "Ideal for lightweight materials and light work production or assembly operations. Supplied with nylon spindle but stainless steel models supplied with stainless steel spindle.",
     image: "/products/HH150.jpg",
-    model3DUrl: "/models/HH150.glb", // URL ไฟล์ 3D
+    model3DUrl: "/models/HH150.glb",
     category: "Horizontal Handle",
     specs: {
       inch: {
