@@ -124,16 +124,7 @@ const ProductDetail = () => {
               alt={product.name}
               className="w-full h-[400px] object-cover"
             />
-          ) : (
-            <Canvas className="w-full h-[400px]">
-              <ambientLight intensity={0.5} />
-              <directionalLight position={[10, 10, 5]} intensity={1} />
-              <Suspense fallback={<p>Loading 3D Model...</p>}>
-                <Model url={product.model3DUrl} />
-              </Suspense>
-              <OrbitControls />
-            </Canvas>
-          )}
+          ) : null}
         </div>
 
         {/* Product Info */}
