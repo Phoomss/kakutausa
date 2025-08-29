@@ -10,10 +10,10 @@ export default function ToggleClampModel({ rotation }) {
   
   useEffect(() => {
     if (scene) {
-      console.log("✅ Unnamed1-FA200.gltf loaded successfully!");
-      console.log("Scene:", scene);
-      console.log("Nodes:", nodes ? Object.keys(nodes) : "No nodes");
-      console.log("Materials:", materials ? Object.keys(materials) : "No materials");
+      // console.log("✅ Unnamed1-FA200.gltf loaded successfully!");
+      // console.log("Scene:", scene);
+      // console.log("Nodes:", nodes ? Object.keys(nodes) : "No nodes");
+      // console.log("Materials:", materials ? Object.keys(materials) : "No materials");
       
       // Calculate model dimensions
       const box = new THREE.Box3().setFromObject(scene);

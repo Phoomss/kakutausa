@@ -18,7 +18,7 @@ export default function Model3D() {
 
   // Loader 5 วิ
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 5000);
+    const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
