@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const { PORT } = require('./utils/constants');
+const routRouter = require('./routes/indexx');
+const { initializeAdminUser } = require('./controllers/authController');
 
 const app = express();
 
@@ -19,13 +22,9 @@ app.use(cookieParser());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
-// Define a simple route
-app.get('/', (req, res) => {
-    res.send('Welcome to the backend server!');
-});
+initializeAdminUser();
+app.use('/api', routRouter);
 
-// Start the server
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
