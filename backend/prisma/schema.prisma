@@ -6,10 +6,85 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" 
   url      = env("DATABASE_URL")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model Product {
+  id          Int            @id @default(autoincrement())
+  name        String
+  details     String?
+  description String?
+  categoryId  Int
+  category    Category       @relation(fields: [categoryId], references: [id])
+  sizes       Size[]
+  images      ProductImage[]
+}
+
+model Size {
+  id              Int     @id @default(autoincrement())
+  productId       Int
+  product         Product @relation(fields: [productId], references: [id])
+  holdingCapacity String?
+  weight          String?
+  handleMoves     String?
+  barMoves        String?
+}
+
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  gltfUrl   String? // URL สำหรับไฟล์ GLTF
+  binUrl    String? // URL สำหรับ binary file
+}
+
+model ContentType {
+  id       Int       @id @default(autoincrement())
+  name     String
+  contents Content[]
+}
+
+model Content {
+  id            Int         @id @default(autoincrement())
+  contentTypeId Int
+  contentType   ContentType @relation(fields: [contentTypeId], references: [id])
+  detail        String?
+}
+
+model AddressType {
+  id        Int       @id @default(autoincrement())
+  name      String
+  addresses Address[]
+}
+
+model Address {
+  id            Int         @id @default(autoincrement())
+  addressTypeId Int
+  addressType   AddressType @relation(fields: [addressTypeId], references: [id])
+  address       String
+  phone1        String?
+  phone2        String?
+  email         String?
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  role     Role   @default(USER)
+}
+
+enum Role {
+  ADMIN
+  USER
 }
