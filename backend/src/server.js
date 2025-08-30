@@ -8,6 +8,7 @@ const { initializeAdminUser } = require('./controllers/authController');
 
 const app = express();
 
+app.use(cookieParser())
 app.use(cors(
     {
         origin: '*', 

@@ -88,6 +88,14 @@ exports.login = async (req, res) => {
             email: identifier.email
         }, JWT_SECRET, { expiresIn: '1h' })
 
+        // ส่ง JWT ลง cookie
+        res.cookie('sescoin', jwtToken, {
+            httpOnly: true,   // ป้องกัน JS อ่าน cookie
+            secure: false,    // true ถ้าใช้ HTTPS
+            sameSite: 'lax',  // ป้องกัน CSRF แบบง่าย
+            maxAge: 1000 * 60 * 60 // 1 ชั่วโมง
+        });
+        
         return res.status(200).json({
             message: "Login successful",
             data: {
