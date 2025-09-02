@@ -21,6 +21,17 @@ const login = (loginData) => {
     return http.post('/api/auth/login', payload, { withCredentials: true })
 }
 
-const authService = { login }
+const userInfo = () => {
+    return http.get('/api/auth/user-info', { withCredentials: true });
+}
+
+const logout = () => {
+    return http.post('/api/auth/logout', { withCredentials: true });
+}
+const authService = {
+    login,
+    userInfo,
+    logout
+}
 
 export default authService

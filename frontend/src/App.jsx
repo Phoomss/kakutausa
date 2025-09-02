@@ -12,6 +12,7 @@ import DashboardPage from './pages/admin/DashboardPage'
 import Login from './pages/auth/Login'
 
 import * as ROUTES from './configs/constants'
+import ProtectedRoute from './configs/ProtectedRoute'
 
 function App() {
   return (
@@ -25,9 +26,11 @@ function App() {
       </Route>
 
       <Route path={ROUTES.LOGIN_PATH} element={<Login />} />
-      
-      <Route element={<AdminLayout />}>
-        <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
+
+      <Route element={<ProtectedRoute role="ADMIN" />}>
+        <Route element={<AdminLayout />}>
+          <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
+        </Route>
       </Route>
     </Routes>
   )
