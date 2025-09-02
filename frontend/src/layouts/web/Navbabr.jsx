@@ -8,6 +8,12 @@ import {
 } from 'lucide-react';
 import { NavLink } from 'react-router';
 import logo from "/logo.webp";
+import {
+  HOME_PATH,
+  ABOUT_PATH,
+  CONTACT_PATH,
+  PRODUCTS_PATH,
+} from '../../configs/constants';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -15,18 +21,15 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
-    { name: 'Home', path: '/' },
-    { name: 'About', path: '/about' },
+    { name: 'Home', path: HOME_PATH },
+    { name: 'About', path: ABOUT_PATH },
     {
-      name: 'Products', path: 'products'
-      // submenu: [
-      //   { name: 'All Product', path: '/products' },
-      //   { name: 'Air Clamp', path: '/products/air-clamp' },
-      //   { name: 'Horizontal Handle', path: '/products/horizontal-handle' }
-      // ]
+      name: 'Products',
+      path: PRODUCTS_PATH,
     },
-    { name: 'Contact Us', path: '/contact' }
+    { name: 'Contact Us', path: CONTACT_PATH }
   ];
+
 
   return (
     <div className="w-full">
@@ -87,8 +90,7 @@ const Navbar = () => {
                               key={subIndex}
                               to={item.path}
                               className={({ isActive }) =>
-                                `block px-4 py-2 text-sm transition-colors duration-200 ${
-                                  isActive ? "text-red-600 bg-gray-100" : "text-gray-700 hover:text-red-600 hover:bg-gray-100"
+                                `block px-4 py-2 text-sm transition-colors duration-200 ${isActive ? "text-red-600 bg-gray-100" : "text-gray-700 hover:text-red-600 hover:bg-gray-100"
                                 }`
                               }
                             >
@@ -102,8 +104,7 @@ const Navbar = () => {
                     <NavLink
                       to={category.path}
                       className={({ isActive }) =>
-                        `text-gray-700 hover:text-red-600 font-medium transition-colors duration-200 relative ${
-                          isActive ? "text-red-600" : ""
+                        `text-gray-700 hover:text-red-600 font-medium transition-colors duration-200 relative ${isActive ? "text-red-600" : ""
                         }`
                       }
                     >
@@ -175,8 +176,7 @@ const Navbar = () => {
                             key={subIndex}
                             to={item.path}
                             className={({ isActive }) =>
-                              `block w-full text-left px-3 py-2 text-sm transition-colors duration-200 ${
-                                isActive ? "text-red-600 bg-gray-50" : "text-gray-600 hover:text-red-600 hover:bg-gray-50"
+                              `block w-full text-left px-3 py-2 text-sm transition-colors duration-200 ${isActive ? "text-red-600 bg-gray-50" : "text-gray-600 hover:text-red-600 hover:bg-gray-50"
                               }`
                             }
                           >
@@ -189,8 +189,7 @@ const Navbar = () => {
                     <NavLink
                       to={category.path}
                       className={({ isActive }) =>
-                        `block w-full text-left px-3 py-2 rounded-md transition-colors duration-200 ${
-                          isActive ? "text-red-600 bg-gray-50" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"
+                        `block w-full text-left px-3 py-2 rounded-md transition-colors duration-200 ${isActive ? "text-red-600 bg-gray-50" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"
                         }`
                       }
                     >
