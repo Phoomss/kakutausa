@@ -13,6 +13,7 @@ import Login from './pages/auth/Login'
 
 import * as ROUTES from './configs/constants'
 import ProtectedRoute from './configs/ProtectedRoute'
+import ContentType from './components/admin/tables/ContentType'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
       <Route element={<ProtectedRoute role="ADMIN" />}>
         <Route element={<AdminLayout />}>
           <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
+          <Route path={ROUTES.CONTENTTYPES} element={<ContentType/>}/>
         </Route>
       </Route>
     </Routes>
