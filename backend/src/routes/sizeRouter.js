@@ -9,10 +9,10 @@ const sizeRouter = express.Router();
 sizeRouter.get('/', sizeController.getAllSizes)
 sizeRouter.get('/:id', sizeController.getAllSizes)
 
-sizeRouter.post('/', [adminMiddleware, authMiddleware], sizeController.createSize)
+sizeRouter.post('/', [authMiddleware, adminMiddleware],  sizeController.createSize)
 
-sizeRouter.put('/:id', [adminMiddleware, authMiddleware], sizeController.updateSize)
+sizeRouter.put('/:id', [authMiddleware, adminMiddleware],  sizeController.updateSize)
 
-sizeRouter.delete('/:id', [adminMiddleware, authMiddleware], sizeController.deleteSize)
+sizeRouter.delete('/:id', [authMiddleware, adminMiddleware],  sizeController.deleteSize)
 
 module.exports = sizeRouter

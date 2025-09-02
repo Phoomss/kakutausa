@@ -8,10 +8,10 @@ const contentTypeRouter = express.Router();
 contentTypeRouter.get('/', contentTypeController.getAllContentType)
 contentTypeRouter.get('/:id', contentTypeController.getContentTypeById)
 
-contentTypeRouter.post('/', [adminMiddleware, authMiddleware], contentTypeController.createContentType)
+contentTypeRouter.post('/', [authMiddleware, adminMiddleware], contentTypeController.createContentType)
 
-contentTypeRouter.put('/:id', [adminMiddleware, authMiddleware], contentTypeController.updateContentType)
+contentTypeRouter.put('/:id', [authMiddleware, adminMiddleware], contentTypeController.updateContentType)
 
-contentTypeRouter.delete('/:id', [adminMiddleware, authMiddleware], contentTypeController.deleteContentType)
+contentTypeRouter.delete('/:id', [authMiddleware, adminMiddleware], contentTypeController.deleteContentType)
 
 module.exports = contentTypeRouter;
