@@ -154,3 +154,33 @@ exports.initializeAdminUser = async () => {
         InternalServer(null, error);
     }
 };
+
+exports.userInfo = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ message: "Unauthorized: User not found" });
+        }
+
+        res.status(200).json({ message: "User info retrieved successfully", data: req.user });
+    } catch (error) {
+        InternalServer(res, error);
+    }
+};
+
+exports.logout = async (req, res) => {
+    try {
+        // ลบ cookie sescoin
+        res.cookie('sescoin', '', {
+            httpOnly: true,
+            secure: false, // true ถ้าใช้ HTTPS
+            sameSite: 'lax',
+            maxAge: 0
+        });
+
+        return res.status(200).json({
+            message: "Logout successful"
+        });
+    } catch (error) {
+        InternalServer(res, error);
+    }
+};
