@@ -6,6 +6,8 @@ import AboutPage from './pages/web/AboutPage'
 import ProductPage from './pages/web/ProductPage'
 import ProductDetailPage from './pages/web/ProductDetailPage'
 import Model3D from './components/web/models/Model3D';
+import AdminLayout from './layouts/admin/AdminLayout'
+import DashboardPage from './pages/admin/DashboardPage'
 
 function App() {
   return (
@@ -16,6 +18,10 @@ function App() {
         <Route path="/products" element={<ProductPage />} />
         <Route path="/products/:id" element={<ProductDetailPage />} />
         <Route path="/products/:id/generatemodel" element={<Model3D />} />
+      </Route>
+
+      <Route element={<AdminLayout />}>
+        <Route path='/dashboard' element={<DashboardPage />} />
       </Route>
     </Routes>
   )
