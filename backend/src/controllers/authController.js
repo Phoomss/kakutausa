@@ -99,7 +99,8 @@ exports.login = async (req, res) => {
             {
                 userId: identifier.id,
                 username: identifier.username,
-                email: identifier.email
+                email: identifier.email,
+                role: identifier.role
             },
             JWT_SECRET,
             { expiresIn: '1h' }
@@ -119,6 +120,7 @@ exports.login = async (req, res) => {
                 userId: identifier.id,
                 username: identifier.username,
                 email: identifier.email,
+                role: identifier.role,
                 token: jwtToken
             }
         });

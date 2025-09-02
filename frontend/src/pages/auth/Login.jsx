@@ -36,7 +36,8 @@ const Login = () => {
     }
 
     try {
-      await authService.login(loginData);
+      const res = await authService.login(loginData);
+      localStorage.setItem("userRole", res.data.data.role)
       showAlert("Login successful!", 'success');
       navigate(DASHBOARD);
     } catch (err) {
@@ -52,7 +53,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 relative">
-      
+
       {/* Toast Alert */}
       {alert.message && (
         <div className={`fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl text-white font-medium shadow-lg z-50 transition-all duration-300
