@@ -17,6 +17,9 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
+app.use("/uploads/images", express.static("uploads/images"));
+app.use("/uploads/models", express.static("uploads/models"));
+
 
 // Initialize admin user
 initializeAdminUser();
