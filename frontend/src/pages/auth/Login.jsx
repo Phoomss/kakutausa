@@ -1,6 +1,6 @@
-import { Eye, EyeOff, Mail, User, Lock } from 'lucide-react'
+import { Eye, EyeOff, Mail, User, Lock } from 'lucide-react';
 import logo from "/logo.webp";
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import authService from '../../services/authService';
 import { useNavigate } from 'react-router';
 import { DASHBOARD } from '../../configs/constants';
@@ -12,31 +12,37 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate()
+  const [alert, setAlert] = useState({ message: '', type: '' }); // Alert state
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setLoginData(prev => ({ ...prev, [name]: value }));
-  }
+  };
+
+  const showAlert = (message, type = 'error', duration = 3000) => {
+    setAlert({ message, type });
+    setTimeout(() => setAlert({ message: '', type: '' }), duration);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
     if (!loginData.emailOrUsername || !loginData.password) {
-      setError("Please enter username/email and password");
+      showAlert("Please enter username/email and password", 'error');
       setIsLoading(false);
       return;
     }
 
     try {
-      const res = await authService.login(loginData);
-      navigate(DASHBOARD)
+      await authService.login(loginData);
+      showAlert("Login successful!", 'success');
+      navigate(DASHBOARD);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Login failed");
+      const msg = err.response?.data?.message || "Login failed";
+      showAlert(msg, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +51,16 @@ const Login = () => {
   const isEmailFormat = loginData.emailOrUsername.includes('@');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 relative">
+      
+      {/* Toast Alert */}
+      {alert.message && (
+        <div className={`fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl text-white font-medium shadow-lg z-50 transition-all duration-300
+          ${alert.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+          {alert.message}
+        </div>
+      )}
+
       <div className="w-full max-w-md">
         <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 transition-transform hover:scale-[1.01] duration-300">
           {/* Header */}
@@ -102,13 +117,6 @@ const Login = () => {
               </button>
             </div>
 
-            {/* Error message */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-                <p className="text-red-600 text-sm text-center">{error}</p>
-              </div>
-            )}
-
             {/* Login Button */}
             <button
               type="submit"
@@ -138,7 +146,7 @@ const Login = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Login;

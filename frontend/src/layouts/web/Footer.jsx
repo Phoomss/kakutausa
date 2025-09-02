@@ -1,5 +1,6 @@
 import React from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { LOGIN_PATH } from "../../configs/constants";
 
 const Footer = () => {
   return (
@@ -70,6 +71,11 @@ const Footer = () => {
             <li>
               <a href="/contact" className="hover:text-red-300 transition-colors">
                 Contact Us
+              </a>
+            </li>
+             <li>
+              <a href={LOGIN_PATH} className="hover:text-red-300 transition-colors">
+               Control System
               </a>
             </li>
           </ul>
