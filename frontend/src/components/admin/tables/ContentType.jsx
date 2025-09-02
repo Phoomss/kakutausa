@@ -10,13 +10,16 @@ const ContentType = () => {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5); // Default รายการต่อหน้า
+  const [pageSize, setPageSize] = useState(5);
 
   // Alert state
   const [alert, setAlert] = useState({ message: '', type: '' });
 
   // Confirm delete modal
-  const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, ids: [] });
+
+  // Selected items for bulk delete
+  const [selectedIds, setSelectedIds] = useState([]);
 
   // Show alert
   const showAlert = (message, type = 'success', duration = 3000) => {
@@ -60,17 +63,18 @@ const ContentType = () => {
     }
   };
 
-  // Delete
+  // Delete single or multiple content types
   const deleteContentType = async () => {
     try {
-      await contentService.deleteContentType(confirmDelete.id);
+      await Promise.all(confirmDelete.ids.map(id => contentService.deleteContentType(id)));
       fetchContentTypes();
-      showAlert('Content type deleted successfully!', 'success');
+      showAlert(`${confirmDelete.ids.length} content type(s) deleted successfully!`, 'success');
+      setSelectedIds([]);
     } catch (err) {
       console.error('Error deleting content type:', err);
-      showAlert('Error deleting content type', 'error');
+      showAlert('Error deleting content type(s)', 'error');
     } finally {
-      setConfirmDelete({ open: false, id: null });
+      setConfirmDelete({ open: false, ids: [] });
     }
   };
 
@@ -85,7 +89,23 @@ const ContentType = () => {
   // Handle page size change
   const handlePageSizeChange = (e) => {
     setPageSize(Number(e.target.value));
-    setCurrentPage(1); // reset page to 1
+    setCurrentPage(1);
+  };
+
+  // Handle checkbox change
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  // Handle select all on current page
+  const toggleSelectAll = () => {
+    const pageIds = paginatedData.map(ct => ct.id);
+    const allSelected = pageIds.every(id => selectedIds.includes(id));
+    if (allSelected) {
+      setSelectedIds(prev => prev.filter(id => !pageIds.includes(id)));
+    } else {
+      setSelectedIds(prev => [...new Set([...prev, ...pageIds])]);
+    }
   };
 
   return (
@@ -102,13 +122,15 @@ const ContentType = () => {
 
       {/* Confirm Delete Modal */}
       {confirmDelete.open && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-lg w-96">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Confirm Delete</h3>
-            <p className="mb-6 text-gray-600">Are you sure you want to delete this content type?</p>
+            <p className="mb-6 text-gray-600">
+              Are you sure you want to delete {confirmDelete.ids.length} content type(s)?
+            </p>
             <div className="flex justify-end gap-2">
               <button
-                onClick={() => setConfirmDelete({ open: false, id: null })}
+                onClick={() => setConfirmDelete({ open: false, ids: [] })}
                 className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700"
               >
                 Cancel
@@ -157,23 +179,39 @@ const ContentType = () => {
       </div>
 
       {/* Page size selector */}
-      <div className="flex justify-end items-center gap-2">
-        <label className="text-gray-700">Rows per page:</label>
-        <select
-          value={pageSize}
-          onChange={handlePageSizeChange}
-          className="border border-gray-300 rounded-lg px-2 py-1"
-        >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={50}>50</option>
-        </select>
+      <div className="flex justify-between items-center p-2">
+        <div className="flex items-center gap-2">
+          <label className="text-gray-700">Rows per page:</label>
+          <select
+            value={pageSize}
+            onChange={handlePageSizeChange}
+            className="border border-gray-300 rounded-lg px-2 py-1"
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
+
+        {selectedIds.length > 0 && (
+          <button
+            onClick={() => setConfirmDelete({ open: true, ids: selectedIds })}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-1"
+          >
+            <Trash2 className="w-4 h-4" /> Delete Selected ({selectedIds.length})
+          </button>
+        )}
       </div>
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={paginatedData.every(ct => selectedIds.includes(ct.id))}
+            onChange={toggleSelectAll}
+          />
           <h3 className="text-lg font-semibold">Content Types</h3>
         </div>
         <div className="overflow-x-auto">
@@ -185,15 +223,24 @@ const ContentType = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Select</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {paginatedData.map((ct) => (
+                {paginatedData.map((ct, index) => (
                   <tr key={ct.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm">{ct.id}</td>
+                    <td className="px-6 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(ct.id)}
+                        onChange={() => toggleSelect(ct.id)}
+                      />
+                    </td>
+                    {/* แสดงเลขลำดับแทน ID จริง */}
+                    <td className="px-6 py-4 text-sm">{(currentPage - 1) * pageSize + index + 1}</td>
                     <td className="px-6 py-4 text-sm">{ct.name}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
@@ -204,7 +251,7 @@ const ContentType = () => {
                           <Edit className="w-4 h-4 text-blue-600" />
                         </button>
                         <button
-                          onClick={() => setConfirmDelete({ open: true, id: ct.id })}
+                          onClick={() => setConfirmDelete({ open: true, ids: [ct.id] })}
                           className="p-1 hover:bg-gray-100 rounded"
                         >
                           <Trash2 className="w-4 h-4 text-red-600" />
