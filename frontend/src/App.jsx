@@ -8,6 +8,7 @@ import ProductDetailPage from './pages/web/ProductDetailPage'
 import Model3D from './components/web/models/Model3D';
 import AdminLayout from './layouts/admin/AdminLayout'
 import DashboardPage from './pages/admin/DashboardPage'
+import Login from './pages/auth/Login'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/products/:id/generatemodel" element={<Model3D />} />
       </Route>
 
+      <Route path='/login' element={<Login />} />
       <Route element={<AdminLayout />}>
         <Route path='/dashboard' element={<DashboardPage />} />
       </Route>
