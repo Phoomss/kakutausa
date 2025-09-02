@@ -1,29 +1,33 @@
 import React from 'react'
-import WebLayout from './layouts/web/WebLayout'
 import { Route, Routes } from 'react-router'
+import WebLayout from './layouts/web/WebLayout'
+import AdminLayout from './layouts/admin/AdminLayout'
+
 import HomePage from './pages/web/HomePage'
 import AboutPage from './pages/web/AboutPage'
 import ProductPage from './pages/web/ProductPage'
 import ProductDetailPage from './pages/web/ProductDetailPage'
-import Model3D from './components/web/models/Model3D';
-import AdminLayout from './layouts/admin/AdminLayout'
+import Model3D from './components/web/models/Model3D'
 import DashboardPage from './pages/admin/DashboardPage'
 import Login from './pages/auth/Login'
+
+import * as ROUTES from './configs/constants'
 
 function App() {
   return (
     <Routes>
       <Route element={<WebLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/products" element={<ProductPage />} />
-        <Route path="/products/:id" element={<ProductDetailPage />} />
-        <Route path="/products/:id/generatemodel" element={<Model3D />} />
+        <Route path={ROUTES.HOME_PATH} element={<HomePage />} />
+        <Route path={ROUTES.ABOUT_PATH} element={<AboutPage />} />
+        <Route path={ROUTES.PRODUCTS_PATH} element={<ProductPage />} />
+        <Route path={ROUTES.PRODUCT_DETAIL_PATH} element={<ProductDetailPage />} />
+        <Route path={ROUTES.PRODUCT_3D_PATH} element={<Model3D />} />
       </Route>
 
-      <Route path='/login' element={<Login />} />
+      <Route path={ROUTES.LOGIN_PATH} element={<Login />} />
+      
       <Route element={<AdminLayout />}>
-        <Route path='/dashboard' element={<DashboardPage />} />
+        <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
       </Route>
     </Routes>
   )

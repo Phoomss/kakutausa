@@ -57,57 +57,76 @@ exports.register = async (req, res) => {
 }
 
 exports.login = async (req, res) => {
-    const { username, email, password } = req.body
+    const { login, password } = req.body; // login = username หรือ email
+
     try {
+        if (!login || !password) {
+            return res.status(400).json({
+                message: "Username/email and password are required"
+            });
+        }
+
+        // ตรวจสอบว่า login เป็น email หรือ username
+        const isEmail = login.includes("@");
+
+        // สร้าง where condition
+        const whereConditions = isEmail
+            ? [{ email: login }]
+            : [{ username: login }];
+
         const identifier = await prisma.user.findFirst({
-            where: {
-                OR: [username ? { username } : {}, email ? { email } : {}]
-            }
-        })
+            where: { OR: whereConditions }
+        });
 
         if (!identifier) {
             return res.status(400).json({
                 message: "Invalid username or email"
-            })
+            });
         }
 
         const isPasswordValid = await comparePassword(
             password,
             identifier.password
-        )
+        );
 
         if (!isPasswordValid) {
             return res.status(400).json({
                 message: "Invalid password"
-            })
+            });
         }
 
-        const jwtToken = jwt.sign({
-            userId: identifier.id,
-            username: identifier.username,
-            email: identifier.email
-        }, JWT_SECRET, { expiresIn: '1h' })
+        const jwtToken = jwt.sign(
+            {
+                userId: identifier.id,
+                username: identifier.username,
+                email: identifier.email
+            },
+            JWT_SECRET,
+            { expiresIn: '1h' }
+        );
 
         // ส่ง JWT ลง cookie
         res.cookie('sescoin', jwtToken, {
-            httpOnly: true,   // ป้องกัน JS อ่าน cookie
-            secure: false,    // true ถ้าใช้ HTTPS
-            sameSite: 'lax',  // ป้องกัน CSRF แบบง่าย
-            maxAge: 1000 * 60 * 60 // 1 ชั่วโมง
+            httpOnly: true,
+            secure: false, // true ถ้าใช้ HTTPS
+            sameSite: 'lax',
+            maxAge: 1000 * 60 * 60
         });
-        
+
         return res.status(200).json({
             message: "Login successful",
             data: {
+                userId: identifier.id,
                 username: identifier.username,
                 email: identifier.email,
                 token: jwtToken
             }
-        })
+        });
     } catch (error) {
-        InternalServer(res, error)
+        console.error('Login error:', error);
+        InternalServer(res, error);
     }
-}
+};
 
 exports.initializeAdminUser = async () => {
     try {
