@@ -15,6 +15,7 @@ import * as ROUTES from './configs/constants'
 import ProtectedRoute from './configs/ProtectedRoute'
 import ContentType from './components/admin/tables/ContentType'
 import ContentPage from './pages/admin/ContentPage'
+import AddressATypePage from './pages/admin/AddressATypePage'
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
           <Route path={ROUTES.CONTENTTYPES} element={<ContentType />} />
           <Route path={ROUTES.CONTENTS} element={<ContentPage />} />
+          <Route path={ROUTES.ADDRESSTYPES} element={<AddressATypePage />} />
         </Route>
       </Route>
     </Routes>

@@ -5,7 +5,7 @@ import {
   Home, Users, ShoppingCart, BarChart3, FileText, File, 
   Settings, X, ChevronDown, ChevronUp 
 } from "lucide-react"; // ✅ ใช้ Icon แทน ▲▼
-import { CONTENTTYPES, DASHBOARD, CONTENTS } from "../../configs/constants";
+import { CONTENTTYPES, DASHBOARD, CONTENTS, ADDRESSTYPES } from "../../configs/constants";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const [openSubmenus, setOpenSubmenus] = useState({});
@@ -38,6 +38,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       submenu: [
         { path: CONTENTS, label: 'Contents', icon: File },
         { path: CONTENTTYPES, label: 'Content-types', icon: File },
+         { path: ADDRESSTYPES, label: 'Address-types', icon: File },
       ],
     },
     { path: '/settings', icon: Settings, label: 'Settings' },
