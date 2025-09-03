@@ -17,6 +17,7 @@ import ContentType from './components/admin/tables/ContentType'
 import ContentPage from './pages/admin/ContentPage'
 import AddressATypePage from './pages/admin/AddressATypePage'
 import AddressPage from './pages/admin/AddressPage'
+import CategoryPage from './pages/admin/CategoryPage'
 
 function App() {
   return (
@@ -37,7 +38,8 @@ function App() {
           <Route path={ROUTES.CONTENTTYPES} element={<ContentType />} />
           <Route path={ROUTES.CONTENTS} element={<ContentPage />} />
           <Route path={ROUTES.ADDRESSTYPES} element={<AddressATypePage />} />
-           <Route path={ROUTES.ADDRESS} element={<AddressPage />} />
+          <Route path={ROUTES.ADDRESS} element={<AddressPage />} />
+          <Route path={ROUTES.CATEGORIES} element={<CategoryPage />} />
         </Route>
       </Route>
     </Routes>
