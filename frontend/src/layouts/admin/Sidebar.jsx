@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom"; // ✅ ใช้ react-router-dom
 import authService from "../../services/authService";
-import { 
-  Home, Users, ShoppingCart, BarChart3, FileText, File, 
-  Settings, X, ChevronDown, ChevronUp 
+import {
+  Home, Users, ShoppingCart, BarChart3, FileText, File,
+  Settings, X, ChevronDown, ChevronUp
 } from "lucide-react"; // ✅ ใช้ Icon แทน ▲▼
-import { CONTENTTYPES, DASHBOARD, CONTENTS, ADDRESSTYPES } from "../../configs/constants";
+import { CONTENTTYPES, DASHBOARD, CONTENTS, ADDRESSTYPES, ADDRESS } from "../../configs/constants";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const [openSubmenus, setOpenSubmenus] = useState({});
@@ -38,7 +38,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       submenu: [
         { path: CONTENTS, label: 'Contents', icon: File },
         { path: CONTENTTYPES, label: 'Content-types', icon: File },
-         { path: ADDRESSTYPES, label: 'Address-types', icon: File },
+        { path: ADDRESSTYPES, label: 'Address-types', icon: File },
+        { path: ADDRESS, label: 'Address', icon: File },
       ],
     },
     { path: '/settings', icon: Settings, label: 'Settings' },
@@ -51,9 +52,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
   return (
     <div
-      className={`${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+      className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
     >
       {/* Header */}
       <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
@@ -96,10 +96,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                         to={sub.path}
                         onClick={() => setSidebarOpen(false)}
                         className={({ isActive }) =>
-                          `w-full flex items-center px-12 py-2 text-left hover:bg-gray-100 transition-colors ${
-                            isActive
-                              ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
-                              : 'text-gray-600'
+                          `w-full flex items-center px-12 py-2 text-left hover:bg-gray-100 transition-colors ${isActive
+                            ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
+                            : 'text-gray-600'
                           }`
                         }
                       >
@@ -133,10 +132,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               to={item.path}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
-                `w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
-                    : 'text-gray-600'
+                `w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${isActive
+                  ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
+                  : 'text-gray-600'
                 }`
               }
             >

@@ -8,9 +8,10 @@ exports.createAddress = async (req, res) => {
             return res.status(400).json({ message: "addressTypeId, address, phone1, and email are required" });
         }
 
+        const parseAddressTypeId = parseInt(addressTypeId)
         const newAddress = await prisma.address.create({
             data: {
-                addressTypeId,
+                addressTypeId: parseAddressTypeId,
                 address,
                 phone1,
                 phone2,
@@ -29,21 +30,42 @@ exports.createAddress = async (req, res) => {
 
 exports.getAllAddresses = async (req, res) => {
     try {
-        const addresses = await prisma.address.findMany();
+        const addresses = await prisma.address.findMany({
+            include: {
+                addressType: {
+                    select: {
+                        id: true,
+                        name: true, // ดึงแค่ name
+                    },
+                },
+            },
+            orderBy: {
+                id: 'asc',
+            },
+        });
+
         return res.status(200).json({
             message: "Addresses fetched successfully",
-            data: addresses
+            data: addresses,
         });
     } catch (error) {
-        InternalServer(res, error)
+        InternalServer(res, error);
     }
-}
+};
 
 exports.getAddressById = async (req, res) => {
     const { id } = req.params;
     try {
         const address = await prisma.address.findUnique({
-            where: { id: parseInt(id) }
+            where: { id: parseInt(id) },
+            include: {
+                addressType: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+            },
         });
 
         if (!address) {
@@ -52,12 +74,12 @@ exports.getAddressById = async (req, res) => {
 
         return res.status(200).json({
             message: "Address fetched successfully",
-            data: address
+            data: address,
         });
     } catch (error) {
-        InternalServer(res, error)
+        InternalServer(res, error);
     }
-}
+};
 
 exports.updateAddress = async (req, res) => {
     const { id } = req.params;
