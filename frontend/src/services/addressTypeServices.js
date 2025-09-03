@@ -1,6 +1,6 @@
 import http from './http-common'
 
-const API_URL = '/api/address-types/'
+const API_URL = '/api/address-types'
 
 const getAllAddressTypes = () => {
     return http.get(`${API_URL}`)
