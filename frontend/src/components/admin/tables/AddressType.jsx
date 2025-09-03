@@ -116,9 +116,8 @@ const AddressType = () => {
       {alert.message && (
         <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
           <div
-            className={`alert shadow-lg ${
-              alert.type === 'success' ? 'alert-success' : 'alert-error'
-            }`}
+            className={`alert shadow-lg ${alert.type === 'success' ? 'alert-success' : 'alert-error'
+              }`}
           >
             <span>{alert.message}</span>
           </div>
@@ -212,82 +211,57 @@ const AddressType = () => {
         )}
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={paginatedData.every((at) => selectedIds.includes(at.id))}
-            onChange={toggleSelectAll}
-            aria-label="Select all address types"
-          />
-          <h3 className="text-lg font-semibold">Address Types</h3>
-        </div>
-        <div className="overflow-x-auto">
-          {loading ? (
-            <p className="p-4 text-center">Loading...</p>
-          ) : paginatedData.length === 0 ? (
-            <p className="p-4 text-center text-gray-500">No address types found</p>
-          ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Select
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    #
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {paginatedData.map((at, index) => (
-                  <tr key={at.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        aria-label={`Select address type ${at.name}`}
-                        checked={selectedIds.includes(at.id)}
-                        onChange={() => toggleSelect(at.id)}
-                      />
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      {(currentPage - 1) * pageSize + index + 1}
-                    </td>
-                    <td className="px-6 py-4 text-sm">{at.name}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            setEditingId(at.id);
-                            setName(at.name);
-                          }}
-                          className="p-1 hover:bg-gray-100 rounded"
-                          aria-label="Edit"
-                        >
-                          <Edit className="w-4 h-4 text-blue-600" />
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete({ open: true, ids: [at.id] })}
-                          className="p-1 hover:bg-gray-100 rounded"
-                          aria-label="Delete"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full table-auto border-collapse text-left">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
+                Select
+              </th>
+              <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
+                #
+              </th>
+              <th className="w-8/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
+                Name
+              </th>
+              <th className="w-2/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {paginatedData.map((at, index) => (
+              <tr key={at.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(at.id)}
+                    onChange={() => toggleSelect(at.id)}
+                  />
+                </td>
+                <td className="px-6 py-4 text-sm">{(currentPage - 1) * pageSize + index + 1}</td>
+                <td className="px-6 py-4 text-sm">{at.name}</td>
+                <td className="px-6 py-4 flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingId(at.id);
+                      setName(at.name);
+                    }}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Edit className="w-4 h-4 text-blue-600" />
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete({ open: true, ids: [at.id] })}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
@@ -304,11 +278,8 @@ const AddressType = () => {
               <button
                 key={i + 1}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded-lg ${
-                  currentPage === i + 1
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                }`}
+                className={`px-3 py-1 rounded-lg ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
               >
                 {i + 1}
               </button>
@@ -324,6 +295,7 @@ const AddressType = () => {
           </div>
         )}
       </div>
+
     </div>
   );
 };

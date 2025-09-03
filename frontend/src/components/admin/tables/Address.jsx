@@ -279,24 +279,17 @@ const Address = () => {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
-              <th className="px-6 py-3">
-                <input
-                  type="checkbox"
-                  checked={paginatedData.every((a) => selectedIds.includes(a.id))}
-                  onChange={toggleSelectAll}
-                  aria-label="Select all addresses"
-                />
-              </th>
-              <th className="px-6 py-3">#</th>
-              <th className="px-6 py-3">Office</th>
-              <th className="px-6 py-3">Address</th>
-              <th className="px-6 py-3">Phone 1</th>
-              <th className="px-6 py-3">Phone 2</th>
-              <th className="px-6 py-3">Email</th>
-              <th className="px-6 py-3">Actions</th>
+        <table className="w-full table-auto border-collapse text-left">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Select</th>
+              <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">#</th>
+              <th className="w-2/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Office</th>
+              <th className="w-3/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Address</th>
+              <th className="w-2/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Phone 1</th>
+              <th className="w-2/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Phone 2</th>
+              <th className="w-3/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Email</th>
+              <th className="w-2/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -309,12 +302,12 @@ const Address = () => {
                     onChange={() => toggleSelect(a.id)}
                   />
                 </td>
-                <td className="px-6 py-4">{(currentPage - 1) * pageSize + index + 1}</td>
-                <td className="px-6 py-4">{a.addressType?.name || '-'}</td>
-                <td className="px-6 py-4">{a.address}</td>
-                <td className="px-6 py-4">{a.phone1}</td>
-                <td className="px-6 py-4">{a.phone2}</td>
-                <td className="px-6 py-4">{a.email}</td>
+                <td className="px-6 py-4 text-sm">{(currentPage - 1) * pageSize + index + 1}</td>
+                <td className="px-6 py-4 text-sm">{a.addressType?.name || '-'}</td>
+                <td className="px-6 py-4 text-sm">{a.address}</td>
+                <td className="px-6 py-4 text-sm">{a.phone1}</td>
+                <td className="px-6 py-4 text-sm">{a.phone2}</td>
+                <td className="px-6 py-4 text-sm">{a.email}</td>
                 <td className="px-6 py-4 flex gap-2">
                   <button
                     onClick={() => handleEdit(a)}
@@ -333,6 +326,7 @@ const Address = () => {
             ))}
           </tbody>
         </table>
+
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2 p-4 mt-2">
@@ -365,7 +359,7 @@ const Address = () => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   )
 }
 

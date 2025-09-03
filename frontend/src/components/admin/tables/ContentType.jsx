@@ -205,65 +205,54 @@ const ContentType = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={paginatedData.every(ct => selectedIds.includes(ct.id))}
-            onChange={toggleSelectAll}
-          />
-          <h3 className="text-lg font-semibold">Content Types</h3>
-        </div>
-        <div className="overflow-x-auto">
-          {loading ? (
-            <p className="p-4 text-center">Loading...</p>
-          ) : paginatedData.length === 0 ? (
-            <p className="p-4 text-center text-gray-500">No content types found</p>
-          ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Select</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {paginatedData.map((ct, index) => (
-                  <tr key={ct.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(ct.id)}
-                        onChange={() => toggleSelect(ct.id)}
-                      />
-                    </td>
-                    {/* แสดงเลขลำดับแทน ID จริง */}
-                    <td className="px-6 py-4 text-sm">{(currentPage - 1) * pageSize + index + 1}</td>
-                    <td className="px-6 py-4 text-sm">{ct.name}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => { setEditingId(ct.id); setName(ct.name); }}
-                          className="p-1 hover:bg-gray-100 rounded"
-                        >
-                          <Edit className="w-4 h-4 text-blue-600" />
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete({ open: true, ids: [ct.id] })}
-                          className="p-1 hover:bg-gray-100 rounded"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full table-auto border-collapse text-left">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
+                Select
+              </th>
+              <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
+                #
+              </th>
+              <th className="w-8/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
+                Name
+              </th>
+              <th className="w-2/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {paginatedData.map((ct, index) => (
+              <tr key={ct.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(ct.id)}
+                    onChange={() => toggleSelect(ct.id)}
+                  />
+                </td>
+                <td className="px-6 py-4 text-sm">{(currentPage - 1) * pageSize + index + 1}</td>
+                <td className="px-6 py-4 text-sm">{ct.name}</td>
+                <td className="px-6 py-4 flex gap-2">
+                  <button
+                    onClick={() => { setEditingId(ct.id); setName(ct.name); }}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Edit className="w-4 h-4 text-blue-600" />
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete({ open: true, ids: [ct.id] })}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
@@ -280,7 +269,8 @@ const ContentType = () => {
               <button
                 key={i + 1}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded-lg ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                className={`px-3 py-1 rounded-lg ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
               >
                 {i + 1}
               </button>
@@ -295,7 +285,6 @@ const ContentType = () => {
             </button>
           </div>
         )}
-
       </div>
     </div>
   );
