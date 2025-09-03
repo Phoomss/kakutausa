@@ -12,6 +12,8 @@ export const LOGIN_PATH = "/login";
 
 // System / Adin routes
 export const ADMIN_PATH = "/admin/"
-export const DASHBOARD  = ADMIN_PATH + "dashboard"
-export const CONTENTS  = ADMIN_PATH + "contents"
-export const CONTENTTYPES  = ADMIN_PATH + "contetnt-types"
+export const DASHBOARD = ADMIN_PATH + "dashboard"
+export const CONTENTS = ADMIN_PATH + "contents"
+export const CONTENTTYPES = ADMIN_PATH + "contetnt-types"
+export const ADDRESS = ADMIN_PATH + "address"
+export const ADDRESSTYPES = ADMIN_PATH + "address-types"
