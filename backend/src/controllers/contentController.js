@@ -31,7 +31,6 @@ exports.getContents = async (req, res) => {
     try {
         const contents = await prisma.content.findMany({
             include: { contentType: true },
-            orderBy: { createdAt: "desc" },
         });
 
         return res.json({
@@ -39,7 +38,7 @@ exports.getContents = async (req, res) => {
             data: contents,
         });
     } catch (error) {
-        InternalServer(error, res);
+        InternalServer(res, error);
     }
 };
 
@@ -60,7 +59,7 @@ exports.getContentById = async (req, res) => {
             data: content,
         });
     } catch (error) {
-        InternalServer(error, res);
+        InternalServer(res, error);
     }
 };
 
@@ -87,7 +86,7 @@ exports.updateContent = async (req, res) => {
             data: updated,
         });
     } catch (error) {
-        InternalServer(error, res);
+        InternalServer(res, error);
     }
 };
 
@@ -104,6 +103,6 @@ exports.deleteContent = async (req, res) => {
             message: "Content deleted successfully",
         });
     } catch (error) {
-        InternalServer(error, res);
+        InternalServer(res, error);
     }
 };

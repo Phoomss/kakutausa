@@ -78,8 +78,6 @@ model Content {
   isPublished   Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-
-  @@unique([contentTypeId, language]) // ป้องกันซ้ำในแต่ละภาษา
 }
 
 model AddressType {
