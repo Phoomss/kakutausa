@@ -7,6 +7,7 @@ const addressRouter = require('./addressRouter')
 const productRouter = require('./productRouter')
 const sizeRouter = require('./sizeRouter')
 const contentTypeRouter = require('./contentTypeRouter')
+const contentRouter = require('./contentRouter')
 
 routRouter.use('/auth', authRouter)
 routRouter.use('/categories', categoryRouter)
@@ -15,5 +16,6 @@ routRouter.use('/addresses', addressRouter)
 routRouter.use('/products', productRouter)
 routRouter.use('/sizes', sizeRouter)
 routRouter.use('/content-types', contentTypeRouter)
+routRouter.use('/contents',contentRouter)
 
 module.exports = routRouter
