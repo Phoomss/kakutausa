@@ -2,27 +2,19 @@ const prisma = require("../config/db");
 const InternalServer = require("../utils/internal-server");
 const deleteFile = require("../utils/deleteFile");
 
-// ✅ Create Product
 exports.createProduct = async (req, res) => {
-    const { name, details, description, categoryId } = req.body;
+    const { name, details, description, categoryId, sizes } = req.body;
+
     try {
-        if (!name || !details || !description || !categoryId) {
-            return res
-                .status(400)
-                .json({ message: "name, description, and categoryId are required" });
+        if (!name || !description || !categoryId) {
+            return res.status(400).json({ message: "name, description, and categoryId are required" });
         }
 
         const parseCategoryId = parseInt(categoryId, 10);
-        if (isNaN(parseCategoryId)) {
-            return res.status(400).json({ message: "categoryId must be a valid number" });
-        }
+        if (isNaN(parseCategoryId)) return res.status(400).json({ message: "Invalid categoryId" });
 
-        const category = await prisma.category.findUnique({
-            where: { id: parseCategoryId },
-        });
-        if (!category) {
-            return res.status(404).json({ message: "Category not found" });
-        }
+        const category = await prisma.category.findUnique({ where: { id: parseCategoryId } });
+        if (!category) return res.status(404).json({ message: "Category not found" });
 
         const newProduct = await prisma.product.create({
             data: {
@@ -30,87 +22,65 @@ exports.createProduct = async (req, res) => {
                 details,
                 description,
                 categoryId: parseCategoryId,
+                sizes: sizes
+                    ? {
+                        create: sizes.map((s) => ({
+                            holdingCapacity: s.holdingCapacity,
+                            weight: s.weight,
+                            handleMoves: s.handleMoves,
+                            barMoves: s.barMoves,
+                        }))
+                    }
+                    : undefined,
             },
+            include: { sizes: true, images: true, models: true },
         });
 
-        return res.status(201).json({
-            message: "Product created successfully",
-            data: newProduct,
-        });
+        res.status(201).json({ message: "Product created successfully", data: newProduct });
     } catch (error) {
         InternalServer(res, error);
     }
 };
 
-// ✅ Get all products
 exports.getAllProducts = async (req, res) => {
     try {
         const products = await prisma.product.findMany({
-            include: {
-                images: true,
-                models: true,
-            },
+            include: { sizes: true, images: true, models: true, category: true },
         });
-        return res.status(200).json({
-            message: "Products fetched successfully",
-            data: products,
-        });
+        res.status(200).json({ message: "Products fetched successfully", data: products });
     } catch (error) {
         InternalServer(res, error);
     }
 };
 
-// ✅ Get product by ID
 exports.getProductById = async (req, res) => {
     const { id } = req.params;
     try {
         const product = await prisma.product.findUnique({
             where: { id: parseInt(id) },
-            include: {
-                images: true,
-                models: true,
-            },
+            include: { sizes: true, images: true, models: true, category: true },
         });
-        if (!product) {
-            return res.status(404).json({ message: "Product not found" });
-        }
-
-        return res.status(200).json({
-            message: "Product fetched successfully",
-            data: product,
-        });
+        if (!product) return res.status(404).json({ message: "Product not found" });
+        res.status(200).json({ message: "Product fetched successfully", data: product });
     } catch (error) {
         InternalServer(res, error);
     }
 };
 
-// ✅ Update Product
+//  Update product with optional nested sizes
 exports.updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, details, description, categoryId } = req.body;
-    try {
-        const product = await prisma.product.findUnique({
-            where: { id: parseInt(id) },
-            include: { images: true, models: true },
-        });
+    const { name, details, description, categoryId, sizes } = req.body;
 
-        if (!product) {
-            return res.status(404).json({ message: "Product not found" });
-        }
+    try {
+        const product = await prisma.product.findUnique({ where: { id: parseInt(id) }, include: { sizes: true } });
+        if (!product) return res.status(404).json({ message: "Product not found" });
 
         let parseCategoryId = product.categoryId;
         if (categoryId) {
             parseCategoryId = parseInt(categoryId, 10);
-            if (isNaN(parseCategoryId)) {
-                return res.status(400).json({ message: "categoryId must be a valid number" });
-            }
-
-            const category = await prisma.category.findUnique({
-                where: { id: parseCategoryId },
-            });
-            if (!category) {
-                return res.status(404).json({ message: "Category not found" });
-            }
+            const category = await prisma.category.findUnique({ where: { id: parseCategoryId } });
+            if (!category) return res.status(404).json({ message: "Category not found" });
         }
 
         const updatedProduct = await prisma.product.update({
@@ -120,49 +90,43 @@ exports.updateProduct = async (req, res) => {
                 details: details || product.details,
                 description: description || product.description,
                 categoryId: parseCategoryId,
+                sizes: sizes
+                    ? {
+                        deleteMany: {}, // ลบ sizes เก่าทั้งหมด
+                        create: sizes.map((s) => ({
+                            holdingCapacity: s.holdingCapacity,
+                            weight: s.weight,
+                            handleMoves: s.handleMoves,
+                            barMoves: s.barMoves,
+                        })),
+                    }
+                    : undefined,
             },
+            include: { sizes: true, images: true, models: true },
         });
 
-        return res.status(200).json({
-            message: "Product updated successfully",
-            data: updatedProduct,
-        });
+        res.status(200).json({ message: "Product updated successfully", data: updatedProduct });
     } catch (error) {
         InternalServer(res, error);
     }
 };
 
-// ✅ Delete Product + ลบไฟล์รูป/โมเดล
+// Delete product + related files
 exports.deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
         const product = await prisma.product.findUnique({
             where: { id: parseInt(id) },
-            include: {
-                images: true,
-                models: true,
-            },
+            include: { sizes: true, images: true, models: true },
         });
+        if (!product) return res.status(404).json({ message: "Product not found" });
 
-        if (!product) {
-            return res.status(404).json({ message: "Product not found" });
-        }
-
-        // ลบไฟล์รูป
+        // Delete image/model files
         product.images.forEach((img) => deleteFile(img.imageUrl));
-        // ลบไฟล์โมเดล
-        product.models.forEach((model) => {
-            deleteFile(model.gltfUrl);
-            deleteFile(model.binUrl);
-        });
+        product.models.forEach((model) => { deleteFile(model.gltfUrl); deleteFile(model.binUrl); });
 
-        await prisma.product.delete({
-            where: { id: parseInt(id) },
-        });
-
-        return res.status(200).json({
-            message: "Product deleted successfully",
-        });
+        await prisma.product.delete({ where: { id: parseInt(id) } });
+        res.status(200).json({ message: "Product deleted successfully" });
     } catch (error) {
         InternalServer(res, error);
     }
@@ -171,25 +135,12 @@ exports.deleteProduct = async (req, res) => {
 exports.uploadImage = async (req, res) => {
     const { id } = req.params;
     try {
-        const product = await prisma.product.findUnique({
-            where: { id: parseInt(id) },
-        });
-        if (!product) {
-            return res.status(404).json({ message: "Product not found" });
-        }
+        if (!req.files || req.files.length === 0) return res.status(400).json({ message: "No file uploaded" });
 
-        const imageUrl = `/uploads/images/${req.file.filename}`;
-        const newImage = await prisma.productImage.create({
-            data: {
-                productId: parseInt(id),
-                imageUrl,
-            },
-        });
+        const imagesData = req.files.map((file) => ({ productId: parseInt(id), imageUrl: `/uploads/images/${file.filename}` }));
+        const newImages = await prisma.productImage.createMany({ data: imagesData });
 
-        res.status(201).json({
-            message: "Image uploaded successfully",
-            data: newImage,
-        });
+        res.status(201).json({ message: "Images uploaded successfully", data: newImages });
     } catch (error) {
         InternalServer(res, error);
     }
@@ -198,31 +149,20 @@ exports.uploadImage = async (req, res) => {
 exports.uploadModel = async (req, res) => {
     const { id } = req.params;
     try {
-        const product = await prisma.product.findUnique({
-            where: { id: parseInt(id) },
-        });
-        if (!product) {
-            return res.status(404).json({ message: "Product not found" });
-        }
-
         const gltfFile = req.files["gltf"]?.[0];
         const binFile = req.files["bin"]?.[0];
 
-        const gltfUrl = gltfFile ? `/uploads/models/${gltfFile.filename}` : null;
-        const binUrl = binFile ? `/uploads/models/${binFile.filename}` : null;
+        if (!gltfFile && !binFile) return res.status(400).json({ message: "No files uploaded" });
 
         const newModel = await prisma.productModel.create({
             data: {
                 productId: parseInt(id),
-                gltfUrl,
-                binUrl,
+                gltfUrl: gltfFile ? `/uploads/models/${gltfFile.filename}` : null,
+                binUrl: binFile ? `/uploads/models/${binFile.filename}` : null,
             },
         });
 
-        res.status(201).json({
-            message: "Model uploaded successfully",
-            data: newModel,
-        });
+        res.status(201).json({ message: "Model uploaded successfully", data: newModel });
     } catch (error) {
         InternalServer(res, error);
     }
