@@ -1,18 +1,24 @@
 import http from './http-common'
 
+// ----- API ENDPOINTS -----
+const API = {
+  CONTENTS: '/api/contents',
+  CONTENT_TYPES: '/api/content-types'
+}
+
 // ----- Content -----
-const getAllContents = () => http.get('/api/contents/')
-const getContentById = (id) => http.get(`/api/contents/${id}`)
-const createContent = (data) => http.post('/api/contents/', data)
-const updateContent = (id, data) => http.put(`/api/contents/${id}`, data)
-const deleteContent = (id) => http.delete(`/api/contents/${id}`)
+const getAllContents = () => http.get(`${API.CONTENTS}/`)
+const getContentById = (id) => http.get(`${API.CONTENTS}/${id}`)
+const createContent = (data) => http.post(`${API.CONTENTS}/`, data)
+const updateContent = (id, data) => http.put(`${API.CONTENTS}/${id}`, data)
+const deleteContent = (id) => http.delete(`${API.CONTENTS}/${id}`)
 
 // ----- Content Types -----
-const getAllContentTypes = () => http.get('/api/content-types/')
-const getContentTypeById = (id) => http.get(`/api/content-types/${id}`)
-const createContentType = (data) => http.post('/api/content-types/', data)
-const updateContentType = (id, data) => http.put(`/api/content-types/${id}`, data)
-const deleteContentType = (id) => http.delete(`/api/content-types/${id}`)
+const getAllContentTypes = () => http.get(`${API.CONTENT_TYPES}/`)
+const getContentTypeById = (id) => http.get(`${API.CONTENT_TYPES}/${id}`)
+const createContentType = (data) => http.post(`${API.CONTENT_TYPES}/`, data)
+const updateContentType = (id, data) => http.put(`${API.CONTENT_TYPES}/${id}`, data)
+const deleteContentType = (id) => http.delete(`${API.CONTENT_TYPES}/${id}`)
 
 // ----- Export -----
 const contentService = {
