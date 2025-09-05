@@ -33,6 +33,8 @@ const ProductsManagement = () => {
   const [imageFiles, setImageFiles] = useState([]);
   const [modelFiles, setModelFiles] = useState({ gltf: null, bin: null });
   const [viewProduct, setViewProduct] = useState(null);
+  const [existingImages, setExistingImages] = useState([]);
+  const [existingModels, setExistingModels] = useState({ gltf: null, bin: null });
 
   useEffect(() => {
     fetchProducts();
@@ -215,23 +217,24 @@ const ProductsManagement = () => {
     setShowModal(true);
     if (product) {
       const mappedSizes = product.sizes?.map(s => ({
-        holdingCapacityMetric: s.holdingCapacity,
-        weightMetric: s.weight,
-        handleMovesMetric: s.handleMoves,
-        barMovesMetric: s.barMoves,
-        drawingMovementMetric: s.drawingMovement,
-        holdingCapacityInch: s.holdingCapacity ? (s.holdingCapacity * 2.20462).toFixed(2) : "",
-        weightInch: s.weight ? (s.weight * 2.20462).toFixed(2) : "",
-        handleMovesInch: s.handleMoves,
-        barMovesInch: s.barMoves,
-        drawingMovementInch: s.drawingMovement
+        holdingCapacityMetric: s.holdingCapacityMetric || "",
+        weightMetric: s.weightMetric || "",
+        handleMovesMetric: s.handleMovesMetric || "",
+        barMovesMetric: s.barMovesMetric || "",
+        drawingMovementMetric: s.drawingMovementMetric || "",
+        holdingCapacityInch: s.holdingCapacityInch || "",
+        weightInch: s.weightInch || "",
+        handleMovesInch: s.handleMovesInch || "",
+        barMovesInch: s.barMovesInch || "",
+        drawingMovementInch: s.drawingMovementInch || ""
       }));
+
       setFormData({
         id: product.id,
-        name: product.name,
+        name: product.name || "",
         details: product.details || "",
         description: product.description || "",
-        categoryId: product.categoryId,
+        categoryId: product.categoryId || "",
         sizes: mappedSizes.length ? mappedSizes : [{
           holdingCapacityMetric: "",
           weightMetric: "",
@@ -245,8 +248,16 @@ const ProductsManagement = () => {
           drawingMovementInch: ""
         }]
       });
+
+      // Load existing images and models
+      setExistingImages(product.images || []);
+      setExistingModels(product.models?.[0] || { gltf: null, bin: null }); // ถ้า models เป็น array
+      setImageFiles([]); // reset new uploads
+      setModelFiles({ gltf: null, bin: null });
     } else {
       resetForm();
+      setExistingImages([]);
+      setExistingModels({ gltf: null, bin: null });
     }
   };
 
@@ -416,6 +427,32 @@ const ProductsManagement = () => {
                 {(modelFiles.gltf || modelFiles.bin) && <p className="text-sm text-gray-600 mt-1">{modelFiles.gltf ? '✓ GLTF ' : ''}{modelFiles.bin ? '✓ BIN' : ''}</p>}
               </div>
             </div>
+
+            {/* Existing Images Preview */}
+            {existingImages.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                {existingImages.map(img => (
+                  <div key={img.id} className="relative">
+                    <img src={`${API_IMAGE_URL}${img.imageUrl}`} alt="Product" className="w-full h-24 object-cover rounded" />
+                    <button
+                      type="button"
+                      onClick={() => setExistingImages(prev => prev.filter(i => i.id !== img.id))}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Existing Models Preview */}
+            {(existingModels.gltf || existingModels.bin) && (
+              <div className="mb-2">
+                {existingModels.gltf && <p>GLTF: {existingModels.gltf}</p>}
+                {existingModels.bin && <p>BIN: {existingModels.bin}</p>}
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex justify-end gap-3 pt-4 border-t">
