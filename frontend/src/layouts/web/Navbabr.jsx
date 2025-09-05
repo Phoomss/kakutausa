@@ -14,43 +14,27 @@ import {
   CONTACT_PATH,
   PRODUCTS_PATH,
 } from '../../configs/constants';
+import ContactBanner from '../../components/web/ContactBanner ';
+
+const categories = [
+  { name: 'Home', path: HOME_PATH },
+  { name: 'About', path: ABOUT_PATH },
+  {
+    name: 'Products',
+    path: PRODUCTS_PATH,
+  },
+  { name: 'Contact Us', path: CONTACT_PATH }
+];
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const categories = [
-    { name: 'Home', path: HOME_PATH },
-    { name: 'About', path: ABOUT_PATH },
-    {
-      name: 'Products',
-      path: PRODUCTS_PATH,
-    },
-    { name: 'Contact Us', path: CONTACT_PATH }
-  ];
-
-
   return (
     <div className="w-full">
       {/* Contact Banner */}
-      <div className="bg-red-600 text-white py-2 px-4 text-sm">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-1 md:space-y-0">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <Phone className="w-4 h-4" />
-              <span>US Office: 661-295-2929</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span>Fax: 661-295-0909</span>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Phone className="w-4 h-4" />
-            <span>Japan Office: (06) 6772-6801</span>
-          </div>
-        </div>
-      </div>
+      <ContactBanner />
 
       {/* Main Navbar */}
       <nav className="bg-white shadow-md sticky top-0 z-50">
