@@ -32,7 +32,4 @@ productRouter.post(
   productController.uploadModel
 );
 
-
-module.exports = router;
-
 module.exports = productRouter;

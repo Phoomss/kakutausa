@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, X, Upload, Eye } from "lucide-react";
 import productService from "../../../services/productService";
 import categoryService from "../../../services/categoryService";
 import ViewProductModal from "../props/ViewProductModal";
+import { API_IMAGE_URL } from "../../../configs/constants";
 
 const ProductsManagement = () => {
   const [products, setProducts] = useState([]);
@@ -38,6 +39,55 @@ const ProductsManagement = () => {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const fetchImages = async () => {
+      const updatedProducts = await Promise.all(products.map(async (p) => {
+        const res = await productService.getProductImages(p.id);
+        return { ...p, images: res.data.data };
+      }));
+      setProducts(updatedProducts);
+    };
+
+    fetchImages();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await productService.getAllProducts();
+      const productsData = res.data.data;
+
+      // fetch images + models
+      const updatedProducts = await Promise.all(
+        productsData.map(async (p) => {
+          const imagesRes = await productService.getProductImages(p.id);
+          const modelsRes = await productService.getProductModels(p.id);
+          return {
+            ...p,
+            images: imagesRes.data.data || [],
+            models: modelsRes.data.data || [],
+          };
+        })
+      );
+
+      setProducts(updatedProducts);
+      console.log(
+        updatedProducts.map(p => ({
+          id: p.id,
+          name: p.name,
+          images: p.images.map(img => img.imageUrl),
+          models: p.models.map(m => ({ gltf: m.gltfUrl, bin: m.binUrl }))
+        }))
+      );
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to fetch products.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchCategories = async () => {
     try {
       setLoading(true);
@@ -46,19 +96,6 @@ const ProductsManagement = () => {
     } catch (err) {
       console.error(err);
       alert("Failed to fetch categories.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const res = await productService.getAllProducts();
-      setProducts(res.data.data);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to fetch products.");
     } finally {
       setLoading(false);
     }
@@ -174,12 +211,6 @@ const ProductsManagement = () => {
     }
   };
 
-  const saveSize = (index, type) => {
-    const size = formData.sizes[index];
-    // เรียก API แยก Metric / Imperial
-    console.log(`Saving size ${index} type ${type}:`, size);
-  };
-
   const openModal = (product = null) => {
     setShowModal(true);
     if (product) {
@@ -259,8 +290,12 @@ const ProductsManagement = () => {
               {products.map(p => (
                 <tr key={p.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3">
-                    {p.images?.[0] ? (
-                      <img src={p.images[0].imageUrl} alt={p.name} className="w-12 h-12 object-cover rounded" />
+                    {p.images && p.images.length > 0 ? (
+                      <img
+                        src={`${API_IMAGE_URL}${p.images[0].imageUrl}`}
+                        alt={p.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
                     ) : (
                       <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded">
                         <Upload className="w-5 h-5 text-gray-500" />
