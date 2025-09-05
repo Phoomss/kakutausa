@@ -1,4 +1,10 @@
-import React, { useState, useEffect } from "react";
+// ✅ เพิ่มฟังก์ชัน addSizeRow
+    const addSizeRow = () => {
+        setFormData(prev => ({
+            ...prev,
+            sizes: [...prev.sizes, { inch: "", metric: "" }]
+        }));
+    };import React, { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, X, Upload } from "lucide-react";
 import productService from "../../../services/productService";
 import categoryService from "../../../services/categoryService";
@@ -329,42 +335,99 @@ const ProductsManagement = () => {
 
                         {/* Sizes Section */}
                         <div className="mb-6">
-                            <h4 className="font-semibold mb-3">Product Sizes</h4>
+                            <h4 className="font-semibold mb-4">Product Specifications</h4>
                             {formData.sizes.map((size, index) => (
-                                <div key={index} className="grid grid-cols-5 gap-2 mb-2">
-                                    {[
-                                        { field: "holdingCapacity", placeholder: "Holding Capacity" },
-                                        { field: "weight", placeholder: "Weight" },
-                                        { field: "handleMoves", placeholder: "Handle Moves" },
-                                        { field: "barMoves", placeholder: "Bar Moves" }
-                                    ].map(({ field, placeholder }) => (
-                                        <input
-                                            key={field}
-                                            type="text"
-                                            name={field}
-                                            placeholder={placeholder}
-                                            value={size[field]}
-                                            onChange={(e) => handleSizeChange(index, e)}
-                                            className="border border-gray-300 px-2 py-1 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            disabled={saving}
-                                        />
-                                    ))}
-                                    <button
-                                        onClick={() => removeSizeRow(index)}
-                                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm transition-colors disabled:opacity-50"
-                                        disabled={formData.sizes.length === 1 || saving}
-                                        title="Remove Size"
-                                    >
-                                        <X className="w-3 h-3" />
-                                    </button>
+                                <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h5 className="font-medium text-gray-700">Size {index + 1}</h5>
+                                        <button
+                                            onClick={() => removeSizeRow(index)}
+                                            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm transition-colors disabled:opacity-50"
+                                            disabled={formData.sizes.length === 1 || saving}
+                                            title="Remove Size"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-6">
+                                        {/* Metric Specifications */}
+                                        <div>
+                                            <h6 className="font-medium text-green-600 mb-2">Metric Specifications</h6>
+                                            <div className="space-y-2">
+                                                <input
+                                                    type="text"
+                                                    name="holdingCapacityMetric"
+                                                    placeholder="Holding Capacity (kg) - e.g., 320 kg"
+                                                    value={size.holdingCapacityMetric}
+                                                    onChange={(e) => handleSizeChange(index, e)}
+                                                    className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
+                                                    disabled={saving}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    name="weightMetric"
+                                                    placeholder="Weight (g) - e.g., 215 g"
+                                                    value={size.weightMetric}
+                                                    onChange={(e) => handleSizeChange(index, e)}
+                                                    className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
+                                                    disabled={saving}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    name="drawingMovementMetric"
+                                                    placeholder="Drawing Movement - e.g., 40.50"
+                                                    value={size.drawingMovementMetric}
+                                                    onChange={(e) => handleSizeChange(index, e)}
+                                                    className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
+                                                    disabled={saving}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Imperial Specifications */}
+                                        <div>
+                                            <h6 className="font-medium text-blue-600 mb-2">Imperial Specifications</h6>
+                                            <div className="space-y-2">
+                                                <input
+                                                    type="text"
+                                                    name="holdingCapacityInch"
+                                                    placeholder="Holding Capacity (lbs) - e.g., 700 lbs"
+                                                    value={size.holdingCapacityInch}
+                                                    onChange={(e) => handleSizeChange(index, e)}
+                                                    className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    disabled={saving}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    name="weightInch"
+                                                    placeholder="Weight (lbs) - e.g., 0.47 lbs"
+                                                    value={size.weightInch}
+                                                    onChange={(e) => handleSizeChange(index, e)}
+                                                    className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    disabled={saving}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    name="drawingMovementInch"
+                                                    placeholder="Drawing Movement - e.g., 1.59"
+                                                    value={size.drawingMovementInch}
+                                                    onChange={(e) => handleSizeChange(index, e)}
+                                                    className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    disabled={saving}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                             <button
                                 onClick={addSizeRow}
-                                className="mt-2 px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm transition-colors disabled:opacity-50"
+                                className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center"
                                 disabled={saving}
                             >
-                                + Add Size
+                                <Plus className="w-5 h-5 mr-2" />
+                                Add Another Size Specification
                             </button>
                         </div>
 

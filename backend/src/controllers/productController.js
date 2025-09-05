@@ -29,6 +29,7 @@ exports.createProduct = async (req, res) => {
                             weight: s.weight,
                             handleMoves: s.handleMoves,
                             barMoves: s.barMoves,
+                            drawingMovement: s.drawingMovement
                         }))
                     }
                     : undefined,
@@ -98,6 +99,7 @@ exports.updateProduct = async (req, res) => {
                             weight: s.weight,
                             handleMoves: s.handleMoves,
                             barMoves: s.barMoves,
+                            drawingMovement: s.drawingMovement
                         })),
                     }
                     : undefined,
