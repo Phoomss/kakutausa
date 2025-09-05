@@ -14,7 +14,7 @@ generator client {
 // }
 
 datasource db {
-  provider = "mysql" 
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -25,15 +25,15 @@ model Category {
 }
 
 model Product {
-  id          Int              @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   name        String
   details     String?
   description String?
   categoryId  Int
-  category    Category         @relation(fields: [categoryId], references: [id])
+  category    Category       @relation(fields: [categoryId], references: [id])
   sizes       Size[]
-  images      ProductImage[]   // เก็บหลายรูปภาพ
-  models      ProductModel[]   // เก็บไฟล์ GLTF/BIN
+  images      ProductImage[] // เก็บหลายรูปภาพ
+  models      ProductModel[] // เก็บไฟล์ GLTF/BIN
 }
 
 model Size {
@@ -44,13 +44,14 @@ model Size {
   weight          String?
   handleMoves     String?
   barMoves        String?
+  drawingMovement String?
 }
 
 model ProductImage {
   id        Int     @id @default(autoincrement())
   productId Int
   product   Product @relation(fields: [productId], references: [id])
-  imageUrl  String  // URL ของรูปภาพ
+  imageUrl  String // URL ของรูปภาพ
 }
 
 model ProductModel {
@@ -71,10 +72,10 @@ model Content {
   id            Int         @id @default(autoincrement())
   contentTypeId Int
   contentType   ContentType @relation(fields: [contentTypeId], references: [id])
-  language      String      // เช่น "en", "ja", "th"
+  language      String // เช่น "en", "ja", "th"
   title         String?
   detail        String?
-  imageUrl      String?     // ถ้ามีภาพประกอบ
+  imageUrl      String? // ถ้ามีภาพประกอบ
   isPublished   Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -90,16 +91,15 @@ model Address {
   id            Int         @id @default(autoincrement())
   addressTypeId Int
   addressType   AddressType @relation(fields: [addressTypeId], references: [id])
-  
-  address       String      // ที่อยู่บริษัท
-  phone1        String?
-  phone2        String?
-  email         String?
 
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  address String // ที่อยู่บริษัท
+  phone1  String?
+  phone2  String?
+  email   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
 
 model User {
   id       Int    @id @default(autoincrement())

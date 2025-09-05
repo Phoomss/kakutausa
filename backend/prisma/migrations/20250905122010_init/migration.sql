@@ -25,6 +25,7 @@ CREATE TABLE `Size` (
     `weight` VARCHAR(191) NULL,
     `handleMoves` VARCHAR(191) NULL,
     `barMoves` VARCHAR(191) NULL,
+    `drawingMovement` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -69,7 +70,6 @@ CREATE TABLE `Content` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Content_contentTypeId_language_key`(`contentTypeId`, `language`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
