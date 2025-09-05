@@ -45,18 +45,62 @@ exports.getContents = async (req, res) => {
 exports.getContentById = async (req, res) => {
     try {
         const { id } = req.params;
+        const parsedId = parseInt(id, 10);
+
+        // ตรวจสอบว่า id เป็นตัวเลขจริงหรือไม่
+        if (isNaN(parsedId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid content ID",
+            });
+        }
+
         const content = await prisma.content.findUnique({
-            where: { id: Number(id) },
+            where: { id: parsedId },
             include: { contentType: true },
         });
 
         if (!content) {
-            return res.status(404).json({ success: false, message: "Content not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Content not found",
+            });
         }
 
         return res.json({
             success: true,
             data: content,
+        });
+    } catch (error) {
+        InternalServer(res, error);
+    }
+};
+
+exports.getContentsByType = async (req, res) => {
+    try {
+        const { contentType } = req.query;
+
+        const whereClause = {};
+        if (contentType) {
+            whereClause.contentType = {
+                name: { equals: contentType }
+            };
+        }
+
+        const query = await prisma.content.findMany({
+            where: whereClause,
+            include: {
+                contentType: true,
+            },
+        });
+
+        if (query.length === 0) {
+            return res.status(404).json({ success: false, message: "Content not found" });
+        }
+
+        return res.json({
+            success: true,
+            data: query,
         });
     } catch (error) {
         InternalServer(res, error);

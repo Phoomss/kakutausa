@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import aboutImage from "/about.webp"; // เปลี่ยนเป็น path รูปจริงของคุณ
 
 const AboutPage = () => {

@@ -6,6 +6,7 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const contentRouter = express.Router();
 
 contentRouter.get("/", contentController.getContents);
+contentRouter.get("/search", contentController.getContentsByType)
 contentRouter.get("/:id", contentController.getContentById);
 
 contentRouter.post(
