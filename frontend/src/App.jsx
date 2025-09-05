@@ -18,6 +18,7 @@ import ContentPage from './pages/admin/ContentPage'
 import AddressATypePage from './pages/admin/AddressATypePage'
 import AddressPage from './pages/admin/AddressPage'
 import CategoryPage from './pages/admin/CategoryPage'
+import ProductPageAdmin from './pages/admin/ProductPageAdmin'
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
           <Route path={ROUTES.ADDRESSTYPES} element={<AddressATypePage />} />
           <Route path={ROUTES.ADDRESS} element={<AddressPage />} />
           <Route path={ROUTES.CATEGORIES} element={<CategoryPage />} />
+          <Route path={ROUTES.PRODUCTS} element={<ProductPageAdmin />} />
         </Route>
       </Route>
     </Routes>

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import authService from "../../services/authService";
-import { Home, BarChart3, FileText, File, Layers, Tag, X, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
-import { CONTENTTYPES, DASHBOARD, CONTENTS, ADDRESSTYPES, ADDRESS, CATEGORIES } from "../../configs/constants";
+import { Home, BarChart3, FileText, File, Layers, Tag, X, MapPin, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { CONTENTTYPES, DASHBOARD, CONTENTS, ADDRESSTYPES, ADDRESS, CATEGORIES, PRODUCTS } from "../../configs/constants";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const [openSubmenus, setOpenSubmenus] = useState({});
@@ -26,32 +26,33 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
 
 
-const sidebarItems = [
-  { path: DASHBOARD, icon: Home, label: 'Dashboard' }, // หน้าแดชบอร์ด
-  { path: '/analytics', icon: BarChart3, label: 'Analytics' }, // กราฟ/สถิติ
-  {
-    icon: Layers, // Content management group icon
-    label: 'Content Management',
-    submenu: [
-      { path: CONTENTS, label: 'Contents', icon: FileText }, // เนื้อหา
-      { path: CONTENTTYPES, label: 'Content-types', icon: Tag }, // ประเภทเนื้อหา
-      { path: ADDRESSTYPES, label: 'Address-types', icon: MapPin }, // ประเภทที่อยู่
-      { path: ADDRESS, label: 'Address', icon: MapPin }, // ที่อยู่
-    ],
-  },
-  {
-    icon: Layers, // Products management group icon
-    label: 'Products Management',
-    submenu: [
-      { path: CATEGORIES, label: 'Categories', icon: Tag }, // หมวดหมู่สินค้า
-    ],
-  },
-  {
-    label: 'Logout',
-    icon: X,
-    action: logout, // ออกจากระบบ
-  }
-];
+  const sidebarItems = [
+    { path: DASHBOARD, icon: Home, label: 'Dashboard' }, // หน้าแดชบอร์ด
+    { path: '/analytics', icon: BarChart3, label: 'Analytics' }, // กราฟ/สถิติ
+    {
+      icon: Layers, // Content management group icon
+      label: 'Content Management',
+      submenu: [
+        { path: CONTENTS, label: 'Contents', icon: FileText }, // เนื้อหา
+        { path: CONTENTTYPES, label: 'Content-types', icon: Tag }, // ประเภทเนื้อหา
+        { path: ADDRESSTYPES, label: 'Address-types', icon: MapPin }, // ประเภทที่อยู่
+        { path: ADDRESS, label: 'Address', icon: MapPin }, // ที่อยู่
+      ],
+    },
+    {
+      icon: Layers,
+      label: 'Products Management',
+      submenu: [
+        { path: CATEGORIES, label: 'Categories', icon: Tag },
+        { path: PRODUCTS, label: 'Products', icon: Package },
+      ],
+    },
+    {
+      label: 'Logout',
+      icon: X,
+      action: logout, // ออกจากระบบ
+    }
+  ];
 
 
   return (
