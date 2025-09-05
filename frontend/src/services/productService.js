@@ -24,7 +24,7 @@ const deleteProduct = (id) => {
 
 const uploadProductImage = (id, file) => {
   const formData = new FormData();
-  formData.append("image", file);
+  formData.append("images", file);
 
   return http.post(`${API_URL}/${id}/images`, formData, {
     headers: { "Content-Type": "multipart/form-data" },

@@ -2,13 +2,27 @@ const prisma = require("../config/db");
 const InternalServer = require("../utils/internal-server");
 const deleteFile = require("../utils/deleteFile");
 
+// Map sizes for database (save metric & imperial separately if needed)
+const mapSizesForDB = (sizes) => sizes.map((s) => ({
+    holdingCapacityMetric: s.holdingCapacityMetric || null,
+    weightMetric: s.weightMetric || null,
+    handleMovesMetric: s.handleMovesMetric || null,
+    barMovesMetric: s.barMovesMetric || null,
+    drawingMovementMetric: s.drawingMovementMetric || null,
+
+    holdingCapacityInch: s.holdingCapacityInch || null,
+    weightInch: s.weightInch || null,
+    handleMovesInch: s.handleMovesInch || null,
+    barMovesInch: s.barMovesInch || null,
+    drawingMovementInch: s.drawingMovementInch || null,
+}));
+
+// Create Product
 exports.createProduct = async (req, res) => {
     const { name, details, description, categoryId, sizes } = req.body;
-
     try {
-        if (!name || !description || !categoryId) {
+        if (!name || !description || !categoryId)
             return res.status(400).json({ message: "name, description, and categoryId are required" });
-        }
 
         const parseCategoryId = parseInt(categoryId, 10);
         if (isNaN(parseCategoryId)) return res.status(400).json({ message: "Invalid categoryId" });
@@ -22,17 +36,7 @@ exports.createProduct = async (req, res) => {
                 details,
                 description,
                 categoryId: parseCategoryId,
-                sizes: sizes
-                    ? {
-                        create: sizes.map((s) => ({
-                            holdingCapacity: s.holdingCapacity,
-                            weight: s.weight,
-                            handleMoves: s.handleMoves,
-                            barMoves: s.barMoves,
-                            drawingMovement: s.drawingMovement
-                        }))
-                    }
-                    : undefined,
+                sizes: sizes ? { create: mapSizesForDB(sizes) } : undefined,
             },
             include: { sizes: true, images: true, models: true },
         });
@@ -43,6 +47,7 @@ exports.createProduct = async (req, res) => {
     }
 };
 
+// Get all products
 exports.getAllProducts = async (req, res) => {
     try {
         const products = await prisma.product.findMany({
@@ -54,6 +59,7 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
+// Get product by ID
 exports.getProductById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -68,7 +74,7 @@ exports.getProductById = async (req, res) => {
     }
 };
 
-//  Update product with optional nested sizes
+// Update product (including optional nested sizes)
 exports.updateProduct = async (req, res) => {
     const { id } = req.params;
     const { name, details, description, categoryId, sizes } = req.body;
@@ -91,18 +97,7 @@ exports.updateProduct = async (req, res) => {
                 details: details || product.details,
                 description: description || product.description,
                 categoryId: parseCategoryId,
-                sizes: sizes
-                    ? {
-                        deleteMany: {}, // ลบ sizes เก่าทั้งหมด
-                        create: sizes.map((s) => ({
-                            holdingCapacity: s.holdingCapacity,
-                            weight: s.weight,
-                            handleMoves: s.handleMoves,
-                            barMoves: s.barMoves,
-                            drawingMovement: s.drawingMovement
-                        })),
-                    }
-                    : undefined,
+                sizes: sizes ? { create: mapSizesForDB(sizes) } : undefined,
             },
             include: { sizes: true, images: true, models: true },
         });
@@ -116,6 +111,7 @@ exports.updateProduct = async (req, res) => {
 // Delete product + related files
 exports.deleteProduct = async (req, res) => {
     const { id } = req.params;
+
     try {
         const product = await prisma.product.findUnique({
             where: { id: parseInt(id) },
@@ -123,23 +119,37 @@ exports.deleteProduct = async (req, res) => {
         });
         if (!product) return res.status(404).json({ message: "Product not found" });
 
-        // Delete image/model files
+        // Delete files from server
         product.images.forEach((img) => deleteFile(img.imageUrl));
-        product.models.forEach((model) => { deleteFile(model.gltfUrl); deleteFile(model.binUrl); });
+        product.models.forEach((model) => {
+            if (model.gltfUrl) deleteFile(model.gltfUrl);
+            if (model.binUrl) deleteFile(model.binUrl);
+        });
 
+        // Delete related records
+        await prisma.productImage.deleteMany({ where: { productId: parseInt(id) } });
+        await prisma.productModel.deleteMany({ where: { productId: parseInt(id) } });
+        await prisma.size.deleteMany({ where: { productId: parseInt(id) } });
+
+        // Delete product
         await prisma.product.delete({ where: { id: parseInt(id) } });
+
         res.status(200).json({ message: "Product deleted successfully" });
     } catch (error) {
         InternalServer(res, error);
     }
 };
 
+// Upload images
 exports.uploadImage = async (req, res) => {
     const { id } = req.params;
     try {
         if (!req.files || req.files.length === 0) return res.status(400).json({ message: "No file uploaded" });
 
-        const imagesData = req.files.map((file) => ({ productId: parseInt(id), imageUrl: `/uploads/images/${file.filename}` }));
+        const imagesData = req.files.map((file) => ({
+            productId: parseInt(id),
+            imageUrl: `/uploads/images/${file.filename}`,
+        }));
         const newImages = await prisma.productImage.createMany({ data: imagesData });
 
         res.status(201).json({ message: "Images uploaded successfully", data: newImages });
@@ -148,6 +158,7 @@ exports.uploadImage = async (req, res) => {
     }
 };
 
+// Upload 3D model
 exports.uploadModel = async (req, res) => {
     const { id } = req.params;
     try {
