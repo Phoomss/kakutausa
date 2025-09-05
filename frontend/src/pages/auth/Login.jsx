@@ -2,7 +2,7 @@ import { Eye, EyeOff, Mail, User, Lock } from 'lucide-react';
 import logo from "/logo.webp";
 import React, { useState } from 'react';
 import authService from '../../services/authService';
-import { useNavigate } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import { DASHBOARD } from '../../configs/constants';
 
 const Login = () => {
@@ -140,10 +140,11 @@ const Login = () => {
             <div className="flex-grow border-t border-gray-200"></div>
           </div>
 
-          {/* Back to Website */}
-          <button className="w-full py-3 bg-white hover:bg-gray-50 text-gray-700 font-light rounded-2xl transition-all duration-200 border border-gray-200">
-            Back To Website
-          </button>
+          <NavLink to="/" className="w-full">
+            <button className="w-full py-3 bg-white hover:bg-gray-50 text-gray-700 font-light rounded-2xl transition-all duration-200 border border-gray-200">
+              Back To Website
+            </button>
+          </NavLink>
         </div>
       </div>
     </div>
