@@ -10,6 +10,8 @@ productRouter.post("/", [authMiddleware, adminMiddleware], productController.cre
 
 productRouter.get("/", productController.getAllProducts);
 productRouter.get("/:id", productController.getProductById);
+productRouter.get("/:id/images", productController.getProductImages);
+productRouter.get("/:id/models", productController.getProductModels);
 
 productRouter.put("/:id", [authMiddleware, adminMiddleware], productController.updateProduct);
 productRouter.delete("/:id", [authMiddleware, adminMiddleware], productController.deleteProduct);
@@ -29,5 +31,8 @@ productRouter.post(
   upload.fields([{ name: "gltf" }, { name: "bin" }]),
   productController.uploadModel
 );
+
+
+module.exports = router;
 
 module.exports = productRouter;

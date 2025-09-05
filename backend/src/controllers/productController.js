@@ -80,7 +80,7 @@ exports.getProductImages = async (req, res) => {
     try {
         const images = await prisma.productImage.findMany({
             where: { productId: parseInt(id) },
-            select: { images: true }
+            select: { imageUrl: true } // แก้จาก images -> imageUrl
         });
 
         if (!images || images.length === 0)
@@ -98,7 +98,7 @@ exports.getProductModels = async (req, res) => {
     try {
         const models = await prisma.productModel.findMany({
             where: { productId: parseInt(id) },
-            select: { models: true }
+            select: { gltfUrl: true, binUrl: true } // แก้จาก models -> gltfUrl/binUrl
         });
 
         if (!models || models.length === 0)
@@ -145,36 +145,36 @@ exports.updateProduct = async (req, res) => {
 };
 
 exports.deleteProduct = async (req, res) => {
-  const { id } = req.params;
+    const { id } = req.params;
 
-  try {
-    const product = await prisma.product.findUnique({
-      where: { id: parseInt(id) },
-      include: { sizes: true, images: true, models: true },
-    });
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    try {
+        const product = await prisma.product.findUnique({
+            where: { id: parseInt(id) },
+            include: { sizes: true, images: true, models: true },
+        });
+        if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // Delete files from server (await)
-    await Promise.all([
-      ...product.images.map(img => deleteFile(img.imageUrl)),
-      ...product.models.flatMap(model => [
-        model.gltfUrl ? deleteFile(model.gltfUrl) : null,
-        model.binUrl ? deleteFile(model.binUrl) : null,
-      ]).filter(Boolean)
-    ]);
+        // Delete files from server (await)
+        await Promise.all([
+            ...product.images.map(img => deleteFile(img.imageUrl)),
+            ...product.models.flatMap(model => [
+                model.gltfUrl ? deleteFile(model.gltfUrl) : null,
+                model.binUrl ? deleteFile(model.binUrl) : null,
+            ]).filter(Boolean)
+        ]);
 
-    // Delete related records
-    await prisma.productImage.deleteMany({ where: { productId: parseInt(id) } });
-    await prisma.productModel.deleteMany({ where: { productId: parseInt(id) } });
-    await prisma.size.deleteMany({ where: { productId: parseInt(id) } });
+        // Delete related records
+        await prisma.productImage.deleteMany({ where: { productId: parseInt(id) } });
+        await prisma.productModel.deleteMany({ where: { productId: parseInt(id) } });
+        await prisma.size.deleteMany({ where: { productId: parseInt(id) } });
 
-    // Delete product
-    await prisma.product.delete({ where: { id: parseInt(id) } });
+        // Delete product
+        await prisma.product.delete({ where: { id: parseInt(id) } });
 
-    res.status(200).json({ message: "Product deleted successfully" });
-  } catch (error) {
-    InternalServer(res, error);
-  }
+        res.status(200).json({ message: "Product deleted successfully" });
+    } catch (error) {
+        InternalServer(res, error);
+    }
 };
 ;
 

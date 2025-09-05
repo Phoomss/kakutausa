@@ -41,6 +41,14 @@ const uploadProductModel = (id, gltfFile, binFile) => {
   });
 };
 
+const getProductImages = (id) => {
+  return http.get(`${API_URL}/${id}/images`);
+};
+
+const getProductModels = (id) => {
+  return http.get(`${API_URL}/${id}/models`);
+};
+
 const productService = {
   getAllProducts,
   getProductById,
@@ -49,6 +57,8 @@ const productService = {
   deleteProduct,
   uploadProductImage,
   uploadProductModel,
+  getProductImages,
+  getProductModels,
 };
 
 export default productService;
