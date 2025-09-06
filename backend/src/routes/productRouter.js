@@ -8,7 +8,7 @@ const productRouter = express.Router();
 
 productRouter.post("/", [authMiddleware, adminMiddleware], productController.createProduct);
 
-productRouter.get("/search", productController.getProductByCategory)
+productRouter.get("/search", productController.getProductByCategory); 
 productRouter.get("/", productController.getAllProducts);
 productRouter.get("/:id", productController.getProductById);
 productRouter.get("/:id/images", productController.getProductImages);

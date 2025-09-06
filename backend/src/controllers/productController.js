@@ -48,7 +48,7 @@ exports.createProduct = async (req, res) => {
 
 exports.getProductByCategory = async (req, res) => {
     try {
-        const { category } = req.query; 
+        const { category } = req.query;
 
         let products;
 
@@ -60,8 +60,8 @@ exports.getProductByCategory = async (req, res) => {
                     }
                 },
                 include: {
-                    category: true,  
-                    images: true      
+                    category: true,
+                    images: true
                 }
             });
         } else {
@@ -237,8 +237,8 @@ exports.uploadModel = async (req, res) => {
         const gltfFile = req.files["gltf"]?.[0];
         const binFile = req.files["bin"]?.[0];
 
-        if (!gltfFile || !binFile) 
-          return res.status(400).json({ message: "Both GLTF and BIN files are required" });
+        if (!gltfFile || !binFile)
+            return res.status(400).json({ message: "Both GLTF and BIN files are required" });
 
         const newModel = await prisma.productModel.create({
             data: {
