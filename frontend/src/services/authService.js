@@ -28,10 +28,16 @@ const userInfo = () => {
 const logout = () => {
     return http.post('/api/auth/logout', { withCredentials: true });
 }
+
+const updateProfile = (payload) => {
+    return http.put('/api/auth/update-profile', payload, { withCredentials: true });
+};
+
 const authService = {
     login,
     userInfo,
-    logout
+    logout,
+    updateProfile
 }
 
 export default authService

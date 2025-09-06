@@ -10,4 +10,6 @@ authRouter.post('/logout', authController.logout);
 
 authRouter.get('/user-info', authMiddleware, authController.userInfo);
 
+authRouter.put('/update-profile', authMiddleware, authController.updateProfile);
+
 module.exports = authRouter;
