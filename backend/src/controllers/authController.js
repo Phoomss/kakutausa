@@ -109,8 +109,8 @@ exports.login = async (req, res) => {
         // ส่ง JWT ลง cookie
         res.cookie('sescoin', jwtToken, {
             httpOnly: true,
-            secure: true, // true ถ้าใช้ HTTPS
-            sameSite: 'lax',
+            secure: true,       // ✅ ต้อง true บน HTTPS
+            sameSite: 'none',   // ✅ ต้อง none สำหรับ cross-origin
             maxAge: 1000 * 60 * 60
         });
 
@@ -170,11 +170,11 @@ exports.userInfo = async (req, res) => {
 exports.logout = async (req, res) => {
     try {
         // ลบ cookie sescoin
-        res.cookie('sescoin', '', {
+        res.cookie('sescoin', jwtToken, {
             httpOnly: true,
-            secure: true, // true ถ้าใช้ HTTPS
-            sameSite: 'lax',
-            maxAge: 0
+            secure: true,       // ✅ ต้อง true บน HTTPS
+            sameSite: 'none',   // ✅ ต้อง none สำหรับ cross-origin
+            maxAge: 1000 * 60 * 60
         });
 
         return res.status(200).json({
