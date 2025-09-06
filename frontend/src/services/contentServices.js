@@ -7,13 +7,12 @@ const API = {
 }
 
 // ----- Content -----
+const searchContentsByType = (contentType) => http.get(`${API.CONTENTS}/search`, { params: { contentType } });
 const getAllContents = () => http.get(`${API.CONTENTS}/`)
 const getContentById = (id) => http.get(`${API.CONTENTS}/${id}`)
 const createContent = (data) => http.post(`${API.CONTENTS}/`, data)
 const updateContent = (id, data) => http.put(`${API.CONTENTS}/${id}`, data)
 const deleteContent = (id) => http.delete(`${API.CONTENTS}/${id}`)
-const searchContentsByType = (contentType) =>
-  http.get(`${API.CONTENTS}/search`, { params: { contentType } });
 
 // ----- Content Types -----
 const getAllContentTypes = () => http.get(`${API.CONTENT_TYPES}/`)
