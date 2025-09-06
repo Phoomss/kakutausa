@@ -53,6 +53,7 @@ const getProductModels = (id) => {
 
 const productService = {
   getAllProducts,
+  searchProductByCategory,
   getProductById,
   createProduct,
   updateProduct,
