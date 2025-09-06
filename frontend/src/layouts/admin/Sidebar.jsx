@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import authService from "../../services/authService";
-import { Home, BarChart3, FileText, File, Layers, Tag, X, MapPin, ChevronDown, ChevronUp, Package } from 'lucide-react';
-import { CONTENTTYPES, DASHBOARD, CONTENTS, ADDRESSTYPES, ADDRESS, CATEGORIES, PRODUCTS } from "../../configs/constants";
+import {
+  Home, BarChart3, FileText, Layers, Tag, X,
+  MapPin, ChevronDown, ChevronUp, Package, LogOut,
+  User2
+} from 'lucide-react';
+import { CONTENTTYPES, DASHBOARD, CONTENTS, ADDRESSTYPES, ADDRESS, CATEGORIES, PRODUCTS, PROFILE } from "../../configs/constants";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const [openSubmenus, setOpenSubmenus] = useState({});
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   const logout = async () => {
@@ -24,19 +29,33 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     }));
   };
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await authService.userInfo();
+        setUser(res.data.data);
+      } catch (err) {
+        console.error("Failed to fetch user info:", err);
+      }
+    };
+    fetchUser();
+  }, []);
 
+  const getInitials = (name) => {
+    if (!name) return "?";
+    return name.charAt(0).toUpperCase();
+  };
 
   const sidebarItems = [
-    { path: DASHBOARD, icon: Home, label: 'Dashboard' }, // หน้าแดชบอร์ด
-    { path: '/analytics', icon: BarChart3, label: 'Analytics' }, // กราฟ/สถิติ
+    { path: DASHBOARD, icon: Home, label: 'Dashboard' },
     {
-      icon: Layers, // Content management group icon
+      icon: Layers,
       label: 'Content Management',
       submenu: [
-        { path: CONTENTS, label: 'Contents', icon: FileText }, // เนื้อหา
-        { path: CONTENTTYPES, label: 'Content-types', icon: Tag }, // ประเภทเนื้อหา
-        { path: ADDRESSTYPES, label: 'Address-types', icon: MapPin }, // ประเภทที่อยู่
-        { path: ADDRESS, label: 'Address', icon: MapPin }, // ที่อยู่
+        { path: CONTENTS, label: 'Contents', icon: FileText },
+        { path: CONTENTTYPES, label: 'Content-types', icon: Tag },
+        { path: ADDRESSTYPES, label: 'Address-types', icon: MapPin },
+        { path: ADDRESS, label: 'Address', icon: MapPin },
       ],
     },
     {
@@ -47,13 +66,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { path: PRODUCTS, label: 'Products', icon: Package },
       ],
     },
-    {
-      label: 'Logout',
-      icon: X,
-      action: logout, // ออกจากระบบ
-    }
+    { path: PROFILE, icon: User2, label: 'Profile' },
   ];
-
 
   return (
     <div
@@ -71,12 +85,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         </button>
       </div>
 
+      {/* Profile Section */}
+      <div className="flex items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+          {getInitials(user?.username)}
+        </div>
+        <div className="ml-3">
+          <p className="text-gray-800 font-medium">{user?.username || "Loading..."}</p>
+          <p className="text-gray-500 text-sm">{user?.email || ""}</p>
+        </div>
+      </div>
+
       {/* Navigation */}
-      <nav className="mt-8">
+      <nav className="mt-4">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
 
-          // Submenu
           if (item.submenu) {
             return (
               <div key={item.label} className="mb-1">
@@ -116,21 +140,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             );
           }
 
-          // Logout
-          if (item.action) {
-            return (
-              <button
-                key={item.label}
-                onClick={item.action}
-                className="w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors text-gray-600"
-              >
-                {Icon && <Icon className="w-5 h-5 mr-3" />}
-                {item.label}
-              </button>
-            );
-          }
-
-          // Normal Link
           return (
             <NavLink
               key={item.path}
@@ -148,6 +157,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             </NavLink>
           );
         })}
+
+        {/* Logout */}
+        <button
+          onClick={logout}
+          className="w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors text-gray-600 mt-2"
+        >
+          <LogOut className="w-5 h-5 mr-3" />
+          Logout
+        </button>
       </nav>
     </div>
   );
