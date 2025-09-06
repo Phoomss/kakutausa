@@ -18,12 +18,13 @@ const storage = multer.diskStorage({
       folder = "uploads/models";
     }
 
+    // สร้างโฟลเดอร์ถ้ายังไม่มี
     fs.mkdirSync(folder, { recursive: true });
     cb(null, folder);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    // เก็บชื่อไฟล์เดิม ตามที่ผู้ใช้ upload
+    cb(null, file.originalname);
   },
 });
 

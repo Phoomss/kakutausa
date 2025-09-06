@@ -2,7 +2,6 @@ const prisma = require("../config/db");
 const InternalServer = require("../utils/internal-server");
 const deleteFile = require("../utils/deleteFile");
 
-// Map sizes for database (save metric & imperial separately if needed)
 const mapSizesForDB = (sizes) => sizes.map((s) => ({
     holdingCapacityMetric: s.holdingCapacityMetric || null,
     weightMetric: s.weightMetric || null,
@@ -232,20 +231,20 @@ exports.uploadImage = async (req, res) => {
     }
 };
 
-// Upload 3D model
 exports.uploadModel = async (req, res) => {
     const { id } = req.params;
     try {
         const gltfFile = req.files["gltf"]?.[0];
         const binFile = req.files["bin"]?.[0];
 
-        if (!gltfFile && !binFile) return res.status(400).json({ message: "No files uploaded" });
+        if (!gltfFile || !binFile) 
+          return res.status(400).json({ message: "Both GLTF and BIN files are required" });
 
         const newModel = await prisma.productModel.create({
             data: {
                 productId: parseInt(id),
-                gltfUrl: gltfFile ? `/uploads/models/${gltfFile.filename}` : null,
-                binUrl: binFile ? `/uploads/models/${binFile.filename}` : null,
+                gltfUrl: gltfFile ? `/uploads/models/${gltfFile.originalname}` : null,
+                binUrl: binFile ? `/uploads/models/${binFile.originalname}` : null,
             },
         });
 
