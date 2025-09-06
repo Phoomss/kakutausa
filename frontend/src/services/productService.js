@@ -38,7 +38,6 @@ const getProductImages = (id) => http.get(`${API_URL}/${id}/images`);
 const getProductModels = (id) => http.get(`${API_URL}/${id}/models`);
 
 const productService = {
-  searchProducts,
   searchProductByCategory,
   getAllProducts,
   getProductById,
