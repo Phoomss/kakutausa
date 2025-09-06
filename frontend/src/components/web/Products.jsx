@@ -1,64 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import product1 from "/products/HH150-2S.jpg";
-import product2 from "/products/HH150.jpg";
-import product3 from "/products/FA200.jpg";
-const products = [
-  {
-    id: 1,
-    name: "Air Clamp A-100",
-    image: "https://via.placeholder.com/300x200",
-    category: "Air Clamp"
-  },
-  {
-    id: 2,
-    name: "HH 150",
-    image: product2,
-    category: "Horizontal Handle"
-  },
-  {
-    id: 3,
-    name: "Quick Release Clamp Q-50",
-    image: "https://via.placeholder.com/300x200",
-    category: "Quick Release"
-  },
-  {
-    id: 4,
-    name: "HH 150-2S",
-    image: product1,
-    category: "Horizontal Handle"
-  },
-  {
-    id: 5,
-    name: "FA 200",
-    image: product3,
-    category: "Latch Type"
-  }
-];
-
-const categories = [
-  "All",
-  "Horizontal Handle",
-  "Latch Type",
-  "Special Hold Down",
-  "Squeeze Action",
-  "Straight Line Action",
-  "Vertical Handle"
-];
+import productService from "../../services/productService";
+import categoryService from "../../services/categoryService";
+import { API_IMAGE_URL } from "../../configs/constants";
 
 const Products = () => {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(["All"]);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const navigate = useNavigate(); // ✅ ใช้ useNavigate
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  // Fetch products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const res = await productService.getAllProducts();
+        setProducts(res.data.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await categoryService.getAllCategories();
+        if (res.data.data) {
+          setCategories(["All", ...res.data.data.map((c) => c.name)]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const filteredProducts =
     selectedCategory === "All"
       ? products
-      : products.filter((p) => p.category === selectedCategory);
+      : products.filter(
+          (p) =>
+            p.category?.name === selectedCategory || p.category === selectedCategory
+        );
 
   const handleOnClick = (product) => {
-    console.log("Product clicked:", product);
-    navigate(`/products/${product.id}`); // ✅ เด้งไป product details
+    navigate(`/products/${product.id}`);
   };
+
+  if (loading) return <p className="text-center py-10">Loading products...</p>;
+  if (error) return <p className="text-center py-10 text-red-500">{error}</p>;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -96,12 +95,10 @@ const Products = () => {
             className="cursor-pointer bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:scale-105 transition-transform relative"
           >
             <img
-              src={product.image}
+              src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
               alt={product.name}
               className="w-full h-52 object-cover"
             />
-
-            {/* Product Info */}
             <div className="p-5">
               <h3 className="text-lg font-semibold text-gray-800 truncate">
                 {product.name}
@@ -111,7 +108,6 @@ const Products = () => {
         ))}
       </div>
 
-      {/* Empty State */}
       {filteredProducts.length === 0 && (
         <p className="text-center text-gray-500 mt-10">
           No products in this category.
