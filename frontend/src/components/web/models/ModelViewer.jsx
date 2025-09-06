@@ -1,20 +1,21 @@
-import React, {  useEffect } from "react";
-import {  useThree } from "@react-three/fiber";
-import {  OrbitControls, useGLTF, Text, Line } from "@react-three/drei";
+import React, { useEffect } from "react";
+import { useThree } from "@react-three/fiber";
+import { OrbitControls, useGLTF, Text, Line } from "@react-three/drei";
 import ToggleClampModel from "./ToggleClampModel";
 import Annotation from "./Annotation";
 import DimensionLine from "./DimensionLine";
 
-export default function ModelViewer({ 
-  showGrid, 
-  showAnnotations, 
-  showDimensions, 
-  viewMode, 
+export default function ModelViewer({
+  productId,
+  showGrid,
+  showAnnotations,
+  showDimensions,
+  viewMode,
   modelRotation,
-  onCameraReset 
+  onCameraReset
 }) {
   const { camera } = useThree();
-  
+
   useEffect(() => {
     if (onCameraReset) {
       onCameraReset(() => {
@@ -23,9 +24,9 @@ export default function ModelViewer({
       });
     }
   }, [camera, onCameraReset]);
-  
+
   useEffect(() => {
-    switch(viewMode) {
+    switch (viewMode) {
       case 'front':
         camera.position.set(0, 0, 5);
         camera.lookAt(0, 0, 0);
@@ -44,22 +45,22 @@ export default function ModelViewer({
         break;
     }
   }, [viewMode, camera]);
-  
+
   return (
     <>
       {/* Lighting */}
       <ambientLight intensity={0.4} />
       <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
       <pointLight position={[-10, 5, -5]} intensity={0.5} />
-      
+
       {/* Grid */}
       {showGrid && (
         <gridHelper args={[10, 20]} position={[0, -2, 0]} />
       )}
-      
+
       {/* Main model */}
-      <ToggleClampModel rotation={modelRotation} />
-      
+      <ToggleClampModel productId={productId} rotation={modelRotation} />
+
       {/* Annotations */}
       {showAnnotations && (
         <>
@@ -69,25 +70,25 @@ export default function ModelViewer({
           <Annotation position={[0, -2.2, 0]} text="S=105" />
         </>
       )}
-      
+
       {/* Dimension lines */}
       {showDimensions && (
         <>
-          <DimensionLine 
-            start={[0.6, 1.8, 0]} 
-            end={[0.6, 1.2, 0]} 
+          <DimensionLine
+            start={[0.6, 1.8, 0]}
+            end={[0.6, 1.2, 0]}
             label="P=M10"
             offset={[0.2, 0, 0]}
           />
-          <DimensionLine 
-            start={[-0.8, -1, 0]} 
-            end={[0.8, -1, 0]} 
+          <DimensionLine
+            start={[-0.8, -1, 0]}
+            end={[0.8, -1, 0]}
             label="R=60"
             offset={[0, -0.3, 0]}
           />
         </>
       )}
-      
+
       {/* Coordinate system */}
       <group position={[0, 0, 0]}>
         <Line points={[[0, 0, 0], [1, 0, 0]]} color="red" lineWidth={3} />
@@ -97,8 +98,8 @@ export default function ModelViewer({
         <Text position={[0, 1.1, 0]} fontSize={0.1} color="green">Y</Text>
         <Text position={[0, 0, 1.1]} fontSize={0.1} color="blue">Z</Text>
       </group>
-      
-      <OrbitControls 
+
+      <OrbitControls
         enableDamping
         dampingFactor={0.05}
         minDistance={2}

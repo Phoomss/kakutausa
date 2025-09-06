@@ -1,6 +1,7 @@
 // System Constants
 export const SYSTEM_NAME = "KAKUTA USA";
 export const API_IMAGE_URL = "http://localhost:8081"
+export const API_MODEL_URL = "http://localhost:8081"
 // Public / Web routes
 export const HOME_PATH = "/";
 export const ABOUT_PATH = "/about";

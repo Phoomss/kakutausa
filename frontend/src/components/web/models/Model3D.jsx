@@ -2,10 +2,14 @@ import React, { Suspense, useRef, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { RotateCcw, RotateCw, Download, Eye, Grid3X3, Box, Move3D, ArrowLeft } from "lucide-react";
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
+import productService from "../../../services/productService";
 const ModelViewer = React.lazy(() => import("./ModelViewer"));
 
 export default function Model3D() {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [loadingProduct, setLoadingProduct] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
   const [showAnnotations, setShowAnnotations] = useState(true);
   const [showDimensions, setShowDimensions] = useState(true);
@@ -21,6 +25,22 @@ export default function Model3D() {
     const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoadingProduct(true);
+      try {
+        const res = await productService.getProductById(id); 
+        setProduct(res.data.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingProduct(false);
+      }
+    };
+
+    if (id) fetchProduct();
+  }, [id]);
 
   const rotateModel = (axis, direction) => {
     const step = Math.PI / 6;
@@ -53,13 +73,14 @@ export default function Model3D() {
           Back
         </button>
         <div className="text-center flex-1">
-          <h1 className="text-red-600 text-lg sm:text-xl font-bold">FA 200</h1>
-          <p className="text-gray-700 text-sm sm:text-base">Latch Type Clamp</p>
+          <h1 className="text-red-600 text-lg sm:text-xl font-bold">
+            {loadingProduct ? "Loading..." : product?.name || "Unknown Product"}
+          </h1>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-       
+
         {/* 3D Viewer */}
         <div className="relative w-full h-[500px]">
           <Canvas
@@ -90,6 +111,7 @@ export default function Model3D() {
             ) : (
               <Suspense fallback={null}>
                 <ModelViewer
+                  productId={product?.id}
                   showGrid={showGrid}
                   showAnnotations={showAnnotations}
                   showDimensions={showDimensions}

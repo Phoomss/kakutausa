@@ -18,7 +18,7 @@ const ProductDetail = () => {
       setLoading(true);
       try {
         const res = await productService.getProductById(id);
-        setProduct(res.data.data); // สมมติ API response เป็น { data: {...} }
+        setProduct(res.data.data);
       } catch (err) {
         console.error(err);
         setError("Failed to load product");
@@ -30,9 +30,9 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
-  const handleClick3D = () => {
-    navigate(`/products/${id}/generatemodel`);
-  };
+  // const handleClick3D = () => {
+  //   navigate(`/products/${id}/generatemodel`);
+  // };
 
   if (loading) return <p className="text-center py-10">Loading product...</p>;
   if (error || !product)
@@ -75,7 +75,7 @@ const ProductDetail = () => {
             </button>
             <button
               className="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300"
-              onClick={handleClick3D}
+              onClick={()=> navigate(`/products/${product.id}/generatemodel`)}
             >
               3D Model
             </button>
