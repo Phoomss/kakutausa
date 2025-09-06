@@ -47,6 +47,42 @@ exports.createProduct = async (req, res) => {
     }
 };
 
+exports.getProductByCategory = async (req, res) => {
+    try {
+        const { category } = req.query; 
+
+        let products;
+
+        if (category && category !== "All") {
+            products = await prisma.product.findMany({
+                where: {
+                    category: {
+                        name: category
+                    }
+                },
+                include: {
+                    category: true,  
+                    images: true      
+                }
+            });
+        } else {
+            products = await prisma.product.findMany({
+                include: {
+                    category: true,
+                    images: true
+                }
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: products
+        });
+    } catch (error) {
+        InternalServer(res, error)
+    }
+};
+
 // Get all products
 exports.getAllProducts = async (req, res) => {
     try {

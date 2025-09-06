@@ -2,6 +2,8 @@ import http from "./http-common";
 
 const API_URL = "/api/products";
 
+const searchProductByCategory = (category) => http.get(`${API_URL}/search`, { params: { category } })
+
 const getAllProducts = () => {
   return http.get(API_URL);
 };
