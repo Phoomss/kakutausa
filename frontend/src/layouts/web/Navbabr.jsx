@@ -99,7 +99,7 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Search Bar - Desktop */}
+            {/* Search Bar - Desktop
             <div className="hidden md:flex flex-1 max-w-md mx-8">
               <div className="relative w-full">
                 <input
@@ -113,7 +113,7 @@ const Navbar = () => {
                   <Search className="w-5 h-5" />
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {/* Mobile Menu Button */}
             <div className="flex items-center space-x-4">
@@ -126,7 +126,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Mobile Search Bar */}
+          {/* Mobile Search Bar
           <div className="md:hidden pb-4">
             <div className="relative">
               <input
@@ -140,7 +140,7 @@ const Navbar = () => {
                 <Search className="w-5 h-5" />
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Mobile Menu */}
