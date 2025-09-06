@@ -11,7 +11,6 @@ const HomePage = () => {
             <Hero />
             <AboutSection/>
             <ProductCategories/>
-            <ProductList/>
             <ProductsByCategory/>
         </>
     )
