@@ -13,17 +13,16 @@ const storage = multer.diskStorage({
       file.mimetype === "model/gltf+json" ||
       file.mimetype === "application/octet-stream" ||
       file.originalname.endsWith(".gltf") ||
-      file.originalname.endsWith(".bin")
+      file.originalname.endsWith(".bin") ||
+      file.originalname.endsWith(".step")
     ) {
       folder = "uploads/models";
     }
 
-    // สร้างโฟลเดอร์ถ้ายังไม่มี
     fs.mkdirSync(folder, { recursive: true });
     cb(null, folder);
   },
   filename: (req, file, cb) => {
-    // เก็บชื่อไฟล์เดิม ตามที่ผู้ใช้ upload
     cb(null, file.originalname);
   },
 });

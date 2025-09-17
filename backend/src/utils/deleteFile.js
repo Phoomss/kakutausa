@@ -3,7 +3,10 @@ const path = require("path");
 
 const deleteFile = async (filePath) => {
   if (!filePath) return;
-  const fullPath = path.join(__dirname, "..", filePath); // filePath เริ่มด้วย /uploads
+
+  const backendRoot = path.resolve(__dirname, "../../"); 
+  const fullPath = path.join(backendRoot, filePath.replace(/^\/+/, "")); 
+
   try {
     await fs.unlink(fullPath);
     console.log(`Deleted file: ${fullPath}`);

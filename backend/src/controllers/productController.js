@@ -1,6 +1,7 @@
 const prisma = require("../config/db");
 const InternalServer = require("../utils/internal-server");
 const deleteFile = require("../utils/deleteFile");
+const path = require("path");
 
 const mapSizesForDB = (sizes) => sizes.map((s) => ({
     holdingCapacityMetric: s.holdingCapacityMetric || null,
@@ -64,6 +65,15 @@ exports.getProductByCategory = async (req, res) => {
                     images: true
                 }
             });
+
+            products = products.map(p => ({
+                ...p,
+                images: p.images.sort((a, b) => {
+                    if (a.imageUrl.endsWith(".jpg") && !b.imageUrl.endsWith(".jpg")) return -1;
+                    if (!a.imageUrl.endsWith(".jpg") && b.imageUrl.endsWith(".jpg")) return 1;
+                    return 0;
+                })
+            }));
         } else {
             products = await prisma.product.findMany({
                 include: {
@@ -71,6 +81,15 @@ exports.getProductByCategory = async (req, res) => {
                     images: true
                 }
             });
+
+            products = products.map(p => ({
+                ...p,
+                images: p.images.sort((a, b) => {
+                    if (a.imageUrl.endsWith(".jpg") && !b.imageUrl.endsWith(".jpg")) return -1;
+                    if (!a.imageUrl.endsWith(".jpg") && b.imageUrl.endsWith(".jpg")) return 1;
+                    return 0;
+                })
+            }));
         }
 
         res.status(200).json({
@@ -88,11 +107,22 @@ exports.getAllProducts = async (req, res) => {
         const products = await prisma.product.findMany({
             include: { sizes: true, images: true, models: true, category: true },
         });
-        res.status(200).json({ message: "Products fetched successfully", data: products });
+
+        const sortedProducts = products.map(p => ({
+            ...p,
+            images: p.images.sort((a, b) => {
+                if (a.imageUrl.endsWith(".jpg") && !b.imageUrl.endsWith(".jpg")) return -1;
+                if (!a.imageUrl.endsWith(".jpg") && b.imageUrl.endsWith(".jpg")) return 1;
+                return 0;
+            })
+        }));
+
+        res.status(200).json({ message: "Products fetched successfully", data: sortedProducts });
     } catch (error) {
         InternalServer(res, error);
     }
 };
+
 
 // Get product by ID
 exports.getProductById = async (req, res) => {
@@ -102,24 +132,38 @@ exports.getProductById = async (req, res) => {
             where: { id: parseInt(id) },
             include: { sizes: true, images: true, models: true, category: true },
         });
+
         if (!product) return res.status(404).json({ message: "Product not found" });
+
+        product.images.sort((a, b) => {
+            if (a.imageUrl.endsWith(".jpg") && !b.imageUrl.endsWith(".jpg")) return -1;
+            if (!a.imageUrl.endsWith(".jpg") && b.imageUrl.endsWith(".jpg")) return 1;
+            return 0;
+        });
+
         res.status(200).json({ message: "Product fetched successfully", data: product });
     } catch (error) {
         InternalServer(res, error);
     }
 };
 
-// Get all images of a product
 exports.getProductImages = async (req, res) => {
     const { id } = req.params;
     try {
         const images = await prisma.productImage.findMany({
             where: { productId: parseInt(id) },
-            select: { imageUrl: true } // แก้จาก images -> imageUrl
+            select: { imageUrl: true },
         });
 
         if (!images || images.length === 0)
             return res.status(404).json({ message: "No images found for this product" });
+
+        // sort: jpg ขึ้นก่อน webp
+        images.sort((a, b) => {
+            if (a.imageUrl.endsWith(".jpg") && !b.imageUrl.endsWith(".jpg")) return -1;
+            if (!a.imageUrl.endsWith(".jpg") && b.imageUrl.endsWith(".jpg")) return 1;
+            return 0;
+        });
 
         res.status(200).json({ message: "Images fetched successfully", data: images });
     } catch (error) {
@@ -133,7 +177,7 @@ exports.getProductModels = async (req, res) => {
     try {
         const models = await prisma.productModel.findMany({
             where: { productId: parseInt(id) },
-            select: { gltfUrl: true, binUrl: true } // แก้จาก models -> gltfUrl/binUrl
+            select: { gltfUrl: true, binUrl: true, stepUrl: true } 
         });
 
         if (!models || models.length === 0)
@@ -149,9 +193,14 @@ exports.getProductModels = async (req, res) => {
 exports.updateProduct = async (req, res) => {
     const { id } = req.params;
     const { name, details, description, categoryId, sizes } = req.body;
+    const files = req.files;
 
     try {
-        const product = await prisma.product.findUnique({ where: { id: parseInt(id) }, include: { sizes: true } });
+        const product = await prisma.product.findUnique({
+            where: { id: parseInt(id) },
+            include: { sizes: true, images: true, models: true },
+        });
+
         if (!product) return res.status(404).json({ message: "Product not found" });
 
         let parseCategoryId = product.categoryId;
@@ -161,6 +210,48 @@ exports.updateProduct = async (req, res) => {
             if (!category) return res.status(404).json({ message: "Category not found" });
         }
 
+        if (files) {
+
+            if (product.images.length > 0) {
+                await Promise.all(product.images.map(img => deleteFile(img.imageUrl)));
+                await prisma.productImage.deleteMany({ where: { productId: parseInt(id) } });
+            }
+
+            if (product.models.length > 0) {
+                await Promise.all(
+                    product.models.flatMap(model => [
+                        model.gltfUrl ? deleteFile(model.gltfUrl) : null,
+                        model.binUrl ? deleteFile(model.binUrl) : null,
+                        model.stepUrl ? deleteFile(model.stepUrl) : null,
+                    ]).filter(Boolean)
+                );
+                await prisma.productModel.deleteMany({ where: { productId: parseInt(id) } });
+            }
+
+            const imagesData = files
+                .filter(f => f.mimetype.startsWith("image/"))
+                .map(f => ({ productId: parseInt(id), imageUrl: `/uploads/images/${f.filename}` }));
+
+            if (imagesData.length > 0) {
+                await prisma.productImage.createMany({ data: imagesData });
+            }
+
+            const gltfFile = files.find(f => f.originalname.endsWith(".gltf"));
+            const binFile = files.find(f => f.originalname.endsWith(".bin"));
+            const stepFile = files.find(f => f.originalname.endsWith(".step"));
+
+            if (gltfFile || binFile || stepFile) {
+                await prisma.productModel.create({
+                    data: {
+                        productId: parseInt(id),
+                        gltfUrl: gltfFile ? `/uploads/models/${gltfFile.filename}` : null,
+                        binUrl: binFile ? `/uploads/models/${binFile.filename}` : null,
+                        stepUrl: stepFile ? `/uploads/models/${stepFile.filename}` : null,
+                    },
+                });
+            }
+        }
+
         const updatedProduct = await prisma.product.update({
             where: { id: parseInt(id) },
             data: {
@@ -168,7 +259,7 @@ exports.updateProduct = async (req, res) => {
                 details: details || product.details,
                 description: description || product.description,
                 categoryId: parseCategoryId,
-                sizes: sizes ? { create: mapSizesForDB(sizes) } : undefined,
+                sizes: sizes ? { deleteMany: {}, create: mapSizesForDB(sizes) } : undefined,
             },
             include: { sizes: true, images: true, models: true },
         });
@@ -187,31 +278,29 @@ exports.deleteProduct = async (req, res) => {
             where: { id: parseInt(id) },
             include: { sizes: true, images: true, models: true },
         });
+
         if (!product) return res.status(404).json({ message: "Product not found" });
 
-        // Delete files from server (await)
         await Promise.all([
             ...product.images.map(img => deleteFile(img.imageUrl)),
             ...product.models.flatMap(model => [
                 model.gltfUrl ? deleteFile(model.gltfUrl) : null,
                 model.binUrl ? deleteFile(model.binUrl) : null,
+                model.stepUrl ? deleteFile(model.stepUrl) : null, 
             ]).filter(Boolean)
         ]);
 
-        // Delete related records
         await prisma.productImage.deleteMany({ where: { productId: parseInt(id) } });
         await prisma.productModel.deleteMany({ where: { productId: parseInt(id) } });
         await prisma.size.deleteMany({ where: { productId: parseInt(id) } });
 
-        // Delete product
         await prisma.product.delete({ where: { id: parseInt(id) } });
 
-        res.status(200).json({ message: "Product deleted successfully" });
+        res.status(200).json({ message: "Product and all related files deleted successfully" });
     } catch (error) {
         InternalServer(res, error);
     }
 };
-;
 
 // Upload images
 exports.uploadImage = async (req, res) => {
@@ -236,15 +325,17 @@ exports.uploadModel = async (req, res) => {
     try {
         const gltfFile = req.files["gltf"]?.[0];
         const binFile = req.files["bin"]?.[0];
+        const stepFile = req.files["step"]?.[0];
 
-        if (!gltfFile || !binFile)
-            return res.status(400).json({ message: "Both GLTF and BIN files are required" });
+        if (!gltfFile || !binFile || !stepFile)
+            return res.status(400).json({ message: "Both GLTF and BIN and STEP files are required" });
 
         const newModel = await prisma.productModel.create({
             data: {
                 productId: parseInt(id),
                 gltfUrl: gltfFile ? `/uploads/models/${gltfFile.originalname}` : null,
                 binUrl: binFile ? `/uploads/models/${binFile.originalname}` : null,
+                stepUrl: stepFile ? `/uploads/models/${stepFile.originalname}` : null,
             },
         });
 
