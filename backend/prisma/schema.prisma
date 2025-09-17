@@ -18,6 +18,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Request3D {
+  id        Int      @id @default(autoincrement())
+  email     String
+  firstName String?
+  lastName  String?
+  message   String?
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  handled   Boolean  @default(false)
+}
+
 model Category {
   id       Int       @id @default(autoincrement())
   name     String
@@ -32,8 +45,9 @@ model Product {
   categoryId  Int
   category    Category       @relation(fields: [categoryId], references: [id])
   sizes       Size[]
-  images      ProductImage[] // เก็บหลายรูปภาพ
-  models      ProductModel[] // เก็บไฟล์ GLTF/BIN
+  images      ProductImage[] // save more image
+  models      ProductModel[] // keep file GLTF/BIN
+  Request3D   Request3D[]
 }
 
 model Size {
@@ -67,13 +81,14 @@ model ProductModel {
   id        Int     @id @default(autoincrement())
   productId Int
   product   Product @relation(fields: [productId], references: [id])
-  gltfUrl   String? // URL ของไฟล์ GLTF
-  binUrl    String? // URL ของไฟล์ Binary
+  gltfUrl   String?
+  binUrl    String?
+  stepUrl   String?
 }
 
 model ContentType {
   id       Int       @id @default(autoincrement())
-  name     String    @unique // เช่น "about", "hero"
+  name     String    @unique
   contents Content[]
 }
 
@@ -81,10 +96,10 @@ model Content {
   id            Int         @id @default(autoincrement())
   contentTypeId Int
   contentType   ContentType @relation(fields: [contentTypeId], references: [id])
-  language      String // เช่น "en", "ja", "th"
+  language      String
   title         String?
   detail        String?     @db.Text
-  imageUrl      String? // ถ้ามีภาพประกอบ
+  imageUrl      String?
   isPublished   Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -101,7 +116,7 @@ model Address {
   addressTypeId Int
   addressType   AddressType @relation(fields: [addressTypeId], references: [id])
 
-  address String // ที่อยู่บริษัท
+  address String
   phone1  String?
   phone2  String?
   email   String?
