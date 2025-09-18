@@ -281,19 +281,22 @@ exports.deleteProduct = async (req, res) => {
 
         if (!product) return res.status(404).json({ message: "Product not found" });
 
+        // 🔹 Delete files from server
         await Promise.all([
             ...product.images.map(img => deleteFile(img.imageUrl)),
             ...product.models.flatMap(model => [
                 model.gltfUrl ? deleteFile(model.gltfUrl) : null,
                 model.binUrl ? deleteFile(model.binUrl) : null,
-                model.stepUrl ? deleteFile(model.stepUrl) : null, 
+                model.stepUrl ? deleteFile(model.stepUrl) : null, // ✅ STEP file
             ]).filter(Boolean)
         ]);
 
+        // 🔹 Delete related records in DB
         await prisma.productImage.deleteMany({ where: { productId: parseInt(id) } });
         await prisma.productModel.deleteMany({ where: { productId: parseInt(id) } });
         await prisma.size.deleteMany({ where: { productId: parseInt(id) } });
 
+        // 🔹 Delete product
         await prisma.product.delete({ where: { id: parseInt(id) } });
 
         res.status(200).json({ message: "Product and all related files deleted successfully" });

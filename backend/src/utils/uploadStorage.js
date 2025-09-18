@@ -19,10 +19,12 @@ const storage = multer.diskStorage({
       folder = "uploads/models";
     }
 
+    // 
     fs.mkdirSync(folder, { recursive: true });
     cb(null, folder);
   },
   filename: (req, file, cb) => {
+    // 
     cb(null, file.originalname);
   },
 });
