@@ -318,7 +318,6 @@ const Content = () => {
                 <label className="mb-1 block">Language</label>
                 <select value={formData.language} onChange={(e) => setFormData({ ...formData, language: e.target.value })} className="border px-3 py-2 rounded-lg w-full">
                   <option value="en">English</option>
-                  <option value="th">Thai</option>
                   <option value="ja">Japanese</option>
                 </select>
               </div>
