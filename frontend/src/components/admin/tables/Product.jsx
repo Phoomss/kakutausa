@@ -31,10 +31,10 @@ const ProductsManagement = () => {
     }],
   });
   const [imageFiles, setImageFiles] = useState([]);
-  const [modelFiles, setModelFiles] = useState({ gltf: null, bin: null });
+  const [modelFiles, setModelFiles] = useState({ gltf: null, bin: null, step: null });
   const [viewProduct, setViewProduct] = useState(null);
   const [existingImages, setExistingImages] = useState([]);
-  const [existingModels, setExistingModels] = useState({ gltf: null, bin: null });
+  const [existingModels, setExistingModels] = useState({ gltf: null, bin: null, step: null });
 
   useEffect(() => {
     fetchProducts();
@@ -193,12 +193,19 @@ const ProductsManagement = () => {
         productId = res.data.data.id;
       }
 
+      // ✅ ส่งรูปทีเดียว
       if (imageFiles.length > 0) {
-        await Promise.all(imageFiles.map(file => productService.uploadProductImage(productId, file)));
+        await productService.uploadProductImages(productId, imageFiles);
       }
 
-      if (modelFiles.gltf || modelFiles.bin) {
-        await productService.uploadProductModel(productId, modelFiles.gltf, modelFiles.bin);
+      // ✅ อัปโหลดโมเดล
+      if (modelFiles.gltf || modelFiles.bin || modelFiles.step) {
+        await productService.uploadProductModel(
+          productId,
+          modelFiles.gltf,
+          modelFiles.bin,
+          modelFiles.step
+        );
       }
 
       await fetchProducts();
@@ -415,16 +422,51 @@ const ProductsManagement = () => {
             <div className="mb-6 grid grid-cols-2 gap-6">
               <div>
                 <h4 className="font-semibold mb-2">Upload Images</h4>
-                <input type="file" accept="image/*" multiple onChange={(e) => setImageFiles([...e.target.files])} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" disabled={saving} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => setImageFiles(Array.from(e.target.files))}
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 
+             file:rounded file:border-0 file:text-sm file:font-medium 
+             file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  disabled={saving}
+                />
                 {imageFiles.length > 0 && <p className="text-sm text-gray-600 mt-1">{imageFiles.length} file(s) selected</p>}
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Upload 3D Model</h4>
                 <div className="space-y-2">
-                  <input type="file" accept=".gltf" onChange={e => setModelFiles(prev => ({ ...prev, gltf: e.target.files[0] }))} className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" disabled={saving} />
-                  <input type="file" accept=".bin" onChange={e => setModelFiles(prev => ({ ...prev, bin: e.target.files[0] }))} className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" disabled={saving} />
+                  <input
+                    type="file"
+                    accept=".gltf"
+                    onChange={e => setModelFiles(prev => ({ ...prev, gltf: e.target.files[0] }))}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 
+      file:rounded file:border-0 file:text-xs file:font-medium 
+      file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                    disabled={saving}
+                  />
+                  <input
+                    type="file"
+                    accept=".bin"
+                    onChange={e => setModelFiles(prev => ({ ...prev, bin: e.target.files[0] }))}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 
+      file:rounded file:border-0 file:text-xs file:font-medium 
+      file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                    disabled={saving}
+                  />
+                  {/* ✅ New STEP file input */}
+                  <input
+                    type="file"
+                    accept=".step"
+                    onChange={e => setModelFiles(prev => ({ ...prev, step: e.target.files[0] }))}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 
+      file:rounded file:border-0 file:text-xs file:font-medium 
+      file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                    disabled={saving}
+                  />
                 </div>
-                {(modelFiles.gltf || modelFiles.bin) && <p className="text-sm text-gray-600 mt-1">{modelFiles.gltf ? '✓ GLTF ' : ''}{modelFiles.bin ? '✓ BIN' : ''}</p>}
+                {(modelFiles.gltf || modelFiles.bin || modelFiles.step) && <p className="text-sm text-gray-600 mt-1">{modelFiles.gltf ? '✓ GLTF ' : ''}{modelFiles.bin ? '✓ BIN' : ''} {modelFiles.step ? '✓ STEP' : ''}</p>}
               </div>
             </div>
 
@@ -451,6 +493,7 @@ const ProductsManagement = () => {
               <div className="mb-2">
                 {existingModels.gltf && <p>GLTF: {existingModels.gltf}</p>}
                 {existingModels.bin && <p>BIN: {existingModels.bin}</p>}
+                {existingModels.step && <p>STEP: {existingModels.step}</p>}
               </div>
             )}
 

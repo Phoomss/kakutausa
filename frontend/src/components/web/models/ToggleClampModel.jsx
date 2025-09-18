@@ -65,12 +65,12 @@ useEffect(() => {
     try {
       const res = await productService.getProductModels(productId);
 
-      console.log("API response:", res); // log ทั้ง response
-      console.log("Model data array:", res.data.data); // log data array
+      // console.log("API response:", res); // log ทั้ง response
+      // console.log("Model data array:", res.data.data); // log data array
 
       if (res.data.data && res.data.data.length > 0) {
         const gltfFile = res.data.data[0]; 
-        console.log("First GLTF file:", gltfFile); // log ตัวแรก
+        // console.log("First GLTF file:", gltfFile); // log ตัวแรก
 
         if (gltfFile?.gltfUrl) {
           setModelUrl(`${API_MODEL_URL}${gltfFile.gltfUrl}`);
