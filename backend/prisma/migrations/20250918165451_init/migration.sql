@@ -2,6 +2,20 @@
 CREATE TYPE "public"."Role" AS ENUM ('ADMIN', 'USER');
 
 -- CreateTable
+CREATE TABLE "public"."Request3D" (
+    "id" SERIAL NOT NULL,
+    "email" TEXT NOT NULL,
+    "firstName" TEXT,
+    "lastName" TEXT,
+    "message" TEXT,
+    "productId" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "handled" BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT "Request3D_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."Category" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -53,6 +67,7 @@ CREATE TABLE "public"."ProductModel" (
     "productId" INTEGER NOT NULL,
     "gltfUrl" TEXT,
     "binUrl" TEXT,
+    "stepUrl" TEXT,
 
     CONSTRAINT "ProductModel_pkey" PRIMARY KEY ("id")
 );
@@ -124,6 +139,9 @@ CREATE UNIQUE INDEX "User_username_key" ON "public"."User"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
+
+-- AddForeignKey
+ALTER TABLE "public"."Request3D" ADD CONSTRAINT "Request3D_productId_fkey" FOREIGN KEY ("productId") REFERENCES "public"."Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Product" ADD CONSTRAINT "Product_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "public"."Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

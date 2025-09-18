@@ -1,7 +1,7 @@
 // System Constants
 export const SYSTEM_NAME = "KAKUTA USA";
-export const API_IMAGE_URL = "https://kakutausa.onrender.com"
-export const API_MODEL_URL = "https://kakutausa.onrender.com"
+export const API_IMAGE_URL = "https://kakutausa-1.onrender.com"
+export const API_MODEL_URL = "https://kakutausa-1.onrender.com"
 // Public / Web routes
 export const HOME_PATH = "/";
 export const ABOUT_PATH = "/about";
