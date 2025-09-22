@@ -169,12 +169,10 @@ exports.userInfo = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        // ลบ cookie sescoin
-        res.cookie('sescoin', jwtToken, {
+        res.clearCookie('sescoin', {
             httpOnly: true,
-            secure: true,       // ✅ ต้อง true บน HTTPS
-            sameSite: 'none',   // ✅ ต้อง none สำหรับ cross-origin
-            maxAge: 1000 * 60 * 60
+            secure: true,     
+            sameSite: 'none'
         });
 
         return res.status(200).json({
@@ -184,6 +182,7 @@ exports.logout = async (req, res) => {
         InternalServer(res, error);
     }
 };
+
 
 exports.updateProfile = async (req, res) => {
     try {
