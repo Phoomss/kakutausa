@@ -20,7 +20,7 @@ const Products = () => {
         const res = await productService.getAllProducts();
         setProducts(res.data.data);
       } catch (err) {
-        console.error(err);
+        // console.error(err);
         setError("Failed to load products");
       } finally {
         setLoading(false);
@@ -38,7 +38,8 @@ const Products = () => {
           setCategories(["All", ...res.data.data.map((c) => c.name)]);
         }
       } catch (err) {
-        console.error(err);
+        // console.error(err);
+        setError("Failed to load categories");
       }
     };
     fetchCategories();
@@ -48,9 +49,9 @@ const Products = () => {
     selectedCategory === "All"
       ? products
       : products.filter(
-          (p) =>
-            p.category?.name === selectedCategory || p.category === selectedCategory
-        );
+        (p) =>
+          p.category?.name === selectedCategory || p.category === selectedCategory
+      );
 
   const handleOnClick = (product) => {
     navigate(`/products/${product.id}`);
@@ -76,7 +77,7 @@ const Products = () => {
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="select select-bordered w-full max-w-xs"
+          className="select select-bordered w-full max-w-xs border-red-600" 
         >
           {categories.map((cat) => (
             <option key={cat} value={cat}>

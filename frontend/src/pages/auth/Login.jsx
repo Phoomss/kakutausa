@@ -41,7 +41,7 @@ const Login = () => {
       showAlert("Login successful!", 'success');
       navigate(DASHBOARD);
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       const msg = err.response?.data?.message || "Login failed";
       showAlert(msg, 'error');
     } finally {
