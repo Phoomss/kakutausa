@@ -209,7 +209,7 @@ const ProductDetail = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+       <div className="fixed inset-0 bg-gray-500/40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96">
             <h2 className="text-lg font-bold mb-4">Request 3D File</h2>
             <div className="grid grid-cols-2 gap-3 mb-3">
