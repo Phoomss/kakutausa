@@ -73,14 +73,14 @@ const ProductsManagement = () => {
       );
 
       setProducts(updatedProducts);
-      console.log(
-        updatedProducts.map(p => ({
-          id: p.id,
-          name: p.name,
-          images: p.images.map(img => img.imageUrl),
-          models: p.models.map(m => ({ gltf: m.gltfUrl, bin: m.binUrl }))
-        }))
-      );
+      // console.log(
+      //   updatedProducts.map(p => ({
+      //     id: p.id,
+      //     name: p.name,
+      //     images: p.images.map(img => img.imageUrl),
+      //     models: p.models.map(m => ({ gltf: m.gltfUrl, bin: m.binUrl }))
+      //   }))
+      // );
 
     } catch (err) {
       console.error(err);
@@ -193,12 +193,10 @@ const ProductsManagement = () => {
         productId = res.data.data.id;
       }
 
-      // ✅ ส่งรูปทีเดียว
       if (imageFiles.length > 0) {
         await productService.uploadProductImages(productId, imageFiles);
       }
 
-      // ✅ อัปโหลดโมเดล
       if (modelFiles.gltf || modelFiles.bin || modelFiles.step) {
         await productService.uploadProductModel(
           productId,
