@@ -7,12 +7,7 @@ const jwt = require('jsonwebtoken')
 exports.register = async (req, res) => {
     const { username, email, password } = req.body
     try {
-        if (!username || !email || !password) {
-            return res.status(400).json({
-                message: "All fields are required"
-            })
-        }
-
+        // All validation is handled by middleware now
         const existingUsername = await prisma.user.findUnique({
             where: {
                 username: username
@@ -20,7 +15,7 @@ exports.register = async (req, res) => {
         })
 
         if (existingUsername) {
-            return res.status(400).json({
+            return res.status(409).json({  // 409 Conflict for duplicate resource
                 message: "Username already exists"
             })
         }
@@ -32,7 +27,7 @@ exports.register = async (req, res) => {
         })
 
         if (existingEmail) {
-            return res.status(400).json({
+            return res.status(409).json({  // 409 Conflict for duplicate resource
                 message: "Email already exists"
             })
         }
@@ -43,13 +38,17 @@ exports.register = async (req, res) => {
             data: {
                 username,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                role: 'USER'  // Explicitly set default role
             }
         })
 
+        // Don't return password in response
+        const { password: _, ...userWithoutPassword } = register;
+
         return res.status(201).json({
             message: "User registered successfully",
-            data: register
+            data: userWithoutPassword
         })
     } catch (error) {
         InternalServer(res, error)
@@ -132,23 +131,26 @@ exports.login = async (req, res) => {
 
 exports.initializeAdminUser = async () => {
     try {
-        const adminUser = await prisma.user.findFirst({
-            where: { username: 'admin' }
+        const defaultAdminPassword =
+            process.env.DEFAULT_ADMIN_PASSWORD || 'SecurePass!2025@Kakuta';
+        const hashedPassword = await hashPassword(defaultAdminPassword);
+
+        await prisma.user.upsert({
+            where: { username: 'KakutaAdmin' }, // ใช้ username เดียวกัน
+            update: {}, // ถ้ามีอยู่แล้ว ไม่ต้อง update
+            create: {
+                username: 'KakutaAdmin',
+                email: 'KakutaAdmin@example.com',
+                password: hashedPassword,
+                role: 'ADMIN',
+            },
         });
 
-        if (!adminUser) {
-            const hashedPassword = await hashPassword('admin1234');
-            await prisma.user.create({
-                data: {
-                    username: 'admin',
-                    email: 'admin@example.com',
-                    password: hashedPassword,
-                    role: 'ADMIN'
-                }
-            });
-            console.log('Admin user created successfully!');
-        } else {
-            console.log('Admin user already exists.');
+        console.log('Admin user initialized successfully!');
+        if (!process.env.DEFAULT_ADMIN_PASSWORD) {
+            console.warn(
+                'Warning: Using default admin password. Please set DEFAULT_ADMIN_PASSWORD environment variable.'
+            );
         }
     } catch (error) {
         InternalServer(null, error);
@@ -169,10 +171,12 @@ exports.userInfo = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        res.clearCookie('sescoin', {
+        // ลบ cookie sescoin
+        res.cookie('sescoin', '', {
             httpOnly: true,
-            secure: true,     
-            sameSite: 'none'
+            secure: process.env.NODE_ENV === 'production', // ใช้ true เฉพาะ production
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // สำหรับ cross-origin ใน production
+            maxAge: 1 // เซ็ตอายุเป็น 1ms เพื่อลบคุกกี้ทันที
         });
 
         return res.status(200).json({
@@ -182,7 +186,6 @@ exports.logout = async (req, res) => {
         InternalServer(res, error);
     }
 };
-
 
 exports.updateProfile = async (req, res) => {
     try {

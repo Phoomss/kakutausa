@@ -14,8 +14,9 @@ generator client {
 // }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Request3D {
@@ -74,7 +75,7 @@ model ProductImage {
   id        Int     @id @default(autoincrement())
   productId Int
   product   Product @relation(fields: [productId], references: [id])
-  imageUrl  String // URL ของรูปภาพ
+  imageUrl  String?
 }
 
 model ProductModel {

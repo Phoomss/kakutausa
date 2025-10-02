@@ -60,6 +60,7 @@ const ProductsManagement = () => {
       setLoading(true);
       const res = await productService.getAllProducts();
       const productsData = res.data.data;
+      console.log(productsData)
 
       // fetch images + models
       const updatedProducts = await Promise.all(
@@ -110,7 +111,6 @@ const ProductsManagement = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // แก้ไข handleSizeChange ให้แยก Metric / Imperial
   const handleSizeChange = (index, e, type) => {
     const { name, value } = e.target;
     const newSizes = [...formData.sizes];
@@ -164,7 +164,7 @@ const ProductsManagement = () => {
       }],
     });
     setImageFiles([]);
-    setModelFiles({ gltf: null, bin: null });
+    setModelFiles({ gltf: null, bin: null, step: null });
   };
 
   const handleDelete = async (productId) => {
@@ -258,14 +258,18 @@ const ProductsManagement = () => {
 
       // Load existing images and models
       setExistingImages(product.images || []);
-      setExistingModels(product.models?.[0] || { gltf: null, bin: null }); // ถ้า models เป็น array
+      setExistingModels(product.models?.[0] || { gltf: null, bin: null, step: null }); // ถ้า models เป็น array
       setImageFiles([]); // reset new uploads
-      setModelFiles({ gltf: null, bin: null });
+      setModelFiles({ gltf: null, bin: null, step: null });
     } else {
       resetForm();
       setExistingImages([]);
-      setExistingModels({ gltf: null, bin: null });
+      setExistingModels({ gltf: null, bin: null, step: null });
     }
+  };
+
+  const getFullImageUrl = (imagePath) => {
+    return imagePath ? `${API_IMAGE_URL}${imagePath}` : null;
   };
 
   return (
@@ -337,11 +341,16 @@ const ProductsManagement = () => {
                   <tr key={p.id} className="border-t hover:bg-gray-50">
                     <td className="px-4 py-3">
                       {p.images && p.images.length > 0 ? (
-                        <img
-                          src={`${API_IMAGE_URL}${p.images[0].imageUrl}`}
-                          alt={p.name}
-                          className="w-12 h-12 object-cover rounded"
-                        />
+                        <div className="flex gap-1">
+                          {p.images.map((img, idx) => (
+                            <img
+                              key={idx}
+                              src={getFullImageUrl(img.imageUrl)}
+                              alt={`Product ${p.name} - ${idx + 1}`}
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                          ))}
+                        </div>
                       ) : (
                         <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded">
                           <Upload className="w-5 h-5 text-gray-500" />
@@ -498,15 +507,21 @@ const ProductsManagement = () => {
               </div>
             </div>
 
-            {/* Existing Images Preview */}
-            {existingImages.length > 0 && (
+            {/* New Images Preview */}
+            {imageFiles.length > 0 && (
               <div className="grid grid-cols-3 gap-2 mb-2">
-                {existingImages.map(img => (
-                  <div key={img.id} className="relative">
-                    <img src={`${API_IMAGE_URL}${img.imageUrl}`} alt="Product" className="w-full h-24 object-cover rounded" />
+                {imageFiles.map((file, idx) => (
+                  <div key={idx} className="relative">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="Preview"
+                      className="w-full h-24 object-cover rounded"
+                    />
                     <button
                       type="button"
-                      onClick={() => setExistingImages(prev => prev.filter(i => i.id !== img.id))}
+                      onClick={() =>
+                        setImageFiles(prev => prev.filter((_, i) => i !== idx))
+                      }
                       className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                     >
                       <X className="w-3 h-3" />
@@ -517,7 +532,7 @@ const ProductsManagement = () => {
             )}
 
             {/* Existing Models Preview */}
-            {(existingModels.gltf || existingModels.bin) && (
+            {(existingModels.gltf || existingModels.bin || existingModels.step) && (
               <div className="mb-2">
                 {existingModels.gltf && <p>GLTF: {existingModels.gltf}</p>}
                 {existingModels.bin && <p>BIN: {existingModels.bin}</p>}

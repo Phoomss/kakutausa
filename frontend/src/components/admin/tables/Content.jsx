@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, Eye, Search, Filter, Calendar } from 'lucide-react';
 import contentService from '../../../services/contentServices';
 
 const Content = () => {
@@ -15,6 +15,13 @@ const Content = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [selectedIds, setSelectedIds] = useState([]);
+  
+  // New features
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterByType, setFilterByType] = useState('');
+  const [filterByStatus, setFilterByStatus] = useState('');
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
   
   const [formData, setFormData] = useState({
     contentTypeId: '',
@@ -65,6 +72,75 @@ const Content = () => {
     fetchContentTypes();
   }, []);
 
+  // Apply filters and sorting
+  const getFilteredAndSortedContents = () => {
+    let result = [...contents];
+
+    // Apply search if term exists
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(content => 
+        content.title?.toLowerCase().includes(term) ||
+        content.detail?.toLowerCase().includes(term) ||
+        content.contentType?.name?.toLowerCase().includes(term)
+      );
+    }
+
+    // Apply content type filter
+    if (filterByType) {
+      result = result.filter(content => 
+        content.contentTypeId == filterByType
+      );
+    }
+
+    // Apply status filter
+    if (filterByStatus) {
+      if (filterByStatus === 'published') {
+        result = result.filter(content => content.isPublished);
+      } else if (filterByStatus === 'unpublished') {
+        result = result.filter(content => !content.isPublished);
+      }
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let valA, valB;
+      switch (sortBy) {
+        case 'title':
+          valA = a.title?.toLowerCase() || '';
+          valB = b.title?.toLowerCase() || '';
+          break;
+        case 'contentType':
+          valA = a.contentType?.name?.toLowerCase() || '';
+          valB = b.contentType?.name?.toLowerCase() || '';
+          break;
+        case 'language':
+          valA = a.language?.toLowerCase() || '';
+          valB = b.language?.toLowerCase() || '';
+          break;
+        case 'isPublished':
+          valA = a.isPublished ? 1 : 0;
+          valB = b.isPublished ? 1 : 0;
+          break;
+        default: // createdAt
+          valA = new Date(a.createdAt || a.updatedAt || 0);
+          valB = new Date(b.createdAt || b.updatedAt || 0);
+      }
+      
+      if (typeof valA === 'string' && typeof valB === 'string') {
+        if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+        if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      } else {
+        if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+        if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      }
+    });
+
+    return result;
+  };
+
   // Open Add/Edit modal
   const openModal = (content = null) => {
     if (content) {
@@ -106,7 +182,7 @@ const Content = () => {
         showAlert('Content created successfully!');
       }
       closeModal();
-      fetchContents();
+      fetchContents(); // Refresh data
     } catch (err) {
       console.error(err);
       showAlert('Error saving content', 'error');
@@ -143,9 +219,12 @@ const Content = () => {
     setViewModalOpen(false);
   };
 
+  // Apply filters
+  const filteredContents = getFilteredAndSortedContents();
+  
   // Pagination
-  const totalPages = Math.ceil(contents.length / pageSize);
-  const paginatedData = contents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.ceil(filteredContents.length / pageSize);
+  const paginatedData = filteredContents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="space-y-6 relative">
@@ -182,8 +261,84 @@ const Content = () => {
         </div>
       )}
 
+      {/* Search and Filters */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search contents..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset to first page when searching
+              }}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          
+          <div>
+            <select
+              value={filterByType}
+              onChange={(e) => {
+                setFilterByType(e.target.value);
+                setCurrentPage(1); // Reset to first page when filtering
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Types</option>
+              {contentTypes.map((ct) => (
+                <option key={ct.id} value={ct.id}>{ct.name}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <select
+              value={filterByStatus}
+              onChange={(e) => {
+                setFilterByStatus(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Statuses</option>
+              <option value="published">Published</option>
+              <option value="unpublished">Unpublished</option>
+            </select>
+          </div>
+          
+          <div className="flex gap-2">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="createdAt">Date</option>
+              <option value="title">Title</option>
+              <option value="contentType">Content Type</option>
+              <option value="language">Language</option>
+              <option value="isPublished">Status</option>
+            </select>
+            <button 
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+              className="px-3 py-2 border border-gray-300 rounded-lg flex items-center"
+            >
+              <span className="mr-1">{sortOrder === 'asc' ? '↑' : '↓'}</span>
+              Order
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Add Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">
+        <div>
+          <span className="text-gray-500">
+            Showing {filteredContents.length} of {contents.length} contents
+          </span>
+        </div>
         <button onClick={() => openModal()} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg">
           <Plus className="w-4 h-4" /> Add Content
         </button>
@@ -197,7 +352,7 @@ const Content = () => {
         <div className="overflow-x-auto">
           {loading ? (
             <p className="p-4 text-center">Loading...</p>
-          ) : contents.length === 0 ? (
+          ) : filteredContents.length === 0 ? (
             <p className="p-4 text-center text-gray-500">No contents found</p>
           ) : (
             <>
@@ -283,7 +438,7 @@ const Content = () => {
             <p><strong>Content Type:</strong> {selectedContent.contentType?.name}</p>
             <p><strong>Language:</strong> {selectedContent.language}</p>
             <p><strong>Title:</strong> {selectedContent.title}</p>
-            <p><strong>Detail:</strong> {selectedContent.detail}</p>
+            <p><strong>Detail:</strong> <div className="whitespace-pre-line">{selectedContent.detail}</div></p>
             <p><strong>Published:</strong> {selectedContent.isPublished ? 'Yes' : 'No'}</p>
             {selectedContent.imageUrl && (
               <img src={getDirectDriveLink(selectedContent.imageUrl)} alt={selectedContent.title} className="mt-4 rounded max-h-[300px] w-auto" />
@@ -318,6 +473,7 @@ const Content = () => {
                 <label className="mb-1 block">Language</label>
                 <select value={formData.language} onChange={(e) => setFormData({ ...formData, language: e.target.value })} className="border px-3 py-2 rounded-lg w-full">
                   <option value="en">English</option>
+                  <option value="th">Thai</option>
                   <option value="ja">Japanese</option>
                 </select>
               </div>
@@ -327,7 +483,7 @@ const Content = () => {
               </div>
               <div>
                 <label className="mb-1 block">Detail</label>
-                <textarea value={formData.detail} onChange={(e) => setFormData({ ...formData, detail: e.target.value })} className="border px-3 py-2 rounded-lg w-full" rows={4} placeholder="Enter detail" />
+                <textarea value={formData.detail} onChange={(e) => setFormData({ ...formData, detail: e.target.value })} className="border px-3 py-2 rounded-lg w-full" rows={6} placeholder="Enter detail" />
               </div>
               <div>
                 <label className="mb-1 block">Image URL</label>

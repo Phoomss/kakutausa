@@ -56,7 +56,7 @@ CREATE TABLE "public"."Size" (
 CREATE TABLE "public"."ProductImage" (
     "id" SERIAL NOT NULL,
     "productId" INTEGER NOT NULL,
-    "imageUrl" TEXT NOT NULL,
+    "imageUrl" TEXT,
 
     CONSTRAINT "ProductImage_pkey" PRIMARY KEY ("id")
 );

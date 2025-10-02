@@ -18,7 +18,7 @@ const ProductDetail = () => {
   const [showModal, setShowModal] = useState(false);
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerFirstName, setCustomerFirstName] = useState("");
-  const [customerLastName, setCustomerLasttName] = useState("")
+  const [customerLastName, setCustomerLastName] = useState("");
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -55,7 +55,7 @@ const ProductDetail = () => {
       setShowModal(false);
       setCustomerEmail("");
       setCustomerFirstName("");
-      setCustomerLasttName("");
+      setCustomerLastName("");
       setMessage("");
     } catch (err) {
       console.error(err);
@@ -209,7 +209,7 @@ const ProductDetail = () => {
 
       {/* Modal */}
       {showModal && (
-       <div className="fixed inset-0 bg-gray-500/40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-500/40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96">
             <h2 className="text-lg font-bold mb-4">Request 3D File</h2>
             <div className="grid grid-cols-2 gap-3 mb-3">
@@ -224,7 +224,7 @@ const ProductDetail = () => {
                 type="text"
                 placeholder="Last Name"
                 value={customerLastName}
-                onChange={(e) => setCustomerLasttName(e.target.value)}
+                onChange={(e) => setCustomerLastName(e.target.value)}
                 className="w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>

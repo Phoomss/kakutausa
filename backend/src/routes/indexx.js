@@ -9,6 +9,7 @@ const sizeRouter = require('./sizeRouter')
 const contentTypeRouter = require('./contentTypeRouter')
 const contentRouter = require('./contentRouter')
 const sendEmailRouter = require('./sendEmailRouter')
+const dashboardRouter = require('./dashboardRouter')
 
 routRouter.use('/auth', authRouter)
 routRouter.use('/categories', categoryRouter)
@@ -17,7 +18,8 @@ routRouter.use('/addresses', addressRouter)
 routRouter.use('/products', productRouter)
 routRouter.use('/sizes', sizeRouter)
 routRouter.use('/content-types', contentTypeRouter)
-routRouter.use('/contents',contentRouter)
+routRouter.use('/contents', contentRouter)
 routRouter.use('/send-email', sendEmailRouter)
+routRouter.use('/dashboard', dashboardRouter)
 
 module.exports = routRouter

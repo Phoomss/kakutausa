@@ -45,10 +45,11 @@ const Profile = () => {
         payload.password = formData.password;
       }
 
-      await authService.updateProfile(payload);
+      const response = await authService.updateProfile(payload);
 
       alert("Profile updated successfully!");
-      setUser({ ...user, username: payload.username, email: payload.email });
+      // Update user with fresh data from response
+      setUser(response.data.data);
       setIsEditing(false);
     } catch (err) {
       console.error("Update failed:", err);
@@ -100,7 +101,7 @@ const Profile = () => {
           </div>
 
           {/* Edit Button */}
-          {/* <div className="mt-6 text-center sm:text-right">
+          <div className="mt-6 text-center sm:text-right">
             <button
               onClick={() => setIsEditing(true)}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
@@ -108,13 +109,13 @@ const Profile = () => {
               <Edit3 className="w-4 h-4 mr-2" />
               Edit Profile
             </button>
-          </div> */}
+          </div>
         </div>
       </div>
 
       {/* Edit Modal */}
       {isEditing && (
-        <div className="fixed inset-0  bg-opacity-40 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md relative">
             <button
               onClick={() => setIsEditing(false)}

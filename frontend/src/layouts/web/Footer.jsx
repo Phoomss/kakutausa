@@ -51,13 +51,23 @@ const Footer = () => {
           <h4 className="font-bold text-xl">Quicklinks</h4>
           <ul className="space-y-2">
             <li>
+              <a href="/" className="hover:text-red-300 transition-colors">
+                Home
+              </a>
+            </li>
+            <li>
               <a href="/products" className="hover:text-red-300 transition-colors">
                 Products
               </a>
             </li>
             <li>
-              <a href="/cross-reference" className="hover:text-red-300 transition-colors">
-                Cross Reference
+              <a href="/about" className="hover:text-red-300 transition-colors">
+                About Us
+              </a>
+            </li>
+            <li>
+              <a href="/contact" className="hover:text-red-300 transition-colors">
+                Contact Us
               </a>
             </li>
             <li>
@@ -68,11 +78,6 @@ const Footer = () => {
             <li>
               <a href="/refunds-returns" className="hover:text-red-300 transition-colors">
                 Refunds & Returns Policy
-              </a>
-            </li>
-            <li>
-              <a href="/contact" className="hover:text-red-300 transition-colors">
-                Contact Us
               </a>
             </li>
             <li>

@@ -2,7 +2,7 @@ const express = require("express");
 const productController = require("../controllers/productController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const adminMiddleware = require("../middlewares/adminMiddleware");
-const upload = require("../utils/uploadStorage");
+const { upload } = require("../utils/supabaseStorage");
 
 const productRouter = express.Router();
 
@@ -22,7 +22,7 @@ productRouter.post(
   "/:id/images",
   [authMiddleware, adminMiddleware],
   upload.array("images", 10),
-  productController.uploadImage
+  productController.uploadImages
 );
 
 // GLTF/BIN upload

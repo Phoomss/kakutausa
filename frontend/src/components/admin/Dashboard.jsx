@@ -1,13 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, Edit, Trash2, Plus } from 'lucide-react';
 import StatsCard from './card/StatusCard';
+import dashboardService from '../../services/dashboardService';
 
 const Dashboard = () => {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalProducts: 0,
+    totalCategories: 0,
+    totalOrders: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const response = await dashboardService.getDashboardStats();
+      if (response.data && response.data.data) {
+        setStats(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const statsCards = [
-    { title: 'Total Users', value: '12,345', change: '+12%', trend: 'up', color: 'blue' },
-    { title: 'Revenue', value: '฿45,678', change: '+8%', trend: 'up', color: 'green' },
-    { title: 'Orders', value: '1,234', change: '-3%', trend: 'down', color: 'yellow' },
-    { title: 'Conversion', value: '3.45%', change: '+5%', trend: 'up', color: 'purple' },
+    { title: 'Total Users', value: stats.totalUsers?.toLocaleString() || '0', change: '+0%', trend: 'up', color: 'blue' },
+    { title: 'Total Products', value: stats.totalProducts?.toLocaleString() || '0', change: '+0%', trend: 'up', color: 'green' },
+    { title: 'Total Categories', value: stats.totalCategories?.toLocaleString() || '0', change: '+0%', trend: 'up', color: 'yellow' },
+    { title: 'Total Orders', value: stats.totalOrders?.toLocaleString() || '0', change: '+0%', trend: 'up', color: 'purple' },
   ];
 
   const recentOrders = [
@@ -27,6 +53,14 @@ const Dashboard = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -8,6 +8,7 @@ import AboutPage from './pages/web/AboutPage'
 import ProductPage from './pages/web/ProductPage'
 import ProductDetailPage from './pages/web/ProductDetailPage'
 import Model3D from './components/web/models/Model3D'
+import SearchResultsPage from './pages/web/SearchResultsPage'
 import DashboardPage from './pages/admin/DashboardPage'
 import Login from './pages/auth/Login'
 
@@ -30,6 +31,7 @@ function App() {
         <Route path={ROUTES.PRODUCTS_PATH} element={<ProductPage />} />
         <Route path={ROUTES.PRODUCT_DETAIL_PATH} element={<ProductDetailPage />} />
         <Route path={ROUTES.PRODUCT_3D_PATH} element={<Model3D />} />
+        <Route path="/search" element={<SearchResultsPage />} />
       </Route>
 
       <Route path={ROUTES.LOGIN_PATH} element={<Login />} />

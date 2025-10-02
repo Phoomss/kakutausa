@@ -10,8 +10,15 @@ exports.createSize = async (req, res) => {
             return res.status(400).json({ message: "productId must be a valid number" });
         }
 
-        if (!productId || !holdingCapacity || !weight || !handleMoves || !barMoves) {
-            return res.status(400).json({ message: "All fields are required" });
+        // Validate required fields exist
+        if (!productId || holdingCapacity === undefined || weight === undefined || handleMoves === undefined || barMoves === undefined) {
+            return res.status(400).json({ message: "productId, holdingCapacity, weight, handleMoves, and barMoves are required" });
+        }
+        
+        // Validate numeric values
+        if (typeof holdingCapacity !== 'number' || typeof weight !== 'number' || 
+            typeof handleMoves !== 'number' || typeof barMoves !== 'number') {
+            return res.status(400).json({ message: "holdingCapacity, weight, handleMoves, and barMoves must be numbers" });
         }
 
         const product = await prisma.product.findUnique({
@@ -84,27 +91,45 @@ exports.updateSize = async (req, res) => {
             return res.status(404).json({ message: "Size not found" });
         }
 
-        const parseProductId = parseInt(productId, 10);
-        if (isNaN(parseProductId)) {
-            return res.status(400).json({ message: "productId must be a valid number" });
+        // Validate productId if provided
+        let parseProductId;
+        if (productId !== undefined) {
+            parseProductId = parseInt(productId, 10);
+            if (isNaN(parseProductId)) {
+                return res.status(400).json({ message: "productId must be a valid number" });
+            }
+
+            const product = await prisma.product.findUnique({
+                where: { id: parseProductId }
+            });
+
+            if (!product) {
+                return res.status(404).json({ message: "Product not found" });
+            }
         }
 
-        const product = await prisma.product.findUnique({
-            where: { id: parseProductId }
-        });
-
-        if (!product) {
-            return res.status(404).json({ message: "Product not found" });
+        // Validate numeric fields if provided
+        if (holdingCapacity !== undefined && typeof holdingCapacity !== 'number') {
+            return res.status(400).json({ message: "holdingCapacity must be a number" });
+        }
+        if (weight !== undefined && typeof weight !== 'number') {
+            return res.status(400).json({ message: "weight must be a number" });
+        }
+        if (handleMoves !== undefined && typeof handleMoves !== 'number') {
+            return res.status(400).json({ message: "handleMoves must be a number" });
+        }
+        if (barMoves !== undefined && typeof barMoves !== 'number') {
+            return res.status(400).json({ message: "barMoves must be a number" });
         }
 
         const updatedSize = await prisma.size.update({
             where: { id: parseInt(id) },
             data: {
-                productId: parseProductId || size.productId,
-                holdingCapacity: holdingCapacity || size.holdingCapacity,
-                weight: weight || size.weight,
-                handleMoves: handleMoves || size.handleMoves,
-                barMoves: barMoves || size.barMoves
+                productId: productId !== undefined ? parseProductId : undefined,
+                holdingCapacity: holdingCapacity !== undefined ? holdingCapacity : undefined,
+                weight: weight !== undefined ? weight : undefined,
+                handleMoves: handleMoves !== undefined ? handleMoves : undefined,
+                barMoves: barMoves !== undefined ? barMoves : undefined
             }
         });
 

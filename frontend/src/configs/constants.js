@@ -1,7 +1,7 @@
 // System Constants
 export const SYSTEM_NAME = "KAKUTA USA";
-export const API_IMAGE_URL = "https://kakutausa-1.onrender.com"
-export const API_MODEL_URL = "https://kakutausa-1.onrender.com"
+export const API_IMAGE_URL = "https://fmexudkfblghjesavdqp.supabase.co/storage/v1/object/public/product-images/";
+export const API_MODEL_URL = "https://fmexudkfblghjesavdqp.supabase.co/storage/v1/object/public/product-models/"
 // Public / Web routes
 export const HOME_PATH = "/";
 export const ABOUT_PATH = "/about";
@@ -15,7 +15,7 @@ export const LOGIN_PATH = "/login";
 export const ADMIN_PATH = "/admin/"
 export const DASHBOARD = ADMIN_PATH + "dashboard"
 export const CONTENTS = ADMIN_PATH + "contents"
-export const CONTENTTYPES = ADMIN_PATH + "contetnt-types"
+export const CONTENTTYPES = ADMIN_PATH + "content-types"
 export const ADDRESS = ADMIN_PATH + "address"
 export const ADDRESSTYPES = ADMIN_PATH + "address-types"
 export const CATEGORIES = ADMIN_PATH + "categories"
