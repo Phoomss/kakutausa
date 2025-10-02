@@ -1,8 +1,7 @@
 const prisma = require("../config/db");
 const InternalServer = require("../utils/internal-server");
 const path = require("path");
-const { uploadFileToSupabase } = require("../utils/uploadStorage");
-const { deleteFileFromSupabase, uploadModelFiles } = require("../utils/supabaseStorage");
+const { deleteFileFromSupabase, uploadModelFiles, uploadFileToSupabase } = require("../utils/supabaseStorage");
 
 const mapSizesForDB = (sizes) => sizes.map((s) => ({
   holdingCapacityMetric: s.holdingCapacityMetric || null,
@@ -383,8 +382,8 @@ exports.uploadModel = async (req, res) => {
       },
     });
 
-    res.status(201).json({ 
-      message: "Model uploaded successfully", 
+    res.status(201).json({
+      message: "Model uploaded successfully",
       data: newModel,
       files: {
         gltf: uploadedFiles.gltf.fileName,
