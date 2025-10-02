@@ -118,31 +118,6 @@ const ProductsManagement = () => {
     setFormData(prev => ({ ...prev, sizes: newSizes }));
   };
 
-  const addSizeRow = () => {
-    setFormData(prev => ({
-      ...prev,
-      sizes: [...prev.sizes, {
-        holdingCapacityMetric: "",
-        weightMetric: "",
-        handleMovesMetric: "",
-        barMovesMetric: "",
-        drawingMovementMetric: "",
-        holdingCapacityInch: "",
-        weightInch: "",
-        handleMovesInch: "",
-        barMovesInch: "",
-        drawingMovementInch: ""
-      }]
-    }));
-  };
-
-  const removeSizeRow = (index) => {
-    if (formData.sizes.length > 1) {
-      const updatedSizes = formData.sizes.filter((_, i) => i !== index);
-      setFormData(prev => ({ ...prev, sizes: updatedSizes }));
-    }
-  };
-
   const resetForm = () => {
     setFormData({
       id: null,
@@ -415,13 +390,6 @@ const ProductsManagement = () => {
               <h4 className="font-semibold mb-4">Product Specifications</h4>
               {formData.sizes.map((size, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <h5 className="font-medium text-gray-700">Size {index + 1}</h5>
-                    {formData.sizes.length > 1 && (
-                      <button onClick={() => removeSizeRow(index)} className="text-red-500 hover:text-red-700 text-sm">Remove</button>
-                    )}
-                  </div>
-
                   <div className="grid grid-cols-2 gap-6">
                     {/* Metric */}
                     <div>
@@ -449,10 +417,6 @@ const ProductsManagement = () => {
                   </div>
                 </div>
               ))}
-
-              <button onClick={addSizeRow} className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center" disabled={saving}>
-                <Plus className="w-5 h-5 mr-2" /> Add Another Size Specification
-              </button>
             </div>
 
             {/* Upload Section */}
