@@ -21,13 +21,13 @@ const login = (loginData) => {
     return http.post('/api/auth/login', payload, { withCredentials: true })
 }
 
-// const userInfo = () => {
-//     return http.get('/api/auth/user-info', { withCredentials: true });
-// }
-
 const userInfo = () => {
-    return http.get('/api/auth/user-info');
+    return http.get('/api/auth/user-info', { withCredentials: true });
 }
+
+// const userInfo = () => {
+//     return http.get('/api/auth/user-info');
+// }
 
 const logout = () => {
     return http.post('/api/auth/logout', { withCredentials: true });
