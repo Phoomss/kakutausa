@@ -7,7 +7,7 @@ import productService from "../../../services/productService";
 const ModelViewer = React.lazy(() => import("./ModelViewer"));
 
 export default function Model3D() {
-  const { id } = useParams();
+  const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
@@ -30,7 +30,7 @@ export default function Model3D() {
     const fetchProduct = async () => {
       setLoadingProduct(true);
       try {
-        const res = await productService.getProductById(id);
+        const res = await productService.getProductById(productId);
         setProduct(res.data.data);
       } catch (err) {
         console.error(err);
@@ -39,8 +39,8 @@ export default function Model3D() {
       }
     };
 
-    if (id) fetchProduct();
-  }, [id]);
+    if (productId) fetchProduct();
+  }, [productId]);
 
   const rotateModel = (axis, direction) => {
     const step = Math.PI / 6;
@@ -53,13 +53,13 @@ export default function Model3D() {
   const resetRotation = () => setModelRotation({ x: 0, y: 0, z: 0 });
 
   const downloadImage = () => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const link = document.createElement("a");
-      link.download = "model-screenshot.png";
-      link.href = canvas.toDataURL();
-      link.click();
-    }
+    if (!canvasRef.current) return;
+    const gl = canvasRef.current.gl; // access WebGL context
+    if (!gl) return;
+    const link = document.createElement("a");
+    link.download = "model-screenshot.png";
+    link.href = gl.domElement.toDataURL();
+    link.click();
   };
 
   return (
