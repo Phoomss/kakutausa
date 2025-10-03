@@ -7,7 +7,7 @@ export const HOME_PATH = "/";
 export const ABOUT_PATH = "/about";
 export const PRODUCTS_PATH = "/products";
 export const PRODUCT_DETAIL_PATH = "/products/:id";
-export const PRODUCT_3D_PATH = "/products/:id/generatemodel";
+export const PRODUCT_3D_PATH = "/products/:productId/generatemodel";
 export const CONTACT_PATH = "/contact";
 export const LOGIN_PATH = "/login";
 

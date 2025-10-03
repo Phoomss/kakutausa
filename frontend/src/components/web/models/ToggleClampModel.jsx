@@ -3,6 +3,7 @@ import { Html, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { API_MODEL_URL } from "../../../configs/constants";
 import productService from "../../../services/productService";
+import { useParams } from 'react-router';
 
 function Model({ url, rotation }) {
   const meshRef = useRef();
@@ -53,43 +54,41 @@ function Model({ url, rotation }) {
   return <primitive ref={meshRef} object={scene} dispose={null} />;
 }
 
-export default function ToggleClampModel({ productId, rotation }) {
+export default function ToggleClampModel({ rotation }) {
   const [modelUrl, setModelUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { productId } = useParams()
+  
+  useEffect(() => {
+    if (!productId) return; // ถ้าไม่มี id ไม่ต้องยิง
 
-useEffect(() => {
-  const fetchModel = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await productService.getProductModels(productId);
+    const fetchModel = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await productService.getProductModels(productId);
 
-      // console.log("API response:", res); // log ทั้ง response
-      // console.log("Model data array:", res.data.data); // log data array
-
-      if (res.data.data && res.data.data.length > 0) {
-        const gltfFile = res.data.data[0]; 
-        // console.log("First GLTF file:", gltfFile); // log ตัวแรก
-
-        if (gltfFile?.gltfUrl) {
-          setModelUrl(`${API_MODEL_URL}${gltfFile.gltfUrl}`);
+        if (res.data.data && res.data.data.length > 0) {
+          const gltfFile = res.data.data[0];
+          if (gltfFile?.gltfUrl) {
+            setModelUrl(`${API_MODEL_URL}${gltfFile.gltfUrl}`);
+          } else {
+            setError("No GLTF file found for this product.");
+          }
         } else {
-          setError("No GLTF file found for this product.");
+          setError("No models available for this product.");
         }
-      } else {
-        setError("No models available for this product.");
+      } catch (err) {
+        console.error("Failed to load product models:", err);
+        setError("Failed to load product models.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Failed to load product models:", err);
-      setError("Failed to load product models.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchModel();
-}, [productId]);
+    fetchModel();
+  }, [productId]);
 
 
   // Loading/Error Overlay
