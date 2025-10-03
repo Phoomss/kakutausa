@@ -186,20 +186,28 @@ exports.getProductImages = async (req, res) => {
 
 exports.getProductModels = async (req, res) => {
   const { id } = req.params;
+  const productId = parseInt(id, 10);
+
+  if (!id || isNaN(productId)) {
+    return res.status(400).json({ message: "Invalid or missing product ID" });
+  }
+
   try {
     const models = await prisma.productModel.findMany({
-      where: { productId: parseInt(id) },
+      where: { productId: productId },
       select: { gltfUrl: true, binUrl: true, stepUrl: true }
     });
 
-    if (!models || models.length === 0)
+    if (!models || models.length === 0) {
       return res.status(404).json({ message: "No 3D models found" });
+    }
 
     res.status(200).json({ message: "Models fetched", data: models });
   } catch (error) {
     InternalServer(res, error);
   }
 };
+
 
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
