@@ -6,7 +6,11 @@ const ViewProductModal = ({ product, onClose }) => {
   if (!product) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="bg-white p-6 rounded-lg w-5/6 max-w-5xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -39,31 +43,40 @@ const ViewProductModal = ({ product, onClose }) => {
           <h4 className="font-semibold mb-2">
             Sizes ({product.sizes?.length || 0})
           </h4>
-          {product.sizes?.map((size, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-3 mb-2">
-              <h5 className="font-medium text-gray-700 mb-2">Size {index + 1}</h5>
-              <div className="grid grid-cols-2 gap-4">
-                {/* Metric */}
-                <div>
-                  <h6 className="font-medium text-green-600 mb-1">Metric</h6>
-                  <p>Holding Capacity: {size.holdingCapacityMetric || "-"}</p>
-                  <p>Weight: {size.weightMetric || "-"}</p>
-                  <p>Handle Moves: {size.handleMovesMetric || "-"}</p>
-                  <p>Bar Moves: {size.barMovesMetric || "-"}</p>
-                  <p>Drawing Movement: {size.drawingMovementMetric || "-"}</p>
-                </div>
-                {/* Imperial */}
-                <div>
-                  <h6 className="font-medium text-blue-600 mb-1">Imperial</h6>
-                  <p>Holding Capacity: {size.holdingCapacityInch || "-"}</p>
-                  <p>Weight: {size.weightInch || "-"}</p>
-                  <p>Handle Moves: {size.handleMovesInch || "-"}</p>
-                  <p>Bar Moves: {size.barMovesInch || "-"}</p>
-                  <p>Drawing Movement: {size.drawingMovementInch || "-"}</p>
+          {product.sizes && product.sizes.length > 0 ? (
+            product.sizes.map((size) => (
+              <div
+                key={size.id || size._id || size.holdingCapacityMetric}
+                className="border border-gray-200 rounded-lg p-3 mb-2"
+              >
+                <h5 className="font-medium text-gray-700 mb-2">
+                  Size {size.id || "-"}
+                </h5>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Metric */}
+                  <div>
+                    <h6 className="font-medium text-green-600 mb-1">Metric</h6>
+                    <p>Holding Capacity: {size.holdingCapacityMetric || "-"}</p>
+                    <p>Weight: {size.weightMetric || "-"}</p>
+                    <p>Handle Moves: {size.handleMovesMetric || "-"}</p>
+                    <p>Bar Moves: {size.barMovesMetric || "-"}</p>
+                    <p>Drawing Movement: {size.drawingMovementMetric || "-"}</p>
+                  </div>
+                  {/* Imperial */}
+                  <div>
+                    <h6 className="font-medium text-blue-600 mb-1">Imperial</h6>
+                    <p>Holding Capacity: {size.holdingCapacityInch || "-"}</p>
+                    <p>Weight: {size.weightInch || "-"}</p>
+                    <p>Handle Moves: {size.handleMovesInch || "-"}</p>
+                    <p>Bar Moves: {size.barMovesInch || "-"}</p>
+                    <p>Drawing Movement: {size.drawingMovementInch || "-"}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-gray-500">No sizes available</p>
+          )}
         </div>
 
         {/* Images */}
@@ -71,11 +84,11 @@ const ViewProductModal = ({ product, onClose }) => {
           <h4 className="font-semibold mb-2">Images</h4>
           {product.images && product.images.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-96 overflow-y-auto">
-              {product.images.map((img) => (
+              {product.images.map((img, index) => (
                 <img
-                  key={img.id}
+                  key={img.id || index}
                   src={`${API_IMAGE_URL}${img.imageUrl}`}
-                  alt={product.name}
+                  alt={`${product.name} - Image ${index + 1}`}
                   className="w-full h-40 object-cover rounded"
                 />
               ))}
@@ -91,15 +104,18 @@ const ViewProductModal = ({ product, onClose }) => {
         <div className="mb-6">
           <h4 className="font-semibold mb-2">3D Model Files</h4>
           {product.models && product.models.length > 0 ? (
-            <ul className="list-disc list-inside text-gray-700">
+            <div className="flex flex-wrap gap-3">
               {product.models.map((model, idx) => (
-                <li key={idx} className="flex gap-2">
+                <div
+                  key={model.id || idx}
+                  className="flex gap-2 items-center"
+                >
                   {model.gltfUrl && (
                     <a
                       href={model.gltfUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
+                      className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
                     >
                       GLTF
                     </a>
@@ -109,14 +125,24 @@ const ViewProductModal = ({ product, onClose }) => {
                       href={model.binUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-green-600 hover:underline"
+                      className="px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm"
                     >
                       BIN
                     </a>
                   )}
-                </li>
+                  {model.stepUrl && (
+                    <a
+                      href={model.stepUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 text-sm"
+                    >
+                      STEP
+                    </a>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             <p className="text-gray-500">No models uploaded</p>
           )}
