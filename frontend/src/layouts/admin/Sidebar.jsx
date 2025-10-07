@@ -4,9 +4,10 @@ import authService from "../../services/authService";
 import {
   Home, BarChart3, FileText, Layers, Tag, X,
   MapPin, ChevronDown, ChevronUp, Package, LogOut,
-  User2
+  User2,
+  MessageCircle
 } from 'lucide-react';
-import { CONTENTTYPES, DASHBOARD, CONTENTS, ADDRESSTYPES, ADDRESS, CATEGORIES, PRODUCTS, PROFILE } from "../../configs/constants";
+import { CONTENTTYPES, DASHBOARD, CONTENTS, ADDRESSTYPES, ADDRESS, CATEGORIES, PRODUCTS, PROFILE, REQUESTS3D } from "../../configs/constants";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const [openSubmenus, setOpenSubmenus] = useState({});
@@ -64,6 +65,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       submenu: [
         { path: CATEGORIES, label: 'Categories', icon: Tag },
         { path: PRODUCTS, label: 'Products', icon: Package },
+        { path: REQUESTS3D, label: '3D Requests', icon: MessageCircle },
       ],
     },
     { path: PROFILE, icon: User2, label: 'Profile' },
