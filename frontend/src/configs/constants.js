@@ -11,7 +11,7 @@ export const PRODUCT_3D_PATH = "/products/:productId/generatemodel";
 export const CONTACT_PATH = "/contact";
 export const LOGIN_PATH = "/login";
 
-// System / Adin routes
+// System / Admin routes
 export const ADMIN_PATH = "/admin/"
 export const DASHBOARD = ADMIN_PATH + "dashboard"
 export const CONTENTS = ADMIN_PATH + "contents"
@@ -20,4 +20,5 @@ export const ADDRESS = ADMIN_PATH + "address"
 export const ADDRESSTYPES = ADMIN_PATH + "address-types"
 export const CATEGORIES = ADMIN_PATH + "categories"
 export const PRODUCTS = ADMIN_PATH + "products"
+export const REQUESTS3D = ADMIN_PATH + "requests3d"
 export const PROFILE = ADMIN_PATH + "profile"

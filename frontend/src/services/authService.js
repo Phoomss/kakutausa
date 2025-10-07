@@ -12,29 +12,19 @@ const login = (loginData) => {
         password: loginData.password
     }
 
-    if (isEmail) {
-        payload.email = loginData.emailOrUsername
-    } else {
-        payload.username = loginData.emailOrUsername
-    }
-
-    return http.post('/api/auth/login', payload, { withCredentials: true })
+    return http.post('/api/auth/login', payload)
 }
 
 const userInfo = () => {
-    return http.get('/api/auth/user-info', { withCredentials: true });
+    return http.get('/api/auth/user-info');
 }
 
-// const userInfo = () => {
-//     return http.get('/api/auth/user-info');
-// }
-
 const logout = () => {
-    return http.post('/api/auth/logout', { withCredentials: true });
+    return http.post('/api/auth/logout');
 }
 
 const updateProfile = (payload) => {
-    return http.put('/api/auth/update-profile', payload, { withCredentials: true });
+    return http.put('/api/auth/update-profile', payload);
 };
 
 const authService = {

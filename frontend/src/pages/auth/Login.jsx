@@ -37,11 +37,13 @@ const Login = () => {
 
     try {
       const res = await authService.login(loginData);
-      localStorage.setItem("userRole", res.data.data.role)
+      // Store token in localStorage
+      localStorage.setItem("token", res.data.data.token);
+      localStorage.setItem("userRole", res.data.data.role);
       showAlert("Login successful!", 'success');
       navigate(DASHBOARD);
     } catch (err) {
-      // console.error(err);
+      console.error(err);
       const msg = err.response?.data?.message || "Login failed";
       showAlert(msg, 'error');
     } finally {

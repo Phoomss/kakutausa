@@ -6,6 +6,12 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    
     authService.userInfo()
       .then(res => setUser(res.data.data))
       .catch(() => setUser(null))

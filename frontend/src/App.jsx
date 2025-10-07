@@ -21,6 +21,7 @@ import AddressPage from './pages/admin/AddressPage'
 import CategoryPage from './pages/admin/CategoryPage'
 import ProductPageAdmin from './pages/admin/ProductPageAdmin'
 import ProfilePage from './pages/admin/ProfilePage'
+import Request3DPage from './pages/admin/Request3DPage'
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path={ROUTES.ADDRESS} element={<AddressPage />} />
           <Route path={ROUTES.CATEGORIES} element={<CategoryPage />} />
           <Route path={ROUTES.PRODUCTS} element={<ProductPageAdmin />} />
+          <Route path={ROUTES.REQUESTS3D} element={<Request3DPage />} />
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
         </Route>
       </Route>

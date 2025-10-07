@@ -11,7 +11,6 @@ import logo from "/logo.webp";
 import {
   HOME_PATH,
   ABOUT_PATH,
-  CONTACT_PATH,
   PRODUCTS_PATH,
 } from '../../configs/constants';
 import ContactBanner from '../../components/web/ContactBanner ';
@@ -23,7 +22,6 @@ const categories = [
     name: 'Products',
     path: PRODUCTS_PATH,
   },
-  { name: 'Contact Us', path: CONTACT_PATH }
 ];
 
 const Navbar = () => {

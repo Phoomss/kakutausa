@@ -7,7 +7,6 @@ const routRouter = require('./routes/indexx');
 
 const app = express();
 
-// Middleware
 app.use(cookieParser());
 app.use(cors({
     origin: "https://kakutausa.vercel.app", 
@@ -17,11 +16,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
-app.use("/uploads/images", express.static("uploads/images"));
-app.use("/uploads/models", express.static("uploads/models"));
 
-
-// Initialize admin user
 initializeAdminUser();
 
 app.use('/api', routRouter);

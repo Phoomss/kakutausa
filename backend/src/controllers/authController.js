@@ -105,14 +105,6 @@ exports.login = async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        // ส่ง JWT ลง cookie
-        res.cookie('sescoin', jwtToken, {
-            httpOnly: true,
-            secure: true,       // ✅ ต้อง true บน HTTPS
-            sameSite: 'none',   // ✅ ต้อง none สำหรับ cross-origin
-            maxAge: 1000 * 60 * 60
-        });
-
         return res.status(200).json({
             message: "Login successful",
             data: {
@@ -171,14 +163,6 @@ exports.userInfo = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        // ลบ cookie sescoin
-        res.cookie('sescoin', '', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // ใช้ true เฉพาะ production
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // สำหรับ cross-origin ใน production
-            maxAge: 1 // เซ็ตอายุเป็น 1ms เพื่อลบคุกกี้ทันที
-        });
-
         return res.status(200).json({
             message: "Logout successful"
         });
@@ -188,49 +172,32 @@ exports.logout = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
+  try {
+    const { username, email, password } = req.body;
 
-        if (!req.user) {
-            return res.status(401).json({ message: "Unauthorized" });
-        }
-
-        const userId = req.user.userId;
-
-        // ตรวจสอบ username ซ้ำ
-        const existingUsername = await prisma.user.findFirst({
-            where: { username, id: { not: userId } }
-        });
-        if (existingUsername) {
-            return res.status(409).json({ message: "Username already exists" });
-        }
-
-        // ตรวจสอบ email ซ้ำ
-        const existingEmail = await prisma.user.findFirst({
-            where: { email, id: { not: userId } }
-        });
-        if (existingEmail) {
-            return res.status(409).json({ message: "Email already exists" });
-        }
-
-        // สร้าง object สำหรับ update
-        const dataToUpdate = { username, email };
-
-        if (password && password.trim() !== "") {
-            const hashedPassword = await hashPassword(password);
-            dataToUpdate.password = hashedPassword;
-        }
-
-        const updatedUser = await prisma.user.update({
-            where: { id: userId },
-            data: dataToUpdate
-        });
-
-        return res.status(200).json({
-            message: "Profile updated successfully",
-            data: updatedUser
-        });
-    } catch (error) {
-        InternalServer(res, error);
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
+
+    const userId = req.user.id;
+
+    const dataToUpdate = { username, email };
+
+    if (password && password.trim() !== "") {
+      const hashedPassword = await hashPassword(password);
+      dataToUpdate.password = hashedPassword;
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: dataToUpdate
+    });
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      data: updatedUser
+    });
+  } catch (error) {
+    InternalServer(res, error);
+  }
 };

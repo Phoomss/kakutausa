@@ -5,7 +5,6 @@ const adminMiddleware = require('../middlewares/adminMiddleware');
 
 const dashboardRouter = express.Router();
 
-// Get dashboard statistics
 dashboardRouter.get('/stats', [authMiddleware, adminMiddleware], dashboardController.getDashboardStats);
 
 module.exports = dashboardRouter;
