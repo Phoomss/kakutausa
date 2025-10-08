@@ -119,21 +119,19 @@ const ProductDetail = () => {
       {/* Image / 3D Toggle */}
       <div className="flex justify-center space-x-4">
         <button
-          className={`px-4 py-2 rounded-lg ${
-            view === "image"
+          className={`px-4 py-2 rounded-lg ${view === "image"
               ? "bg-red-500 text-white"
               : "bg-gray-200 text-gray-600"
-          }`}
+            }`}
           onClick={() => setView("image")}
         >
           Images
         </button>
         <button
-          className={`px-4 py-2 rounded-lg ${
-            view === "3d"
+          className={`px-4 py-2 rounded-lg ${view === "3d"
               ? "bg-red-500 text-white"
               : "bg-gray-200 text-gray-600"
-          }`}
+            }`}
           onClick={() => navigate(`/products/${product.id}/generatemodel`)}
         >
           3D Model
@@ -177,10 +175,9 @@ const ProductDetail = () => {
         </div>
       )}
 
-      {/* Image Popup */}
       {showPopup && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          className="fixed top-0 left-0 w-screen h-screen bg-black/80 flex items-center justify-center z-[9999] overflow-hidden"
           onClick={() => setShowPopup(false)}
         >
           <div className="relative max-w-5xl w-full px-4">
@@ -227,11 +224,10 @@ const ProductDetail = () => {
         {["inch", "metric"].map((u) => (
           <button
             key={u}
-            className={`px-4 py-2 rounded-lg ${
-              unit === u
+            className={`px-4 py-2 rounded-lg ${unit === u
                 ? "bg-red-500 text-white"
                 : "bg-gray-200 text-gray-600"
-            }`}
+              }`}
             onClick={() => setUnit(u)}
           >
             {u.charAt(0).toUpperCase() + u.slice(1)}
