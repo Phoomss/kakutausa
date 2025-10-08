@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ArrowLeft, Mail } from "lucide-react";
+import { ArrowLeft, Mail, X, ChevronLeft, ChevronRight } from "lucide-react";
 import productService from "../../services/productService";
 import { API_IMAGE_URL } from "../../configs/constants";
 import sendEmailService from "../../services/sendEmailService";
@@ -22,6 +22,10 @@ const ProductDetail = () => {
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
 
+  // Image slider state
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
+
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
@@ -40,7 +44,6 @@ const ProductDetail = () => {
 
   const handleRequest3D = async () => {
     if (!customerEmail) return;
-
     setSending(true);
     try {
       await sendEmailService.request3DFile({
@@ -64,6 +67,19 @@ const ProductDetail = () => {
       setSending(false);
     }
   };
+
+  const nextImage = () => {
+    if (!product?.images) return;
+    setCurrentIndex((prev) => (prev + 1) % product.images.length);
+  };
+
+  const prevImage = () => {
+    if (!product?.images) return;
+    setCurrentIndex(
+      (prev) => (prev - 1 + product.images.length) % product.images.length
+    );
+  };
+
   if (loading) return <p className="text-center py-10">Loading product...</p>;
   if (error || !product)
     return (
@@ -77,6 +93,8 @@ const ProductDetail = () => {
         </button>
       </div>
     );
+
+  const images = product.images || [];
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
@@ -101,19 +119,21 @@ const ProductDetail = () => {
       {/* Image / 3D Toggle */}
       <div className="flex justify-center space-x-4">
         <button
-          className={`px-4 py-2 rounded-lg ${view === "image"
-            ? "bg-red-500 text-white"
-            : "bg-gray-200 text-gray-600"
-            }`}
+          className={`px-4 py-2 rounded-lg ${
+            view === "image"
+              ? "bg-red-500 text-white"
+              : "bg-gray-200 text-gray-600"
+          }`}
           onClick={() => setView("image")}
         >
           Images
         </button>
         <button
-          className={`px-4 py-2 rounded-lg ${view === "3d"
-            ? "bg-red-500 text-white"
-            : "bg-gray-200 text-gray-600"
-            }`}
+          className={`px-4 py-2 rounded-lg ${
+            view === "3d"
+              ? "bg-red-500 text-white"
+              : "bg-gray-200 text-gray-600"
+          }`}
           onClick={() => navigate(`/products/${product.id}/generatemodel`)}
         >
           3D Model
@@ -126,23 +146,79 @@ const ProductDetail = () => {
         </button>
       </div>
 
-      {/* Images Display */}
-      {view === "image" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {product.images && product.images.length > 0 ? (
-            product.images.slice(0, 2).map((img, index) => (
-              <img
-                key={index}
-                src={`${API_IMAGE_URL}${img.imageUrl}`}
-                alt={`${product.name} ${index + 1}`}
-                className="w-full h-64 md:h-80 object-cover rounded-lg shadow-md"
-              />
-            ))
-          ) : (
-            <div className="w-full h-64 md:h-80 bg-gray-200 flex items-center justify-center rounded-lg">
-              <p className="text-gray-500">No images available</p>
-            </div>
-          )}
+      {/* Image Slider */}
+      {view === "image" && images.length > 0 && (
+        <div className="relative flex flex-col items-center">
+          <img
+            src={`${API_IMAGE_URL}${images[currentIndex].imageUrl}`}
+            alt={`Image ${currentIndex + 1}`}
+            className="w-full max-h-[500px] object-contain rounded-lg shadow-md cursor-pointer"
+            onClick={() => setShowPopup(true)}
+          />
+
+          {/* Controls */}
+          <button
+            onClick={prevImage}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={nextImage}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Counter */}
+          <div className="absolute bottom-3 right-3 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+            {currentIndex + 1} / {images.length}
+          </div>
+        </div>
+      )}
+
+      {/* Image Popup */}
+      {showPopup && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={() => setShowPopup(false)}
+        >
+          <div className="relative max-w-5xl w-full px-4">
+            <img
+              src={`${API_IMAGE_URL}${images[currentIndex].imageUrl}`}
+              alt="Zoomed"
+              className="w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Close button */}
+            <button
+              onClick={() => setShowPopup(false)}
+              className="absolute top-4 right-4 bg-white/80 rounded-full p-2 hover:bg-white"
+            >
+              <X className="w-6 h-6 text-gray-700" />
+            </button>
+
+            {/* Prev / Next buttons */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevImage();
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/70 p-2 rounded-full"
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-800" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextImage();
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/70 p-2 rounded-full"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-800" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -151,8 +227,11 @@ const ProductDetail = () => {
         {["inch", "metric"].map((u) => (
           <button
             key={u}
-            className={`px-4 py-2 rounded-lg ${unit === u ? "bg-red-500 text-white" : "bg-gray-200 text-gray-600"
-              }`}
+            className={`px-4 py-2 rounded-lg ${
+              unit === u
+                ? "bg-red-500 text-white"
+                : "bg-gray-200 text-gray-600"
+            }`}
             onClick={() => setUnit(u)}
           >
             {u.charAt(0).toUpperCase() + u.slice(1)}
@@ -190,7 +269,9 @@ const ProductDetail = () => {
                 {(size.barMovesInch || size.barMovesMetric) && (
                   <div>
                     Bar Moves:{" "}
-                    {unit === "inch" ? size.barMovesInch : size.barMovesMetric}
+                    {unit === "inch"
+                      ? size.barMovesInch
+                      : size.barMovesMetric}
                   </div>
                 )}
                 <div>
@@ -207,7 +288,7 @@ const ProductDetail = () => {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Request 3D Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-500/40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96">
