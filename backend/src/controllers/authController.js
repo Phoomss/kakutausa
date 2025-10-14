@@ -1,5 +1,5 @@
 const prisma = require("../config/db")
-const { JWT_SECRET } = require("../utils/constants")
+const { JWT_SECRET, DEFAULT_ADMIN_PASSWORD } = require("../utils/constants")
 const { hashPassword, comparePassword } = require("../utils/hashPassword")
 const InternalServer = require("../utils/internal-server")
 const jwt = require('jsonwebtoken')
@@ -124,12 +124,12 @@ exports.login = async (req, res) => {
 exports.initializeAdminUser = async () => {
     try {
         const defaultAdminPassword =
-            process.env.DEFAULT_ADMIN_PASSWORD || 'SecurePass!2025@Kakuta';
+            DEFAULT_ADMIN_PASSWORD || 'SecurePass!2025@Kakuta';
         const hashedPassword = await hashPassword(defaultAdminPassword);
 
         await prisma.user.upsert({
-            where: { username: 'KakutaAdmin' }, // ใช้ username เดียวกัน
-            update: {}, // ถ้ามีอยู่แล้ว ไม่ต้อง update
+            where: { username: 'KakutaAdmin' },
+            update: {},
             create: {
                 username: 'KakutaAdmin',
                 email: 'KakutaAdmin@example.com',
@@ -139,13 +139,13 @@ exports.initializeAdminUser = async () => {
         });
 
         console.log('Admin user initialized successfully!');
-        if (!process.env.DEFAULT_ADMIN_PASSWORD) {
+        if (!DEFAULT_ADMIN_PASSWORD) {
             console.warn(
                 'Warning: Using default admin password. Please set DEFAULT_ADMIN_PASSWORD environment variable.'
             );
         }
     } catch (error) {
-        InternalServer(res, error);
+        console.error('Failed to initialize admin user:', error);
     }
 };
 
