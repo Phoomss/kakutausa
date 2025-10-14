@@ -20,13 +20,10 @@ const SearchResultsPage = () => {
 
       try {
         setLoading(true);
-        // For now, fetch all products and filter on frontend
-        // In the future, this could be enhanced to have a backend search API
         const response = await productService.getAllProducts();
         const allProducts = response.data.data;
-
-        // Filter products based on query in name, details, description or category
-        const filtered = allProducts.filter(product => 
+        
+        const filtered = allProducts.filter(product =>
           product.name.toLowerCase().includes(query.toLowerCase()) ||
           product.details?.toLowerCase().includes(query.toLowerCase()) ||
           product.description?.toLowerCase().includes(query.toLowerCase()) ||
@@ -75,34 +72,34 @@ const SearchResultsPage = () => {
           {products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {products.map((product) => (
-                <div 
-                  key={product.id} 
-                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                <div
+                  key={product.id}
+                  className="relative bg-white/70 backdrop-blur-md rounded-3xl shadow-xl overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-2xl flex flex-col group"
                 >
-                  <div className="relative">
-                    {product.images && product.images.length > 0 ? (
-                      <img
-                        src={`${API_IMAGE_URL}${product.images[0].imageUrl}`}
-                        alt={product.name}
-                        className="w-full h-48 object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-500">No image</span>
-                      </div>
-                    )}
+                  {/* Image */}
+                  <div className="relative w-full h-64 overflow-hidden rounded-t-3xl">
+                    <img
+                      src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-gray-800 truncate">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mt-1 truncate">
-                      {product.category?.name || 'Uncategorized'}
+
+                  {/* Content */}
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h4 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 text-center">
+                      {product.name}
+                    </h4>
+
+                    <p className="text-sm text-gray-600 mb-4 text-center">
+                      Category: {product.category?.name || "N/A"}
                     </p>
-                    <p className="text-gray-700 text-sm mt-2 line-clamp-2">
-                      {product.description}
-                    </p>
-                    <button 
-                      onClick={() => window.location.href = `/products/${product.id}`}
-                      className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition"
+
+                    <button
+                      onClick={() => navigate(`/products/${product.id}`)}
+                      className="mt-auto bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-all duration-300 w-full shadow-md hover:shadow-lg"
                     >
                       View Details
                     </button>

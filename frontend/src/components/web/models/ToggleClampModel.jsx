@@ -61,7 +61,7 @@ export default function ToggleClampModel({ rotation }) {
   const { productId } = useParams()
   
   useEffect(() => {
-    if (!productId) return; // ถ้าไม่มี id ไม่ต้องยิง
+    if (!productId) return; 
 
     const fetchModel = async () => {
       setLoading(true);

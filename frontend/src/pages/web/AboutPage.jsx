@@ -30,11 +30,9 @@ const AboutPage = () => {
     fetchAddresses();
   }, []);
 
-  // แยกข้อมูลตามภาษา
   const aboutEN = about.find((item) => item.language === "en");
   const aboutJA = about.find((item) => item.language === "ja");
 
-  // หา US Office
   const usOffice = addresses.find(
     (addr) =>
       addr.name?.toLowerCase().includes("us office") ||
