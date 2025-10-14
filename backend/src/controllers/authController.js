@@ -145,7 +145,7 @@ exports.initializeAdminUser = async () => {
             );
         }
     } catch (error) {
-        InternalServer(null, error);
+        InternalServer(res, error);
     }
 };
 
