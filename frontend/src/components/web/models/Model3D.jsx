@@ -63,9 +63,9 @@ export default function Model3D() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen text-gray-900">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6  min-h-screen text-gray-900">
       {/* Header */}
-      <div className="px-6 py-4 border-b flex items-center justify-between bg-white rounded-xl shadow-sm">
+      <div className="px-4 py-3 sm:px-6 sm:py-4 border-b flex items-center justify-between bg-white rounded-xl shadow-sm mb-6">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center text-gray-600 hover:text-red-500 transition"
@@ -80,134 +80,155 @@ export default function Model3D() {
         </div>
       </div>
 
-      {/* 3D Viewer Card */}
-      <div className="bg-white rounded-3xl shadow-lg overflow-hidden mt-6">
-        <div className="relative w-full h-[500px] sm:h-[600px] md:h-[650px]">
-          <Canvas
-            ref={canvasRef}
-            camera={{ position: [4, 4, 4], fov: 50 }}
-            gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
-            className="w-full h-full"
+      {/* Viewer + Controls Container */}
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* Left Controls - Desktop */}
+        <div className="hidden md:flex flex-col gap-3 md:w-16 justify-start">
+          {[{ label: "Grid", icon: Grid3X3, state: showGrid, setter: setShowGrid },
+          { label: "Dimensions", icon: Box, state: showDimensions, setter: setShowDimensions },
+          { label: "Annotations", icon: Eye, state: showAnnotations, setter: setShowAnnotations }].map(({ label, icon: Icon, state, setter }) => (
+            <button
+              key={label}
+              onClick={() => setter(!state)}
+              className={`p-3 rounded-xl border transition-all duration-300 ${state ? "bg-gradient-to-br from-red-500 to-orange-500 text-white border-red-400 shadow-md" : "bg-white text-gray-600 border-gray-200 hover:border-red-300"}`}
+              title={label}
+            >
+              <Icon size={20} />
+            </button>
+          ))}
+          <button
+            onClick={downloadImage}
+            className="p-3 bg-gradient-to-br from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 rounded-xl text-white shadow-md mt-2"
+            title="Download Screenshot"
           >
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[5, 5, 5]} intensity={0.7} />
-            <directionalLight position={[-5, 5, -5]} intensity={0.4} />
+            <Download size={20} />
+          </button>
+          <button
+            onClick={() => cameraResetFn && cameraResetFn()}
+            className="p-3 bg-gradient-to-br from-orange-400 to-yellow-500 hover:from-orange-500 hover:to-yellow-600 rounded-xl text-white shadow-md"
+            title="Reset Camera"
+          >
+            <Move3D size={20} />
+          </button>
+        </div>
 
-            {loading ? (
-              <Html center>
-                <div className="bg-white px-6 py-4 rounded-xl shadow-md flex flex-col items-center gap-4">
-                  <p className="text-gray-700 font-medium text-lg">Loading 3D Model...</p>
-                  <div className="flex gap-2">
-                    {[...Array(5)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-3 h-3 bg-red-500 rounded-full animate-bounce"
-                        style={{ animationDelay: `${i * 0.2}s` }}
-                      />
-                    ))}
+        {/* Canvas Container */}
+        <div className="relative flex-1 bg-white rounded-3xl shadow-lg overflow-hidden">
+          <div className="w-full h-[400px] sm:h-[500px] md:h-[650px]">
+            <Canvas
+              ref={canvasRef}
+              camera={{ position: [4, 4, 4], fov: 50 }}
+              gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
+              className="w-full h-full"
+            >
+              <ambientLight intensity={0.8} />
+              <directionalLight position={[5, 5, 5]} intensity={0.7} />
+              <directionalLight position={[-5, 5, -5]} intensity={0.4} />
+
+              {loading ? (
+                <Html center>
+                  <div className="bg-white px-6 py-4 rounded-xl shadow-md flex flex-col items-center gap-4">
+                    <p className="text-gray-700 font-medium text-lg">Loading 3D Model...</p>
+                    <div className="flex gap-2">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-3 h-3 bg-red-500 rounded-full animate-bounce"
+                          style={{ animationDelay: `${i * 0.2}s` }}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </Html>
-            ) : (
-              <Suspense fallback={null}>
-                <ModelViewer
-                  productId={product?.id}
-                  showGrid={showGrid}
-                  showAnnotations={showAnnotations}
-                  showDimensions={showDimensions}
-                  viewMode={viewMode}
-                  modelRotation={modelRotation}
-                  onCameraReset={setCameraResetFn}
-                />
-              </Suspense>
-            )}
-          </Canvas>
+                </Html>
+              ) : (
+                <Suspense fallback={null}>
+                  <ModelViewer
+                    productId={product?.id}
+                    showGrid={showGrid}
+                    showAnnotations={showAnnotations}
+                    showDimensions={showDimensions}
+                    viewMode={viewMode}
+                    modelRotation={modelRotation}
+                    onCameraReset={setCameraResetFn}
+                  />
+                </Suspense>
+              )}
+            </Canvas>
 
-          {/* Left Controls */}
-          <div className="absolute top-4 left-4 flex flex-col gap-3">
-            {[{ label: "Grid", icon: Grid3X3, state: showGrid, setter: setShowGrid },
-              { label: "Dimensions", icon: Box, state: showDimensions, setter: setShowDimensions },
-              { label: "Annotations", icon: Eye, state: showAnnotations, setter: setShowAnnotations }].map(({ label, icon: Icon, state, setter }) => (
-              <button
-                key={label}
-                onClick={() => setter(!state)}
-                className={`p-3 rounded-xl border transition-all duration-300 ${state ? "bg-gradient-to-br from-red-500 to-orange-500 text-white border-red-400 shadow-md" : "bg-white text-gray-600 border-gray-200 hover:border-red-300"}`}
-                title={label}
-              >
-                <Icon size={20} />
-              </button>
-            ))}
+            {/* Rotation Controls */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-1 p-2 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg">
 
-            {/* Download + Reset */}
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={downloadImage}
-                className="p-3 bg-gradient-to-br from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 rounded-xl text-white shadow-md transition"
-                title="Download Screenshot"
-              >
-                <Download size={20} />
-              </button>
-              <button
-                onClick={() => cameraResetFn && cameraResetFn()}
-                className="p-3 bg-gradient-to-br from-orange-400 to-yellow-500 hover:from-orange-500 hover:to-yellow-600 rounded-xl text-white shadow-md transition"
-                title="Reset Camera"
-              >
-                <Move3D size={20} />
-              </button>
-            </div>
-          </div>
-
-          {/* Rotation Controls */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-            <button
-              onClick={() => rotateModel("x", -1)}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow hover:bg-gray-100 transition"
-            >
-              ↑
-            </button>
-            <div className="flex gap-3">
-              <button
-                onClick={() => rotateModel("y", -1)}
-                className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow hover:bg-gray-100 transition"
-              >
-                ←
-              </button>
-              <button
-                onClick={resetRotation}
-                className="px-4 py-2 bg-red-500 text-white font-semibold rounded-md shadow hover:scale-105 transition"
-              >
-                ⟳
-              </button>
-              <button
-                onClick={() => rotateModel("y", 1)}
-                className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow hover:bg-gray-100 transition"
-              >
-                →
-              </button>
-            </div>
-            <button
-              onClick={() => rotateModel("x", 1)}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow hover:bg-gray-100 transition"
-            >
-              ↓
-            </button>
-          </div>
-
-          {/* View Modes */}
-          <div className="absolute top-4 right-4 bg-white border border-gray-200 rounded-2xl p-2 shadow-md">
-            <div className="grid grid-cols-3 gap-2">
-              {["front", "back", "left", "right", "top", "bottom", "3d"].map((mode) => (
+              {[
+                { axis: "y", dir: -1, icon: <RotateCcw size={18} /> },
+                { axis: "x", dir: -1, icon: "↑" },
+                { axis: "y", dir: 1, icon: <RotateCw size={18} /> },
+                { axis: "z", dir: -1, icon: "↺" },
+                { axis: "x", dir: 1, icon: "↓" },
+                { axis: "z", dir: 1, icon: "↻" },
+              ].map(({ axis, dir, icon }, idx) => (
                 <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-300 ${viewMode === mode ? "bg-gradient-to-br from-red-500 to-orange-500 text-white shadow-md" : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"}`}
+                  key={idx}
+                  onClick={() => rotateModel(axis, dir)}
+                  className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-red-400 text-white rounded-xl shadow-md hover:scale-110 transition transform"
+                  title={`Rotate ${axis.toUpperCase()} ${dir === 1 ? "Positive" : "Negative"}`}
                 >
-                  {mode.toUpperCase()}
+                  {icon}
                 </button>
               ))}
+              <button
+                onClick={resetRotation}
+               className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-600 to-red-400 text-white rounded-xl shadow-md hover:scale-110 transition transform"
+                title="Reset Rotation"
+              >
+                Reset
+              </button>
             </div>
           </div>
         </div>
+
+        {/* View Modes */}
+        <div className="hidden md:flex flex-col gap-2 md:w-20 justify-start">
+          {["front", "back", "left", "right", "top", "bottom", "3d"].map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-300 ${viewMode === mode ? "bg-gradient-to-br from-red-500 to-orange-500 text-white shadow-md" : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"}`}
+            >
+              {mode.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile Controls */}
+      <div className="flex md:hidden overflow-x-auto gap-3 mt-4 p-2 bg-white/80 rounded-xl shadow-md">
+        {[{ label: "Grid", icon: Grid3X3, state: showGrid, setter: setShowGrid },
+        { label: "Dimensions", icon: Box, state: showDimensions, setter: setShowDimensions },
+        { label: "Annotations", icon: Eye, state: showAnnotations, setter: setShowAnnotations },
+        { label: "Download", icon: Download, action: downloadImage },
+        { label: "Reset", icon: Move3D, action: () => cameraResetFn && cameraResetFn() }].map(({ label, icon: Icon, state, setter, action }) => (
+          <button
+            key={label}
+            onClick={() => setter ? setter(!state) : action()}
+            className={`flex items-center justify-center min-w-[50px] p-3 rounded-xl border transition-all duration-300 ${state ? "bg-gradient-to-br from-red-500 to-orange-500 text-white border-red-400 shadow-md" : "bg-white text-gray-600 border-gray-200 hover:border-red-300"}`}
+            title={label}
+          >
+            <Icon size={20} />
+          </button>
+        ))}
+      </div>
+
+      {/* Mobile View Modes */}
+      <div className="flex md:hidden overflow-x-auto gap-2 mt-3 p-2 bg-white/80 rounded-xl shadow-md">
+        {["front", "back", "left", "right", "top", "bottom", "3d"].map((mode) => (
+          <button
+            key={mode}
+            onClick={() => setViewMode(mode)}
+            className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-300 ${viewMode === mode ? "bg-gradient-to-br from-red-500 to-orange-500 text-white shadow-md" : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"}`}
+          >
+            {mode.toUpperCase()}
+          </button>
+        ))}
       </div>
     </div>
   );
