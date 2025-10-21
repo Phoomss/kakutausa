@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import productService from '../../services/productService';
 import { API_IMAGE_URL } from '../../configs/constants';
 
@@ -9,7 +9,8 @@ const SearchResultsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const query = searchParams.get('q') || '';
-
+  const navigate = useNavigate();
+  
   useEffect(() => {
     const fetchSearchResults = async () => {
       if (!query) {
