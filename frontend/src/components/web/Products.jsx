@@ -95,7 +95,7 @@ const Products = () => {
             className="relative bg-white/70 backdrop-blur-md rounded-3xl shadow-xl overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-2xl flex flex-col group"
           >
             {/* Image */}
-            <div className="relative w-full h-64 overflow-hidden rounded-t-3xl">
+            <div className="relative w-full h-72 overflow-hidden rounded-t-3xl">
               <img
                 src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
                 alt={product.name}

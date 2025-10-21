@@ -14,7 +14,6 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Modal state
   const [showModal, setShowModal] = useState(false);
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerFirstName, setCustomerFirstName] = useState("");
@@ -22,7 +21,6 @@ const ProductDetail = () => {
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Image slider state
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
 
@@ -97,7 +95,7 @@ const ProductDetail = () => {
   const images = product.images || [];
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
@@ -107,111 +105,217 @@ const ProductDetail = () => {
         Back to Products
       </button>
 
-      {/* Product Info */}
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-gray-800">{product.name}</h1>
-        <p className="text-gray-600">{product.description}</p>
-        <p className="text-sm text-gray-400">
-          Category: {product.category?.name || product.category}
-        </p>
-      </div>
+      <div className="flex flex-col lg:flex-row gap-10">
+        {/* Left Column: Images */}
+        <div className="lg:w-1/2 flex flex-col gap-4">
+          {/* Main Image */}
+          {images.length > 0 && (
+            <div
+              className="relative w-full h-96  overflow-hidden shadow-lg cursor-pointer"
+              onClick={() => setShowPopup(true)}
+            >
+              <img
+                src={`${API_IMAGE_URL}${images[currentIndex].imageUrl}`}
+                alt={`Product image ${currentIndex + 1}`}
+                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              />
+            </div>
+          )}
 
-      {/* Image / 3D Toggle */}
-      <div className="flex justify-center space-x-4">
-        <button
-          className={`px-4 py-2 rounded-lg ${view === "image"
-              ? "bg-red-500 text-white"
-              : "bg-gray-200 text-gray-600"
-            }`}
-          onClick={() => setView("image")}
-        >
-          Images
-        </button>
-        <button
-          className={`px-4 py-2 rounded-lg ${view === "3d"
-              ? "bg-red-500 text-white"
-              : "bg-gray-200 text-gray-600"
-            }`}
-          onClick={() => navigate(`/products/${product.id}/generatemodel`)}
-        >
-          3D Model
-        </button>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow"
-        >
-          <Mail className="w-4 h-4" /> Request 3D File
-        </button>
-      </div>
-
-      {/* Image Slider */}
-      {view === "image" && images.length > 0 && (
-        <div className="relative flex flex-col items-center">
-          <img
-            src={`${API_IMAGE_URL}${images[currentIndex].imageUrl}`}
-            alt={`Image ${currentIndex + 1}`}
-            className="w-full max-h-[500px] object-contain rounded-lg shadow-md cursor-pointer"
-            onClick={() => setShowPopup(true)}
-          />
-
-          {/* Controls */}
-          <button
-            onClick={prevImage}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={nextImage}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-
-          {/* Counter */}
-          <div className="absolute bottom-3 right-3 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
-            {currentIndex + 1} / {images.length}
-          </div>
+          {/* Two-column Grid for Thumbnails */}
+          {images.length > 1 && (
+            <div className="grid grid-cols-2 gap-3">
+              {images.map((img, index) => (
+                <div
+                  key={index}
+                  className={`relative w-full h-40 rounded-lg overflow-hidden border-2 transition-transform duration-300 cursor-pointer ${currentIndex === index
+                    ? "border-red-500 scale-105"
+                    : "border-gray-200"
+                    }`}
+                  onClick={() => setCurrentIndex(index)}
+                >
+                  <img
+                    src={`${API_IMAGE_URL}${img.imageUrl}`}
+                    alt={`Thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
 
+        {/* Right Column: Info */}
+        <div className="lg:w-1/2 flex flex-col gap-6">
+          <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+          <p className="text-gray-700">{product.description}</p>
+          <p className="text-sm text-gray-500">
+            Category: {product.category?.name || product.category}
+          </p>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-3 mt-4">
+            <button
+              className={`px-5 py-2 rounded-lg font-medium transition-all ${view === "image"
+                ? "bg-red-600 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              onClick={() => setView("image")}
+            >
+              Images
+            </button>
+            <button
+              className={`px-5 py-2 rounded-lg font-medium transition-all ${view === "3d"
+                ? "bg-red-600 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              onClick={() =>
+                navigate(`/products/${product.id}/generatemodel`)
+              }
+            >
+              3D Model
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow"
+            >
+              <Mail className="w-4 h-4" /> Request 3D File
+            </button>
+          </div>
+
+          {/* Unit Toggle */}
+          <div className="flex gap-4 mt-4">
+            {["inch", "metric"].map((u) => (
+              <button
+                key={u}
+                className={`px-5 py-2 rounded-lg font-medium ${unit === u
+                  ? "bg-red-600 text-white shadow"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                onClick={() => setUnit(u)}
+              >
+                {u.charAt(0).toUpperCase() + u.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Specifications */}
+          <div className="bg-white border border-gray-200 rounded-xl shadow-md p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Specifications ({unit === "inch" ? "Inch" : "Metric"})
+            </h2>
+            {product.sizes && product.sizes.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="border-b px-3 py-2 text-gray-600 font-medium">Feature</th>
+                      <th className="border-b px-3 py-2 text-gray-600 font-medium">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {product.sizes.map((size, idx) => (
+                      <React.Fragment key={size.id}>
+                        <tr className={idx % 2 === 0 ? "bg-gray-50" : ""}>
+                          <td className="border-b px-3 py-2">Holding Capacity</td>
+                          <td className="border-b px-3 py-2">
+                            {unit === "inch" ? size.holdingCapacityInch || "-" : size.holdingCapacityMetric || "-"}
+                          </td>
+                        </tr>
+                        <tr className={idx % 2 === 0 ? "bg-gray-50" : ""}>
+                          <td className="border-b px-3 py-2">Weight</td>
+                          <td className="border-b px-3 py-2">
+                            {unit === "inch" ? size.weightInch || "-" : size.weightMetric || "-"}
+                          </td>
+                        </tr>
+                        {size.handleMovesInch || size.handleMovesMetric ? (
+                          <tr className={idx % 2 === 0 ? "bg-gray-50" : ""}>
+                            <td className="border-b px-3 py-2">Handle Moves</td>
+                            <td className="border-b px-3 py-2">
+                              {unit === "inch" ? size.handleMovesInch || "-" : size.handleMovesMetric || "-"}
+                            </td>
+                          </tr>
+                        ) : (
+                          <tr className={idx % 2 === 0 ? "bg-gray-50" : ""}>
+                            <td className="border-b px-3 py-2">Handle Moves</td>
+                            <td className="border-b px-3 py-2">-</td>
+                          </tr>
+                        )}
+                        {size.barMovesInch || size.barMovesMetric ? (
+                          <tr className={idx % 2 === 0 ? "bg-gray-50" : ""}>
+                            <td className="border-b px-3 py-2">Bar Moves</td>
+                            <td className="border-b px-3 py-2">
+                              {unit === "inch" ? size.barMovesInch || "-" : size.barMovesMetric || "-"}
+                            </td>
+                          </tr>
+                        ) : (
+                          <tr className={idx % 2 === 0 ? "bg-gray-50" : ""}>
+                            <td className="border-b px-3 py-2">Bar Moves</td>
+                            <td className="border-b px-3 py-2">-</td>
+                          </tr>
+                        )}
+                        <tr className={idx % 2 === 0 ? "bg-gray-50" : ""}>
+                          <td className="border-b px-3 py-2">Drawing Movement</td>
+                          <td className="border-b px-3 py-2">
+                            {unit === "inch" ? size.drawingMovementInch || "-" : size.drawingMovementMetric || "-"}
+                          </td>
+                        </tr>
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500">No specifications available</p>
+            )}
+          </div>
+
+        </div>
+      </div>
+
+      {/* Image Popup */}
       {showPopup && (
         <div
-          className="fixed top-0 left-0 w-screen h-screen bg-black/80 flex items-center justify-center z-[9999] overflow-hidden"
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] p-4"
           onClick={() => setShowPopup(false)}
         >
-          <div className="relative max-w-5xl w-full px-4">
+          <div
+            className="relative w-full max-w-5xl flex justify-center items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Zoomed Image */}
             <img
               src={`${API_IMAGE_URL}${images[currentIndex].imageUrl}`}
               alt="Zoomed"
-              className="w-full max-h-[90vh] object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
+              className="max-w-full max-h-[90vh] object-containshadow-lg"
             />
 
-            {/* Close button */}
+            {/* Close Button */}
             <button
               onClick={() => setShowPopup(false)}
-              className="absolute top-4 right-4 bg-white/80 rounded-full p-2 hover:bg-white"
+              className="absolute top-4 right-4 bg-white/80 rounded-full p-2 hover:bg-white transition"
             >
               <X className="w-6 h-6 text-gray-700" />
             </button>
 
-            {/* Prev / Next buttons */}
+            {/* Prev Button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 prevImage();
               }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/70 p-2 rounded-full"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full transition"
             >
               <ChevronLeft className="w-6 h-6 text-gray-800" />
             </button>
+
+            {/* Next Button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 nextImage();
               }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/70 p-2 rounded-full"
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full transition"
             >
               <ChevronRight className="w-6 h-6 text-gray-800" />
             </button>
@@ -219,75 +323,10 @@ const ProductDetail = () => {
         </div>
       )}
 
-      {/* Unit Toggle */}
-      <div className="flex space-x-4">
-        {["inch", "metric"].map((u) => (
-          <button
-            key={u}
-            className={`px-4 py-2 rounded-lg ${unit === u
-                ? "bg-red-500 text-white"
-                : "bg-gray-200 text-gray-600"
-              }`}
-            onClick={() => setUnit(u)}
-          >
-            {u.charAt(0).toUpperCase() + u.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {/* Specifications */}
-      <div className="bg-gray-50 p-4 rounded-lg shadow">
-        <h2 className="text-lg font-semibold text-gray-700 mb-3">
-          Specifications ({unit === "inch" ? "Inch" : "Metric"})
-        </h2>
-        {product.sizes && product.sizes.length > 0 ? (
-          <ul className="space-y-2 text-gray-600">
-            {product.sizes.map((size) => (
-              <li key={size.id} className="border-b border-gray-200 pb-2">
-                <div>
-                  Holding Capacity:{" "}
-                  {unit === "inch"
-                    ? size.holdingCapacityInch
-                    : size.holdingCapacityMetric}
-                </div>
-                <div>
-                  Weight:{" "}
-                  {unit === "inch" ? size.weightInch : size.weightMetric}
-                </div>
-                {(size.handleMovesInch || size.handleMovesMetric) && (
-                  <div>
-                    Handle Moves:{" "}
-                    {unit === "inch"
-                      ? size.handleMovesInch
-                      : size.handleMovesMetric}
-                  </div>
-                )}
-                {(size.barMovesInch || size.barMovesMetric) && (
-                  <div>
-                    Bar Moves:{" "}
-                    {unit === "inch"
-                      ? size.barMovesInch
-                      : size.barMovesMetric}
-                  </div>
-                )}
-                <div>
-                  Drawing Movement:{" "}
-                  {unit === "inch"
-                    ? size.drawingMovementInch
-                    : size.drawingMovementMetric}
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500">No specifications available</p>
-        )}
-      </div>
-
       {/* Request 3D Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-500/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96">
+          <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
             <h2 className="text-lg font-bold mb-4">Request 3D File</h2>
             <div className="grid grid-cols-2 gap-3 mb-3">
               <input
@@ -295,14 +334,14 @@ const ProductDetail = () => {
                 placeholder="First Name"
                 value={customerFirstName}
                 onChange={(e) => setCustomerFirstName(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               <input
                 type="text"
                 placeholder="Last Name"
                 value={customerLastName}
                 onChange={(e) => setCustomerLastName(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
             <input
@@ -310,13 +349,13 @@ const ProductDetail = () => {
               placeholder="Your email"
               value={customerEmail}
               onChange={(e) => setCustomerEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-3"
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-red-500"
             />
             <textarea
               placeholder="Message (optional)"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-3"
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-red-500"
             />
             <div className="flex justify-end gap-2">
               <button
