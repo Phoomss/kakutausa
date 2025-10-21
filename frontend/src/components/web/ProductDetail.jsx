@@ -148,6 +148,7 @@ const ProductDetail = () => {
         {/* Right Column: Info */}
         <div className="lg:w-1/2 flex flex-col gap-6">
           <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+          <p className="text-gray-700">{product.details}</p>
           <p className="text-gray-700">{product.description}</p>
           <p className="text-sm text-gray-500">
             Category: {product.category?.name || product.category}
