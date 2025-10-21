@@ -111,7 +111,7 @@ const ProductDetail = () => {
           {/* Main Image */}
           {images.length > 0 && (
             <div
-              className="relative w-full h-96  overflow-hidden shadow-lg cursor-pointer"
+              className="relative w-full  rounded-lg overflow-hidden shadow-lg cursor-pointer"
               onClick={() => setShowPopup(true)}
             >
               <img
@@ -128,7 +128,7 @@ const ProductDetail = () => {
               {images.map((img, index) => (
                 <div
                   key={index}
-                  className={`relative w-full h-40 rounded-lg overflow-hidden border-2 transition-transform duration-300 cursor-pointer ${currentIndex === index
+                  className={`relative w-full aspect-[4/3] rounded-lg overflow-hidden border-2 transition-transform duration-300 cursor-pointer ${currentIndex === index
                     ? "border-red-500 scale-105"
                     : "border-gray-200"
                     }`}
