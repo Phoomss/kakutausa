@@ -75,8 +75,13 @@ export default function Model3D() {
         </button>
         <div className="text-center flex-1">
           <h1 className="text-red-600 text-lg sm:text-2xl font-extrabold">
-            {loadingProduct ? "Loading..." : product?.name || "Unknown Product"}
+            {loadingProduct
+              ? "Loading..."
+              : product?.name }
           </h1>
+          <p className="text-sm text-gray-500">
+            Category: {product?.category?.name || product?.category || "-"}
+          </p>
         </div>
       </div>
 
@@ -177,7 +182,7 @@ export default function Model3D() {
               ))}
               <button
                 onClick={resetRotation}
-               className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-600 to-red-400 text-white rounded-xl shadow-md hover:scale-110 transition transform"
+                className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-600 to-red-400 text-white rounded-xl shadow-md hover:scale-110 transition transform"
                 title="Reset Rotation"
               >
                 Reset
