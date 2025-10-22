@@ -11,6 +11,10 @@ const ProductsManagement = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [alert, setAlert] = useState({ message: '', type: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [formData, setFormData] = useState({
     id: null,
     name: "",
@@ -60,9 +64,7 @@ const ProductsManagement = () => {
       setLoading(true);
       const res = await productService.getAllProducts();
       const productsData = res.data.data;
-      console.log(productsData)
 
-      // fetch images + models
       const updatedProducts = await Promise.all(
         productsData.map(async (p) => {
           const imagesRes = await productService.getProductImages(p.id);
@@ -87,7 +89,7 @@ const ProductsManagement = () => {
 
     } catch (err) {
       console.error(err);
-      alert("Failed to fetch products.");
+      showAlert("Failed to fetch products: " + (err.response?.data?.message || err.message), 'error');
     } finally {
       setLoading(false);
     }
@@ -100,7 +102,7 @@ const ProductsManagement = () => {
       setCategories(res.data.data);
     } catch (err) {
       console.error(err);
-      alert("Failed to fetch categories.");
+      showAlert("Failed to fetch categories: " + (err.response?.data?.message || err.message), 'error');
     } finally {
       setLoading(false);
     }
@@ -142,21 +144,26 @@ const ProductsManagement = () => {
     setModelFiles({ gltf: null, bin: null, step: null });
   };
 
+  const showAlert = (message, type = 'success', duration = 3000) => {
+    setAlert({ message, type });
+    setTimeout(() => setAlert({ message: '', type: '' }), duration);
+  };
+
   const handleDelete = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
       await productService.deleteProduct(productId);
       fetchProducts();
-      alert("Product deleted successfully!");
+      showAlert("Product deleted successfully!");
     } catch (err) {
       console.error(err);
-      alert("Failed to delete product.");
+      showAlert("Failed to delete product: " + (err.response?.data?.message || err.message), 'error');
     }
   };
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.categoryId) {
-      alert("Please fill out product name and category!");
+      showAlert("Please fill out product name and category!", 'error');
       return;
     }
     try {
@@ -186,10 +193,10 @@ const ProductsManagement = () => {
       await fetchProducts();
       setShowModal(false);
       resetForm();
-      alert("Product saved successfully!");
+      showAlert("Product saved successfully!");
     } catch (err) {
       console.error(err);
-      alert("Failed to save product.");
+      showAlert("Failed to save product: " + (err.response?.data?.message || err.message), 'error');
     } finally {
       setSaving(false);
     }
@@ -244,11 +251,21 @@ const ProductsManagement = () => {
   };
 
   const getFullImageUrl = (imagePath) => {
-    return imagePath ? `${API_IMAGE_URL}${imagePath}` : null;
-  };
+  return imagePath ? `${API_IMAGE_URL}${imagePath}` : null;
+};
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Alert */}
+      {alert.message && (
+        <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
+          <div
+            className={`px-4 py-2 rounded-lg shadow-lg ${alert.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+          >
+            <span>{alert.message}</span>
+          </div>
+        </div>
+      )}
       {/* Toolbar */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Products Management</h2>
@@ -284,6 +301,35 @@ const ProductsManagement = () => {
         </select>
       </div>
 
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center">
+        <div>
+          <span className="text-gray-500">
+            Showing {Math.min(products.filter(p =>
+              p.name.toLowerCase().includes(searchName.toLowerCase()) &&
+              (searchCategory === "" || p.category?.name === searchCategory)
+            ).length, currentPage * pageSize)} of {products.filter(p =>
+              p.name.toLowerCase().includes(searchName.toLowerCase()) &&
+              (searchCategory === "" || p.category?.name === searchCategory)
+            ).length} products
+          </span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setCurrentPage(1); 
+            }}
+            className="border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value={5}>5 per page</option>
+            <option value={10}>10 per page</option>
+            <option value={20}>20 per page</option>
+          </select>
+        </div>
+      </div>
+
       {/* Products Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
         {loading ? (
@@ -307,25 +353,26 @@ const ProductsManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {products
-                .filter(p =>
+              {(() => {
+                const filteredProducts = products.filter(p =>
                   p.name.toLowerCase().includes(searchName.toLowerCase()) &&
                   (searchCategory === "" || p.category?.name === searchCategory)
-                )
-                .map(p => (
+                );
+                
+                const paginatedProducts = filteredProducts.slice(
+                  (currentPage - 1) * pageSize,
+                  currentPage * pageSize
+                );
+                
+                return paginatedProducts.map(p => (
                   <tr key={p.id} className="border-t hover:bg-gray-50">
                     <td className="px-4 py-3">
                       {p.images && p.images.length > 0 ? (
-                        <div className="flex gap-1">
-                          {p.images.map((img, idx) => (
-                            <img
-                              key={idx}
-                              src={getFullImageUrl(img.imageUrl)}
-                              alt={`Product ${p.name} - ${idx + 1}`}
-                              className="w-12 h-12 object-cover rounded"
-                            />
-                          ))}
-                        </div>
+                        <img
+                          src={`${API_IMAGE_URL}${p.images[0].imageUrl}`}
+                          alt={p.name}
+                          className="w-12 h-12 object-cover rounded"
+                        />
                       ) : (
                         <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded">
                           <Upload className="w-5 h-5 text-gray-500" />
@@ -349,7 +396,8 @@ const ProductsManagement = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ));
+              })()}
             </tbody>
           </table>
         )}
