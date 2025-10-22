@@ -28,15 +28,10 @@ const Content = () => {
     language: 'en',
     title: '',
     detail: '',
-    imageUrl: '',
+    image: null, // Change from imageUrl to image file
+    imageUrl: '', // Keep for displaying preview
     isPublished: false,
   });
-
-  // Helper: Convert Google Drive URL to direct link
-  const getDirectDriveLink = (url) => {
-    const match = url.match(/\/d\/(.*?)\//);
-    return match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : url;
-  };
 
   // Alert
   const showAlert = (message, type = 'success', duration = 3000) => {
@@ -45,10 +40,18 @@ const Content = () => {
   };
 
   // Fetch data
-  const fetchContents = async () => {
+  const fetchContents = async (searchParams = {}) => {
     try {
       setLoading(true);
-      const res = await contentService.getAllContents();
+      let res;
+      
+      // If we have search parameters, use the search API
+      if (searchParams.contentType) {
+        res = await contentService.searchContentsByType(searchParams.contentType);
+      } else {
+        res = await contentService.getAllContents();
+      }
+      
       setContents(res.data.data);
     } catch (err) {
       console.error(err);
@@ -83,13 +86,6 @@ const Content = () => {
         content.title?.toLowerCase().includes(term) ||
         content.detail?.toLowerCase().includes(term) ||
         content.contentType?.name?.toLowerCase().includes(term)
-      );
-    }
-
-    // Apply content type filter
-    if (filterByType) {
-      result = result.filter(content => 
-        content.contentTypeId == filterByType
       );
     }
 
@@ -146,12 +142,13 @@ const Content = () => {
     if (content) {
       setEditingId(content.id);
       setFormData({
-        contentTypeId: content.contentTypeId,
-        language: content.language,
+        contentTypeId: content.contentTypeId?.toString() || '', // Convert to string
+        language: content.language || 'en',
         title: content.title || '',
         detail: content.detail || '',
+        image: null, // Don't preload the file, just the URL for preview
         imageUrl: content.imageUrl || '',
-        isPublished: content.isPublished,
+        isPublished: content.isPublished || false,
       });
     } else {
       setEditingId(null);
@@ -160,6 +157,7 @@ const Content = () => {
         language: 'en',
         title: '',
         detail: '',
+        image: null,
         imageUrl: '',
         isPublished: false,
       });
@@ -167,25 +165,68 @@ const Content = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    // Clean up object URL if it was created for preview
+    if (formData.imageUrl && formData.imageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.imageUrl);
+    }
+    setIsModalOpen(false);
+    // Reset form data to clear any file selections
+    setFormData({
+      contentTypeId: '',
+      language: 'en',
+      title: '',
+      detail: '',
+      image: null,
+      imageUrl: '',
+      isPublished: false,
+    });
+  };
 
   // Submit Add/Edit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.contentTypeId) return showAlert('Content Type is required', 'error');
+    
+    // Validate required fields
+    if (!formData.contentTypeId) {
+      showAlert('Content Type is required', 'error');
+      return;
+    }
+    
+    if (!formData.title.trim()) {
+      showAlert('Title is required', 'error');
+      return;
+    }
+    
     try {
+      // Create form data object to handle file upload
+      const submitData = new FormData();
+      
+      // Add all form fields to FormData
+      submitData.append('contentTypeId', formData.contentTypeId.toString()); // Ensure it's a string
+      submitData.append('language', formData.language);
+      submitData.append('title', formData.title.trim());
+      submitData.append('detail', formData.detail?.trim() || '');
+      submitData.append('isPublished', formData.isPublished.toString()); // Ensure it's a string
+      
+      // Add image file if selected
+      if (formData.image) {
+        submitData.append('image', formData.image);
+      }
+
       if (editingId) {
-        await contentService.updateContent(editingId, formData);
+        await contentService.updateContent(editingId, submitData);
         showAlert('Content updated successfully!');
       } else {
-        await contentService.createContent(formData);
+        await contentService.createContent(submitData);
         showAlert('Content created successfully!');
       }
       closeModal();
       fetchContents(); // Refresh data
     } catch (err) {
-      console.error(err);
-      showAlert('Error saving content', 'error');
+      console.error('Error submitting form:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Unknown error occurred';
+      showAlert('Error saving content: ' + errorMessage, 'error');
     }
   };
 
@@ -208,6 +249,34 @@ const Content = () => {
     }
   };
 
+  // Perform backend search based on filters
+  const performBackendSearch = async () => {
+    try {
+      setLoading(true);
+      
+      // If filtering by content type, use the search API
+      if (filterByType) {
+        const contentTypeName = contentTypes.find(ct => ct.id === parseInt(filterByType))?.name;
+        if (contentTypeName) {
+          const res = await contentService.searchContentsByType(contentTypeName);
+          setContents(res.data.data);
+        } else {
+          const res = await contentService.getAllContents();
+          setContents(res.data.data);
+        }
+      } else {
+        // Otherwise, fetch all contents
+        const res = await contentService.getAllContents();
+        setContents(res.data.data);
+      }
+    } catch (err) {
+      console.error(err);
+      showAlert('Error fetching contents', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // View Details
   const viewDetails = (content) => {
     setSelectedContent(content);
@@ -215,6 +284,10 @@ const Content = () => {
   };
 
   const closeViewModal = () => {
+    // Clean up object URL if it was created for preview
+    if (selectedContent?.imageUrl && selectedContent.imageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(selectedContent.imageUrl);
+    }
     setSelectedContent(null);
     setViewModalOpen(false);
   };
@@ -284,6 +357,13 @@ const Content = () => {
               onChange={(e) => {
                 setFilterByType(e.target.value);
                 setCurrentPage(1); // Reset to first page when filtering
+                // If filtering by content type, perform backend search
+                if (e.target.value) {
+                  performBackendSearch();
+                } else {
+                  // If clearing the filter, fetch all contents
+                  fetchContents();
+                }
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
@@ -339,9 +419,25 @@ const Content = () => {
             Showing {filteredContents.length} of {contents.length} contents
           </span>
         </div>
-        <button onClick={() => openModal()} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg">
-          <Plus className="w-4 h-4" /> Add Content
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => {
+              setFilterByType('');
+              setFilterByStatus('');
+              setSearchTerm('');
+              setSortBy('createdAt');
+              setSortOrder('desc');
+              setCurrentPage(1); // Reset to first page when refreshing
+              fetchContents(); // Refresh all data
+            }} 
+            className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg"
+          >
+            Refresh
+          </button>
+          <button onClick={() => openModal()} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg">
+            <Plus className="w-4 h-4" /> Add Content
+          </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -441,7 +537,7 @@ const Content = () => {
             <p><strong>Detail:</strong> <div className="whitespace-pre-line">{selectedContent.detail}</div></p>
             <p><strong>Published:</strong> {selectedContent.isPublished ? 'Yes' : 'No'}</p>
             {selectedContent.imageUrl && (
-              <img src={getDirectDriveLink(selectedContent.imageUrl)} alt={selectedContent.title} className="mt-4 rounded max-h-[300px] w-auto" />
+              <img src={selectedContent.imageUrl} alt={selectedContent.title} className="mt-4 rounded max-h-64 w-auto object-contain" />
             )}
           </div>
         </div>
@@ -460,7 +556,7 @@ const Content = () => {
                 <label className="mb-1 block">Content Type</label>
                 <select
                   value={formData.contentTypeId}
-                  onChange={(e) => setFormData({ ...formData, contentTypeId: e.target.value ? Number(e.target.value) : '' })}
+                  onChange={(e) => setFormData({ ...formData, contentTypeId: e.target.value })}
                   className="border px-3 py-2 rounded-lg w-full"
                 >
                   <option value="">Select Content Type</option>
@@ -486,8 +582,32 @@ const Content = () => {
                 <textarea value={formData.detail} onChange={(e) => setFormData({ ...formData, detail: e.target.value })} className="border px-3 py-2 rounded-lg w-full" rows={6} placeholder="Enter detail" />
               </div>
               <div>
-                <label className="mb-1 block">Image URL</label>
-                <input type="text" value={formData.imageUrl} onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })} className="border px-3 py-2 rounded-lg w-full" placeholder="Enter image URL" />
+                <label className="mb-1 block">Upload Image</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    setFormData({ 
+                      ...formData, 
+                      image: file,
+                      // If a new file is selected, update the preview URL
+                      imageUrl: file ? URL.createObjectURL(file) : ''
+                    });
+                  }} 
+                  className="border px-3 py-2 rounded-lg w-full" 
+                />
+                {/* Show preview if there's an image */}
+                {formData.imageUrl && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-600">Preview:</p>
+                    <img 
+                      src={formData.imageUrl} 
+                      alt="Preview" 
+                      className="mt-1 max-h-32 rounded border object-contain"
+                    />
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <input type="checkbox" checked={formData.isPublished} onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })} id="isPublished" />

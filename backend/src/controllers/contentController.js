@@ -1,19 +1,62 @@
 const InternalServer = require("../utils/internal-server");
 const prisma = require("../config/db");
+const { uploadFileToSupabase, deleteFileFromSupabase } = require("../utils/supabaseStorage");
 
 exports.createContent = async (req, res) => {
     try {
-        const { contentTypeId, language, title, detail, imageUrl, isPublished } = req.body;
+        // Extract values from form data
+        const contentTypeId = req.body.contentTypeId;
+        const language = req.body.language;
+        const title = req.body.title;
+        const detail = req.body.detail;
+        const isPublished = req.body.isPublished;
 
-        const parseContentTypeId = parseInt(contentTypeId, 10)
+        if (!contentTypeId || !language || !title) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields: contentTypeId, language, and title are required"
+            });
+        }
+
+        const parseContentTypeId = parseInt(contentTypeId, 10);
+        if (isNaN(parseContentTypeId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid contentTypeId"
+            });
+        }
+
+        // Validate language field
+        if (typeof language !== 'string' || language.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Language is required and must be a valid string"
+            });
+        }
+
+        // Validate title field
+        if (typeof title !== 'string' || title.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Title is required and must be a valid non-empty string"
+            });
+        }
+
+        let imageUrl = null;
+
+        if (req.file) {
+            const uploaded = await uploadFileToSupabase(req.file, "content");
+            imageUrl = uploaded.url;
+        }
+
         const newContent = await prisma.content.create({
             data: {
                 contentTypeId: parseContentTypeId,
-                language,
-                title,
-                detail,
-                imageUrl,
-                isPublished: isPublished || false,
+                language: language.trim(),
+                title: title.trim(),
+                detail: detail ? detail.trim() : null, // Allow null for detail
+                imageUrl: imageUrl,
+                isPublished: isPublished === "true" || isPublished === true || false,
             },
             include: { contentType: true },
         });
@@ -23,9 +66,10 @@ exports.createContent = async (req, res) => {
             data: newContent,
         });
     } catch (error) {
-        InternalServer(error, res);
+        InternalServer(res, error);
     }
 };
+
 
 exports.getContents = async (req, res) => {
     try {
@@ -108,36 +152,108 @@ exports.getContentsByType = async (req, res) => {
 };
 
 exports.updateContent = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { contentTypeId, language, title, detail, imageUrl, isPublished } = req.body;
+  try {
+    const { id } = req.params;
+    
+    // Extract values from form data
+    const contentTypeId = req.body.contentTypeId;
+    const language = req.body.language;
+    const title = req.body.title;
+    const detail = req.body.detail;
+    const isPublished = req.body.isPublished;
 
-        const updated = await prisma.content.update({
-            where: { id: Number(id) },
-            data: {
-                contentTypeId,
-                language,
-                title,
-                detail,
-                imageUrl,
-                isPublished,
-            },
-            include: { contentType: true },
-        });
-
-        return res.json({
-            success: true,
-            data: updated,
-        });
-    } catch (error) {
-        InternalServer(res, error);
+    if (!contentTypeId || !language || !title) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: contentTypeId, language, and title are required"
+      });
     }
+
+    const oldContent = await prisma.content.findUnique({ where: { id: Number(id) } });
+    if (!oldContent) {
+      return res.status(404).json({ success: false, message: "Content not found" });
+    }
+
+    const parseContentTypeId = parseInt(contentTypeId, 10);
+    if (isNaN(parseContentTypeId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid contentTypeId"
+      });
+    }
+
+    // Validate language field
+    if (typeof language !== 'string' || language.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Language is required and must be a valid string"
+      });
+    }
+
+    // Validate title field
+    if (typeof title !== 'string' || title.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Title is required and must be a valid non-empty string"
+      });
+    }
+
+    let imageUrl = oldContent.imageUrl;
+
+    if (req.file) {
+      const uploaded = await uploadFileToSupabase(req.file, "content");
+      imageUrl = uploaded.url;
+
+      if (oldContent.imageUrl && oldContent.imageUrl.includes("/storage/v1/object/public/")) {
+        const pathStart = oldContent.imageUrl.split("/storage/v1/object/public/")[1];
+        await deleteFileFromSupabase(pathStart, "content");
+      }
+    }
+
+    const updated = await prisma.content.update({
+      where: { id: Number(id) },
+      data: {
+        contentTypeId: parseContentTypeId,
+        language: language.trim(),
+        title: title.trim(),
+        detail: detail ? detail.trim() : null, // Allow null for detail
+        imageUrl: imageUrl,
+        isPublished: isPublished === "true" || isPublished === true || false,
+      },
+      include: { contentType: true },
+    });
+
+    return res.json({
+      success: true,
+      data: updated,
+    });
+  } catch (error) {
+    InternalServer(res, error);
+  }
 };
 
 exports.deleteContent = async (req, res) => {
     try {
         const { id } = req.params;
 
+        const content = await prisma.content.findUnique({
+            where: { id: Number(id) },
+        });
+
+        if (!content) {
+            return res.status(404).json({
+                success: false,
+                message: "Content not found",
+            });
+        }
+
+        // 🔥 ถ้ามี imageUrl — ลบไฟล์ออกจาก Supabase ก่อน
+        if (content.imageUrl && content.imageUrl.includes("/storage/v1/object/public/")) {
+            const pathStart = content.imageUrl.split("/storage/v1/object/public/")[1];
+            await deleteFileFromSupabase(pathStart, "content");
+        }
+
+        // 🔥 ลบข้อมูลออกจากฐานข้อมูล
         await prisma.content.delete({
             where: { id: Number(id) },
         });

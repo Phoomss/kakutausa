@@ -11,50 +11,49 @@ const upload = multer({ storage });
 function sanitizeFileName(fileName) {
   const ext = path.extname(fileName);
   const nameWithoutExt = path.basename(fileName, ext);
-  
-  // แทนที่ space และอักขระพิเศษ แต่เก็บชื่อเดิม
+
   const cleaned = nameWithoutExt
-    .replace(/\s+/g, '-')           // space -> dash
-    .replace(/[^\w\-]/g, '')        // ลบอักขระพิเศษออก เก็บแค่ตัวอักษร ตัวเลข dash underscore
-    .replace(/-+/g, '-');           // dash ซ้อน -> เดียว
-  
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]/g, '')
+    .replace(/-+/g, '-');
+
   return `${cleaned}${ext.toLowerCase()}`;
 }
 
-/**
- * Upload file to Supabase
- * - ไม่เปลี่ยนชื่อไฟล์ แค่ทำความสะอาดอักขระพิเศษ
- */
 async function uploadFileToSupabase(file, typeFolder = "images", productId = null) {
   if (!file) throw new Error("No file provided");
 
-  const bucketName = typeFolder === "models" ? "product-models" : "product-images";
+  let bucketName;
 
-  // ใช้ชื่อเดิม แค่ทำความสะอาด
+  if (typeFolder === "models") {
+    bucketName = "product-models";
+  } else if (typeFolder === "content") {
+    bucketName = "content-images";
+  } else {
+    bucketName = "product-images";
+  }
+
   const fileName = sanitizeFileName(file.originalname);
 
-  // จัด folder per product
   const filePath = productId
     ? `${typeFolder}/product-${productId}/${fileName}`
     : `${typeFolder}/${fileName}`;
 
-  // Upload ไป Supabase
   const { error: uploadError } = await supabase.storage
     .from(bucketName)
-    .upload(filePath, file.buffer, { 
-      contentType: file.mimetype, 
-      upsert: true 
+    .upload(filePath, file.buffer, {
+      contentType: file.mimetype,
+      upsert: true
     });
 
   if (uploadError) throw uploadError;
 
-  // Get public URL
   const { data } = supabase.storage
     .from(bucketName)
     .getPublicUrl(filePath);
 
-  return { 
-    path: filePath, 
+  return {
+    path: filePath,
     url: data.publicUrl,
     fileName: fileName
   };
@@ -63,9 +62,9 @@ async function uploadFileToSupabase(file, typeFolder = "images", productId = nul
 async function uploadModelFiles(files, productId) {
   if (!files) throw new Error("No files provided");
 
- 
+
   let filesArray = [];
-  
+
   if (Array.isArray(files)) {
     filesArray = files;
   } else if (typeof files === 'object') {
@@ -84,7 +83,7 @@ async function uploadModelFiles(files, productId) {
 
   for (const file of filesArray) {
     const ext = path.extname(file.originalname).toLowerCase();
-    
+
     if (ext !== '.gltf') {
       const result = await uploadFileToSupabase(file, "models", productId);
       uploadedFiles[ext.replace('.', '')] = result;
@@ -92,12 +91,12 @@ async function uploadModelFiles(files, productId) {
   }
 
   const gltfFile = filesArray.find(f => path.extname(f.originalname).toLowerCase() === '.gltf');
-  
+
   if (gltfFile) {
     let gltfBuffer = gltfFile.buffer;
     let gltfContent = gltfBuffer.toString('utf-8');
     let modified = false;
-    
+
     Object.entries(fileMapping).forEach(([oldName, newName]) => {
       if (oldName !== newName) {
         const regex = new RegExp(oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
@@ -109,10 +108,10 @@ async function uploadModelFiles(files, productId) {
       }
     });
 
-    const fileToUpload = modified 
+    const fileToUpload = modified
       ? { ...gltfFile, buffer: Buffer.from(gltfContent, 'utf-8') }
       : gltfFile;
-    
+
     const result = await uploadFileToSupabase(fileToUpload, "models", productId);
     uploadedFiles.gltf = result;
   }
@@ -123,14 +122,23 @@ async function uploadModelFiles(files, productId) {
 async function deleteFileFromSupabase(filePath, typeFolder = "images") {
   if (!filePath) return;
 
-  const bucketName = typeFolder === "models" ? "product-models" : "product-images";
+  let bucketName;
+
+  if (typeFolder === "models") {
+    bucketName = "product-models";
+  } else if (typeFolder === "content") {
+    bucketName = "content-images";
+  } else {
+    bucketName = "product-images";
+  }
+
   const { error } = await supabase.storage.from(bucketName).remove([filePath]);
   if (error) console.error("Failed to delete file:", error);
 }
 
-module.exports = { 
-  upload, 
-  uploadFileToSupabase, 
+module.exports = {
+  upload,
+  uploadFileToSupabase,
   uploadModelFiles,
-  deleteFileFromSupabase 
+  deleteFileFromSupabase
 };

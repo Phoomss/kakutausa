@@ -33,20 +33,22 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative bg-white overflow-hidden">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-white to-red-100 -z-10"></div>
+    <section
+      className="relative bg-cover bg-center bg-no-repeat overflow-hidden"
+      style={{ backgroundImage: `url(${heroEN?.imageUrl || heroImage})` }}
+    >
+      <div className="absolute inset-0 bg-black/30 -z-10"></div> {/* optional overlay for readability */}
 
       <div className="container mx-auto px-4 lg:px-8 py-24 flex flex-col-reverse lg:flex-row items-center gap-12">
         {/* Text Section */}
-        <div className="flex-1 text-center lg:text-left space-y-6 animate-fadeIn">
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
+        <div className="flex-1 text-center lg:text-left space-y-6 animate-fadeIn text-white">
+          <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight">
             {heroEN?.title
               ? highlightRed(heroEN.title, "Kakuta Toggle Clamps")
-              : <>Discover <span className="text-red-600">Kakuta Toggle Clamps</span></>}
+              : <>Discover <span className="text-red-400">Kakuta Toggle Clamps</span></>}
           </h1>
 
-          <p className="text-gray-700 text-lg lg:text-xl max-w-2xl mx-auto lg:mx-0 whitespace-pre-line">
+          <p className="text-lg lg:text-xl max-w-2xl mx-auto lg:mx-0 whitespace-pre-line">
             {heroEN?.detail
               ? highlightRed(heroEN.detail, "Kakuta Toggle Clamps")
               : "Originated in Japan, Kakuta has been providing top-quality toggle clamps for the automobile, aerospace, and manufacturing industries for over 65 years."}
@@ -66,16 +68,6 @@ const Hero = () => {
               Contact Us
             </a>
           </div>
-        </div>
-
-        {/* Image Section */}
-        <div className="flex-1 relative animate-fadeInRight">
-          <img
-            src={heroEN?.imageUrl || heroImage}
-            alt={heroEN?.title || "Kakuta Products"}
-            className="w-full h-auto rounded-xl shadow-2xl transform transition-transform duration-500 hover:scale-105"
-          />
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-transparent via-white/30 to-transparent pointer-events-none"></div>
         </div>
       </div>
     </section>

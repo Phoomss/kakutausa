@@ -7,11 +7,54 @@ const API = {
 }
 
 // ----- Content -----
-const searchContentsByType = (contentType) => http.get(`${API.CONTENTS}/search`, { params: { contentType } });
+const searchContentsByType = (contentType) =>
+  http.get(`${API.CONTENTS}/search`, { params: { contentType } })
+
 const getAllContents = () => http.get(`${API.CONTENTS}/`)
 const getContentById = (id) => http.get(`${API.CONTENTS}/${id}`)
-const createContent = (data) => http.post(`${API.CONTENTS}/`, data)
-const updateContent = (id, data) => http.put(`${API.CONTENTS}/${id}`, data)
+
+const createContent = (data) => {
+  let formData;
+  
+  if (data instanceof FormData) {
+    // If data is already a FormData object, use it directly
+    formData = data;
+  } else {
+    // Otherwise, create a new FormData from the data object
+    formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value)
+      }
+    })
+  }
+
+  return http.post(`${API.CONTENTS}/`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
+const updateContent = (id, data) => {
+  let formData;
+  
+  if (data instanceof FormData) {
+    // If data is already a FormData object, use it directly
+    formData = data;
+  } else {
+    // Otherwise, create a new FormData from the data object
+    formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value)
+      }
+    })
+  }
+
+  return http.put(`${API.CONTENTS}/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
 const deleteContent = (id) => http.delete(`${API.CONTENTS}/${id}`)
 
 // ----- Content Types -----
