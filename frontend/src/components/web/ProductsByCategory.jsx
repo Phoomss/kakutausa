@@ -4,71 +4,51 @@ import productService from "../../services/productService";
 import categoryService from "../../services/categoryService";
 import { API_IMAGE_URL } from "../../configs/constants";
 
-const ProductsByCategory = () => {
+const ProductsGallery = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch categories on mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await categoryService.getAllCategories();
-        const categoriesData = ["All", ...(res.data.data?.map(c => c.name) || [])];
-        setCategories(categoriesData);
+        setCategories(["All", ...(res.data.data?.map(c => c.name) || [])]);
       } catch (err) {
-        console.error("Failed to load categories", err);
+        console.error(err);
       }
     };
-
     fetchCategories();
   }, []);
 
-  // Fetch products whenever selectedCategory changes
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        let res;
-        if (selectedCategory === "All") {
-          res = await productService.getAllProducts();
-        } else {
-          res = await productService.searchProductByCategory(selectedCategory);
-        }
+        const res =
+          selectedCategory === "All"
+            ? await productService.getAllProducts()
+            : await productService.searchProductByCategory(selectedCategory);
         setProducts(res.data.data || []);
       } catch (err) {
-        console.error("Failed to load products", err);
+        console.error(err);
         setProducts([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, [selectedCategory]);
 
   if (loading) {
-    return (
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-4 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-12">
-            Our <span className="text-red-600">Products by Category</span>
-          </h2>
-          <p className="text-gray-700">Loading products...</p>
-        </div>
-      </section>
-    );
+    return <p className="text-center py-20">Loading products...</p>;
   }
 
   return (
-    <section className="bg-gray-50 py-16">
-      <div className="container mx-auto px-4 lg:px-8">
-        <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-12 text-center">
-          Our <span className="text-red-600">Products by Category</span>
-        </h2>
-
+    <section className="bg-gray-100 py-16">
+      <div className="container mx-auto px-4">
         {/* Category Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           {categories.map((cat, idx) => (
@@ -76,8 +56,8 @@ const ProductsByCategory = () => {
               key={idx}
               onClick={() => setSelectedCategory(cat)}
               className={`px-6 py-2 rounded-full font-semibold transition ${selectedCategory === cat
-                  ? "bg-red-600 text-white shadow-lg"
-                  : "bg-white text-red-600 border border-red-200 hover:bg-red-50"
+                ? "bg-red-600 text-white shadow-lg"
+                : "bg-white text-red-600 border border-red-200 hover:bg-red-50"
                 }`}
             >
               {cat}
@@ -85,53 +65,34 @@ const ProductsByCategory = () => {
           ))}
         </div>
 
-        {/* Product Grid */}
-        {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                className="relative bg-white/70 backdrop-blur-md rounded-3xl shadow-xl overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-2xl flex flex-col group"
-              >
-                {/* Image */}
-                <div className="relative w-full h-88 overflow-hidden rounded-t-3xl">
-                  <img
-                    src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                </div>
+        {/* Gallery Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="relative w-full aspect-square overflow-hidden cursor-pointer group"
+              onClick={() => navigate(`/products/${product.id}`)}
+            >
+              {/* Product Image */}
+              <img
+                src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
+                alt={product.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
 
-                {/* Content */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <h4 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 text-center">
-                    {product.name}
-                  </h4>
-
-                  <p className="text-sm text-gray-600 mb-4 text-center">
-                    Category: {product.category?.name || "N/A"}
-                  </p>
-
-                  <button
-                    onClick={() => navigate(`/products/${product.id}`)}
-                    className="mt-auto bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-all duration-300 w-full shadow-md hover:shadow-lg"
-                  >
-                    View Details
-                  </button>
-                </div>
+              {/* Overlay on hover */}
+              <div className="absolute inset-0 bg-black/50 bg-opacity-40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-white text-center p-2">
+                <h3 className="font-semibold text-lg">{product.name}</h3>
+                <p className="text-sm mt-1">{product.category?.name}</p>
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-700">
-            No products found in this category.
-          </p>
-        )}
+            </div>
+          ))}
+        </div>
+
       </div>
     </section>
   );
 };
 
-export default ProductsByCategory;
+export default ProductsGallery;

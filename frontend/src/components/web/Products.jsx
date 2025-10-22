@@ -92,35 +92,21 @@ const Products = () => {
         {filteredProducts.map((product) => (
           <div
             key={product.id}
-            className="relative bg-white/70 backdrop-blur-md rounded-3xl shadow-xl overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-2xl flex flex-col group"
+            className="relative w-full aspect-square overflow-hidden cursor-pointer group"
+            onClick={() => navigate(`/products/${product.id}`)}
           >
-            {/* Image */}
-            <div className="relative w-full h-72 overflow-hidden rounded-t-3xl">
-              <img
-                src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
-                alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-            </div>
+            {/* Product Image */}
+            <img
+              src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
 
-            {/* Content */}
-            <div className="p-6 flex flex-col flex-grow">
-              <h4 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 text-center">
-                {product.name}
-              </h4>
-
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                Category: {product.category?.name || "N/A"}
-              </p>
-
-              <button
-                onClick={() => navigate(`/products/${product.id}`)}
-                className="mt-auto bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-all duration-300 w-full shadow-md hover:shadow-lg"
-              >
-                View Details
-              </button>
+            {/* Overlay on hover */}
+            <div className="absolute inset-0 bg-black/50 bg-opacity-40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-white text-center p-2">
+              <h3 className="font-semibold text-lg">{product.name}</h3>
+              <p className="text-sm mt-1">{product.category?.name}</p>
             </div>
           </div>
         ))}
