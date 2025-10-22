@@ -65,30 +65,34 @@ const ProductsGallery = () => {
           ))}
         </div>
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="relative w-full aspect-square overflow-hidden cursor-pointer group"
-              onClick={() => navigate(`/products/${product.id}`)}
-            >
-              {/* Product Image */}
-              <img
-                src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
-                alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="lazy"
-              />
+        {products.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="relative w-full aspect-square overflow-hidden cursor-pointer group"
+                onClick={() => navigate(`/products/${product.id}`)}
+              >
+                <img
+                  src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
 
-              {/* Overlay on hover */}
-              <div className="absolute inset-0 bg-black/50 bg-opacity-40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-white text-center p-2">
-                <h3 className="font-semibold text-lg">{product.name}</h3>
-                <p className="text-sm mt-1">{product.category?.name}</p>
+                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-white text-center p-2">
+                  <h3 className="font-semibold text-lg">{product.name}</h3>
+                  <p className="text-sm mt-1">{product.category?.name}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center py-20 text-gray-700">
+            No products found in this category.
+          </p>
+        )}
+
 
       </div>
     </section>
