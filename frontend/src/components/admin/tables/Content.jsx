@@ -579,7 +579,7 @@ const Content = () => {
               </div>
               <div>
                 <label className="mb-1 block">Detail</label>
-                <textarea value={formData.detail} onChange={(e) => setFormData({ ...formData, detail: e.target.value })} className="border px-3 py-2 rounded-lg w-full" rows={6} placeholder="Enter detail" />
+                <textarea value={formData.detail} onChange={(e) => setFormData({ ...formData, detail: e.target.value })} className="border px-3 py-2 rounded-lg w-full" rows={3} placeholder="Enter detail" />
               </div>
               <div>
                 <label className="mb-1 block">Upload Image</label>
