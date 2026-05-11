@@ -1,13 +1,16 @@
 const prisma = require("../config/db");
 const InternalServer = require("../utils/internal-server");
 
+/**
+ * @desc    Create a new content type
+ * @route   POST /api/content-types
+ * @access  Private (Admin)
+ */
 exports.createContentType = async (req, res) => {
     const { name } = req.body;
     try {
         if (!name) {
-            return res.status(400).json({
-                message: "name field is required"
-            });
+            return res.status(400).json({ message: "Content type name is required" });
         }
 
         const newContentType = await prisma.contentType.create({
@@ -15,105 +18,132 @@ exports.createContentType = async (req, res) => {
         });
 
         return res.status(201).json({
-            message: "Content Type created successfully",
+            message: "Content type created successfully",
             data: newContentType
         });
     } catch (error) {
-        InternalServer(error, res);
+        return InternalServer(res, error);
     }
 };
 
+/**
+ * @desc    Get all content types
+ * @route   GET /api/content-types
+ * @access  Public
+ */
 exports.getAllContentType = async (req, res) => {
     try {
-        const contentTypes = await prisma.contentType.findMany();
+        const contentTypes = await prisma.contentType.findMany({
+            orderBy: { id: 'asc' }
+        });
+        
         return res.status(200).json({
-            message: "Content Types fetched successfully",
+            message: "Content types fetched successfully",
             data: contentTypes
         });
     } catch (error) {
-        InternalServer(error, res);
+        return InternalServer(res, error);
     }
 };
 
+/**
+ * @desc    Get content type by ID
+ * @route   GET /api/content-types/:id
+ * @access  Public
+ */
 exports.getContentTypeById = async (req, res) => {
     const { id } = req.params;
+    const contentTypeId = parseInt(id, 10);
+
+    if (isNaN(contentTypeId)) {
+        return res.status(400).json({ message: "Invalid content type ID" });
+    }
+
     try {
         const contentType = await prisma.contentType.findUnique({
-            where: { id: Number(id) }
+            where: { id: contentTypeId }
         });
 
         if (!contentType) {
-            return res.status(404).json({
-                message: "Content Type not found"
-            });
+            return res.status(404).json({ message: "Content type not found" });
         }
 
         return res.status(200).json({
-            message: "Content Type fetched successfully",
+            message: "Content type fetched successfully",
             data: contentType
         });
     } catch (error) {
-        InternalServer(error, res);
+        return InternalServer(res, error);
     }
 };
 
+/**
+ * @desc    Update a content type
+ * @route   PUT /api/content-types/:id
+ * @access  Private (Admin)
+ */
 exports.updateContentType = async (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
+    const contentTypeId = parseInt(id, 10);
+
+    if (isNaN(contentTypeId)) {
+        return res.status(400).json({ message: "Invalid content type ID" });
+    }
 
     try {
-        if (!name) {
-            return res.status(400).json({
-                message: "name field is required"
-            });
-        }
-
         const contentType = await prisma.contentType.findUnique({
-            where: { id: Number(id) }
+            where: { id: contentTypeId }
         });
 
         if (!contentType) {
-            return res.status(404).json({
-                message: "Content Type not found"
-            });
+            return res.status(404).json({ message: "Content type not found" });
         }
 
         const updatedContentType = await prisma.contentType.update({
-            where: { id: Number(id) },
-            data: { name }
+            where: { id: contentTypeId },
+            data: { name: name || contentType.name }
         });
 
         return res.status(200).json({
-            message: "Content Type updated successfully",
+            message: "Content type updated successfully",
             data: updatedContentType
         });
     } catch (error) {
-        InternalServer(error, res);
+        return InternalServer(res, error);
     }
 };
 
+/**
+ * @desc    Delete a content type
+ * @route   DELETE /api/content-types/:id
+ * @access  Private (Admin)
+ */
 exports.deleteContentType = async (req, res) => {
     const { id } = req.params;
+    const contentTypeId = parseInt(id, 10);
+
+    if (isNaN(contentTypeId)) {
+        return res.status(400).json({ message: "Invalid content type ID" });
+    }
 
     try {
         const contentType = await prisma.contentType.findUnique({
-            where: { id: Number(id) }
+            where: { id: contentTypeId }
         });
 
         if (!contentType) {
-            return res.status(404).json({
-                message: "Content Type not found"
-            });
+            return res.status(404).json({ message: "Content type not found" });
         }
 
         await prisma.contentType.delete({
-            where: { id: Number(id) }
+            where: { id: contentTypeId }
         });
 
         return res.status(200).json({
-            message: "Content Type deleted successfully"
+            message: "Content type deleted successfully"
         });
     } catch (error) {
-        InternalServer(error, res);
+        return InternalServer(res, error);
     }
 };

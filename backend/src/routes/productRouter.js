@@ -14,7 +14,7 @@ productRouter.get("/:id", productController.getProductById);
 productRouter.get("/:id/images", productController.getProductImages);
 productRouter.get("/:id/models", productController.getProductModels);
 
-productRouter.put("/:id", [authMiddleware, adminMiddleware], productController.updateProduct);
+productRouter.put("/:id", [authMiddleware, adminMiddleware], upload.any(), productController.updateProduct);
 productRouter.delete("/:id", [authMiddleware, adminMiddleware], productController.deleteProduct);
 
 // Multi-images upload

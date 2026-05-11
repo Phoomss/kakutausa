@@ -7,7 +7,7 @@ const e = require("express");
 const sizeRouter = express.Router();
 
 sizeRouter.get('/', sizeController.getAllSizes)
-sizeRouter.get('/:id', sizeController.getAllSizes)
+sizeRouter.get('/:id', sizeController.getSizeById)
 
 sizeRouter.post('/', [authMiddleware, adminMiddleware],  sizeController.createSize)
 
