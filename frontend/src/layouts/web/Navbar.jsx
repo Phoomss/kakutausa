@@ -13,7 +13,7 @@ import {
   ABOUT_PATH,
   PRODUCTS_PATH,
 } from '../../configs/constants';
-import ContactBanner from '../../components/web/ContactBanner ';
+import ContactBanner from '../../components/web/ContactBanner';
 
 const categories = [
   { name: 'Home', path: HOME_PATH },

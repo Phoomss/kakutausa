@@ -3,7 +3,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const { PORT } = require('./utils/constants');
 const { initializeAdminUser } = require('./controllers/authController');
-const routRouter = require('./routes/indexx');
+const routRouter = require('./routes/index');
 const prisma = require('./config/db');
 
 const app = express();

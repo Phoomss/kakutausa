@@ -1,12 +1,12 @@
-import React from 'react'
-import Category from '../../components/admin/tables/Category'
+import React from 'react';
+import CategoryList from '../../features/categories/components/CategoryList';
 
 const CategoryPage = () => {
     return (
         <div>
-            <Category />
+            <CategoryList />
         </div>
-    )
+    );
 }
 
-export default CategoryPage
+export default CategoryPage;
