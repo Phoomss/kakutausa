@@ -1,9 +1,15 @@
 const InternalServer = (res, error) => {
-    console.log('Error:', error);
-    return res.status(500).json({
-        message: "Internal Server Error",
-        error: error.message
-    });
+    console.error('Error:', error);
+    
+    const response = {
+        message: "Internal Server Error"
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+        response.error = error.message;
+    }
+
+    return res.status(500).json(response);
 };
 
-module.exports = InternalServer
+module.exports = InternalServer;
