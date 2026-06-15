@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Eye, Edit, Trash2, Plus, TrendingUp, TrendingDown, BarChart3, Users, Package, Tag, MessageCircle, FileText, MapPin, ExternalLink } from 'lucide-react';
 import StatsCard from './card/StatusCard';
 import dashboardService from '../../services/dashboardService';
@@ -21,11 +21,7 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = useCallback(async () => {
     try {
       const response = await dashboardService.getDashboardStats();
       if (response.data && response.data.data) {
@@ -36,9 +32,13 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const statsCards = [
+  useEffect(() => {
+    fetchDashboardStats();
+  }, [fetchDashboardStats]);
+
+  const statsCards = useMemo(() => [
     { 
       title: 'Total Users', 
       value: stats.totalUsers?.toLocaleString() || '0', 
@@ -71,7 +71,12 @@ const Dashboard = () => {
       color: 'purple',
       icon: MessageCircle
     }
-  ];
+  ], [stats]);
+
+  const maxAmount = useMemo(() => {
+    if (!stats.productsByCategory || stats.productsByCategory.length === 0) return 1;
+    return Math.max(...stats.productsByCategory.map(c => c.amount)) || 1;
+  }, [stats.productsByCategory]);
 
   const getRequestStatusColor = (handled) => {
     return handled ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
@@ -89,44 +94,35 @@ const Dashboard = () => {
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-        {statsCards.map((stat, index) => {
-          const IconComponent = stat.icon;
-          return (
-            <div key={index} className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-              <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${
-                stat.color === 'blue' ? 'from-blue-500 to-blue-600' : 
-                stat.color === 'green' ? 'from-green-500 to-green-600' : 
-                stat.color === 'yellow' ? 'from-yellow-500 to-yellow-600' : 
-                stat.color === 'purple' ? 'from-purple-500 to-purple-600' : 
-                stat.color === 'red' ? 'from-red-500 to-red-600' : 
-                'from-indigo-500 to-indigo-600'
-              } flex items-center justify-center mb-4`}>
-                <IconComponent className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-sm font-medium text-gray-600 mb-2">{stat.title}</h3>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-gray-900">{stat.value}</span>
-              </div>
-            </div>
-          );
-        })}
+        {statsCards.map((stat, index) => (
+          <StatsCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            change={stat.change}
+            trend={stat.trend}
+            color={stat.color}
+            icon={stat.icon}
+          />
+        ))}
       </div>
 
       {/* Charts and Category Stats Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Products by Category Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Products by Category</h3>
-          <div className="h-64 flex items-end space-x-2 justify-center">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <h3 className="text-lg font-bold text-slate-800 mb-6">Products by Category</h3>
+          <div className="h-64 flex items-end space-x-4 justify-center pb-4 border-b border-slate-50">
             {stats.productsByCategory && stats.productsByCategory.length > 0 ? (
               stats.productsByCategory.map((category, index) => (
-                <div key={index} className="flex flex-col items-center">
+                <div key={index} className="flex flex-col items-center flex-1 max-w-[45px]">
                   <div 
-                    className="w-8 bg-gradient-to-t from-green-500 to-green-400 rounded-t-md"
-                    style={{ height: `${(category.amount / Math.max(...stats.productsByCategory.map(c => c.amount))) * 200}px` }}
+                    className="w-full bg-gradient-to-t from-red-600 to-red-400 rounded-t-lg hover:from-red-700 hover:to-red-500 transition-all duration-300 shadow-md shadow-red-500/10 transform hover:scale-105"
+                    style={{ height: `${(category.amount / maxAmount) * 160}px` }}
+                    title={`${category.amount} products`}
                   ></div>
-                  <span className="text-xs mt-2 text-gray-600">{category.month}</span>
-                  <span className="text-xs text-gray-500">{category.amount} products</span>
+                  <span className="text-xs mt-3 text-slate-500 font-semibold truncate w-full text-center">{category.month}</span>
+                  <span className="text-[10px] text-slate-400 font-bold mt-0.5">{category.amount}</span>
                 </div>
               ))
             ) : (

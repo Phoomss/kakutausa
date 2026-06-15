@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Plus, Edit, Trash2, X, Upload, Eye } from "lucide-react";
 import productService from "../../../services/productService";
 import categoryService from "../../../services/categoryService";
@@ -39,6 +39,13 @@ const ProductsManagement = () => {
   const [existingModels, setExistingModels] = useState({ gltf: null, bin: null, step: null });
   const [searchName, setSearchName] = useState("");
   const [searchCategory, setSearchCategory] = useState("");
+
+  const filteredProducts = useMemo(() => {
+    return products.filter(p =>
+      p.name.toLowerCase().includes(searchName.toLowerCase()) &&
+      (searchCategory === "" || p.category?.name === searchCategory)
+    );
+  }, [products, searchName, searchCategory]);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -276,13 +283,7 @@ const ProductsManagement = () => {
       <div className="flex justify-between items-center">
         <div>
           <span className="text-gray-500">
-            Showing {Math.min(products.filter(p =>
-              p.name.toLowerCase().includes(searchName.toLowerCase()) &&
-              (searchCategory === "" || p.category?.name === searchCategory)
-            ).length, currentPage * pageSize)} of {products.filter(p =>
-              p.name.toLowerCase().includes(searchName.toLowerCase()) &&
-              (searchCategory === "" || p.category?.name === searchCategory)
-            ).length} products
+            Showing {Math.min(filteredProducts.length, currentPage * pageSize)} of {filteredProducts.length} products
           </span>
         </div>
         <div className="flex items-center space-x-2">
@@ -308,7 +309,7 @@ const ProductsManagement = () => {
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             <p className="mt-2 text-gray-600">Loading products...</p>
           </div>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             No products found. Click "Add Product" to create your first product.
           </div>
@@ -325,11 +326,6 @@ const ProductsManagement = () => {
             </thead>
             <tbody>
               {(() => {
-                const filteredProducts = products.filter(p =>
-                  p.name.toLowerCase().includes(searchName.toLowerCase()) &&
-                  (searchCategory === "" || p.category?.name === searchCategory)
-                );
-                
                 const paginatedProducts = filteredProducts.slice(
                   (currentPage - 1) * pageSize,
                   currentPage * pageSize

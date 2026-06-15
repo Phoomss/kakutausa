@@ -66,19 +66,17 @@ export const DataTable = ({
 
       {/* Table Container */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-2">
-          {setSelectedIds && (
-            <input
-              type="checkbox"
-              checked={data.length > 0 && data.every((item) => selectedIds.includes(item.id))}
-              onChange={toggleSelectAll}
-            />
-          )}
+        <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold">{title}</h3>
         </div>
         
         {loading ? (
-          <div className="p-8 text-center text-gray-500">Loading...</div>
+          <div className="p-12 text-center text-gray-500">
+            <div className="flex justify-center items-center gap-2">
+              <span className="animate-spin inline-block w-5 h-5 border-2 border-current border-t-transparent text-blue-600 rounded-full"></span>
+              Loading data...
+            </div>
+          </div>
         ) : data.length === 0 ? (
           <div className="p-8 text-center text-gray-500">No data found</div>
         ) : (
@@ -87,7 +85,11 @@ export const DataTable = ({
               <tr>
                 {setSelectedIds && (
                   <th className="w-1/12 px-6 py-3 border-b text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Select
+                    <input
+                      type="checkbox"
+                      checked={data.length > 0 && data.every((item) => selectedIds.includes(item.id))}
+                      onChange={toggleSelectAll}
+                    />
                   </th>
                 )}
                 {columns.map((col, idx) => (

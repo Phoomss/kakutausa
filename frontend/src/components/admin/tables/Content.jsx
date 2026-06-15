@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, Eye, Search, Filter, Calendar } from 'lucide-react';
 import contentService from '../../../services/contentServices';
 
@@ -75,7 +75,7 @@ const Content = () => {
   }, [fetchContents, fetchContentTypes]);
 
   // Apply filters and sorting
-  const getFilteredAndSortedContents = () => {
+  const getFilteredAndSortedContents = useCallback(() => {
     let result = [...contents];
 
     // Apply search if term exists
@@ -134,7 +134,10 @@ const Content = () => {
     });
 
     return result;
-  };
+  }, [contents, searchTerm, filterByStatus, sortBy, sortOrder]);
+
+  // Use useMemo to optimize filtering/sorting
+  const filteredContents = useMemo(() => getFilteredAndSortedContents(), [getFilteredAndSortedContents]);
 
   // Open Add/Edit modal
   const openModal = (content = null) => {
@@ -290,9 +293,6 @@ const Content = () => {
     setViewModalOpen(false);
   };
 
-  // Apply filters
-  const filteredContents = getFilteredAndSortedContents();
-  
   // Pagination
   const totalPages = Math.ceil(filteredContents.length / pageSize);
   const paginatedData = filteredContents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
