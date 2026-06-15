@@ -493,6 +493,22 @@ const swaggerDocument = {
       get: {
         tags: ['Products'],
         summary: 'Get all products',
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', example: 1 },
+            description: 'Page number for pagination',
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', example: 10 },
+            description: 'Number of items per page',
+          },
+        ],
         responses: {
           200: {
             description: 'Products fetched successfully',
@@ -1259,6 +1275,22 @@ const swaggerDocument = {
       get: {
         tags: ['Contents'],
         summary: 'Get all contents',
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', example: 1 },
+            description: 'Page number for pagination',
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', example: 10 },
+            description: 'Number of items per page',
+          },
+        ],
         responses: {
           200: {
             description: 'Contents fetched successfully',

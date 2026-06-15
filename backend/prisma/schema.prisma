@@ -18,12 +18,17 @@ model Request3D {
   createdAt DateTime @default(now())
   handled   Boolean  @default(false)
   product   Product? @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([handled])
 }
 
 model Category {
   id       Int       @id @default(autoincrement())
-  name     String
+  name     String    @unique
   products Product[]
+
+  @@index([name])
 }
 
 model Product {
@@ -37,6 +42,8 @@ model Product {
   models      ProductModel[]
   Request3D   Request3D[]
   sizes       Size[]
+
+  @@index([categoryId])
 }
 
 model Size {
@@ -53,6 +60,8 @@ model Size {
   barMovesInch          String?
   drawingMovementInch   String?
   product               Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
 }
 
 model ProductImage {
@@ -60,6 +69,8 @@ model ProductImage {
   productId Int
   imageUrl  String?
   product   Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
 }
 
 model ProductModel {
@@ -69,6 +80,8 @@ model ProductModel {
   binUrl    String?
   stepUrl   String?
   product   Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
 }
 
 model ContentType {
@@ -88,6 +101,10 @@ model Content {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   contentType   ContentType @relation(fields: [contentTypeId], references: [id])
+
+  @@index([contentTypeId])
+  @@index([language])
+  @@index([isPublished])
 }
 
 model AddressType {
@@ -106,6 +123,8 @@ model Address {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   addressType   AddressType @relation(fields: [addressTypeId], references: [id])
+
+  @@index([addressTypeId])
 }
 
 model User {

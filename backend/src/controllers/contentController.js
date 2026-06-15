@@ -61,16 +61,46 @@ exports.createContent = async (req, res) => {
  * @access  Public
  */
 exports.getContents = async (req, res) => {
+    const { page, limit } = req.query;
     try {
-        const contents = await prisma.content.findMany({
+        let options = {
             include: { contentType: true },
             orderBy: { id: 'asc' }
-        });
+        };
 
-        return res.status(200).json({
+        let isPaginated = false;
+        let parsedPage = 1;
+        let parsedLimit = 10;
+        let totalCount = 0;
+
+        if (page && limit) {
+            parsedPage = parseInt(page, 10);
+            parsedLimit = parseInt(limit, 10);
+            if (!isNaN(parsedPage) && !isNaN(parsedLimit)) {
+                options.skip = (parsedPage - 1) * parsedLimit;
+                options.take = parsedLimit;
+                isPaginated = true;
+                totalCount = await prisma.content.count();
+            }
+        }
+
+        const contents = await prisma.content.findMany(options);
+
+        const responsePayload = {
             message: "Contents fetched successfully",
             data: contents,
-        });
+        };
+
+        if (isPaginated) {
+            responsePayload.pagination = {
+                totalCount,
+                totalPages: Math.ceil(totalCount / parsedLimit),
+                currentPage: parsedPage,
+                limit: parsedLimit
+            };
+        }
+
+        return res.status(200).json(responsePayload);
     } catch (error) {
         return InternalServer(res, error);
     }

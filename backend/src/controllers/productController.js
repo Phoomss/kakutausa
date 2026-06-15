@@ -120,11 +120,30 @@ exports.getProductByCategory = async (req, res) => {
  * @access  Public
  */
 exports.getAllProducts = async (req, res) => {
+    const { page, limit } = req.query;
     try {
-        const products = await prisma.product.findMany({
+        let options = {
             include: { sizes: true, images: true, models: true, category: true },
             orderBy: { id: 'asc' }
-        });
+        };
+
+        let isPaginated = false;
+        let parsedPage = 1;
+        let parsedLimit = 10;
+        let totalCount = 0;
+
+        if (page && limit) {
+            parsedPage = parseInt(page, 10);
+            parsedLimit = parseInt(limit, 10);
+            if (!isNaN(parsedPage) && !isNaN(parsedLimit)) {
+                options.skip = (parsedPage - 1) * parsedLimit;
+                options.take = parsedLimit;
+                isPaginated = true;
+                totalCount = await prisma.product.count();
+            }
+        }
+
+        const products = await prisma.product.findMany(options);
 
         const sortedProducts = products.map(p => ({
             ...p,
@@ -137,10 +156,21 @@ exports.getAllProducts = async (req, res) => {
             })
         }));
 
-        return res.status(200).json({
+        const responsePayload = {
             message: "Products fetched successfully",
             data: sortedProducts
-        });
+        };
+
+        if (isPaginated) {
+            responsePayload.pagination = {
+                totalCount,
+                totalPages: Math.ceil(totalCount / parsedLimit),
+                currentPage: parsedPage,
+                limit: parsedLimit
+            };
+        }
+
+        return res.status(200).json(responsePayload);
     } catch (error) {
         return InternalServer(res, error);
     }
