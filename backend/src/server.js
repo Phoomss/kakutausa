@@ -5,6 +5,7 @@ const { PORT } = require('./utils/constants');
 const { initializeAdminUser } = require('./controllers/authController');
 const routRouter = require('./routes/index');
 const prisma = require('./config/db');
+const swagger = require('./config/swagger');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 app.use('/api', routRouter);
+app.use('/api-docs', swagger.serve, swagger.setup);
 
 async function startServer() {
   try {
