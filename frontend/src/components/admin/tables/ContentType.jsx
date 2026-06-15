@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import contentService from '../../../services/contentServices';
 
@@ -28,7 +28,7 @@ const ContentType = () => {
   };
 
   // Fetch all content types
-  const fetchContentTypes = async () => {
+  const fetchContentTypes = useCallback(async () => {
     try {
       setLoading(true);
       const res = await contentService.getAllContentTypes();
@@ -39,7 +39,7 @@ const ContentType = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Add / Update
   const handleSubmit = async (e) => {
@@ -80,7 +80,7 @@ const ContentType = () => {
 
   useEffect(() => {
     fetchContentTypes();
-  }, []);
+  }, [fetchContentTypes]);
 
   // Pagination calculations
   const totalPages = Math.ceil(contentTypes.length / pageSize);
@@ -210,7 +210,11 @@ const ContentType = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
-                Select
+                <input
+                  type="checkbox"
+                  checked={paginatedData.length > 0 && paginatedData.every((ct) => selectedIds.includes(ct.id))}
+                  onChange={toggleSelectAll}
+                />
               </th>
               <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
                 #
@@ -224,33 +228,50 @@ const ContentType = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {paginatedData.map((ct, index) => (
-              <tr key={ct.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(ct.id)}
-                    onChange={() => toggleSelect(ct.id)}
-                  />
-                </td>
-                <td className="px-6 py-4 text-sm">{(currentPage - 1) * pageSize + index + 1}</td>
-                <td className="px-6 py-4 text-sm">{ct.name}</td>
-                <td className="px-6 py-4 flex gap-2">
-                  <button
-                    onClick={() => { setEditingId(ct.id); setName(ct.name); }}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <Edit className="w-4 h-4 text-blue-600" />
-                  </button>
-                  <button
-                    onClick={() => setConfirmDelete({ open: true, ids: [ct.id] })}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                  </button>
+            {loading ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-500">
+                  <div className="flex justify-center items-center gap-2">
+                    <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent text-blue-600 rounded-full"></span>
+                    Loading...
+                  </div>
                 </td>
               </tr>
-            ))}
+            ) : paginatedData.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-500">
+                  No content types found.
+                </td>
+              </tr>
+            ) : (
+              paginatedData.map((ct, index) => (
+                <tr key={ct.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(ct.id)}
+                      onChange={() => toggleSelect(ct.id)}
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-sm">{(currentPage - 1) * pageSize + index + 1}</td>
+                  <td className="px-6 py-4 text-sm">{ct.name}</td>
+                  <td className="px-6 py-4 flex gap-2">
+                    <button
+                      onClick={() => { setEditingId(ct.id); setName(ct.name); }}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <Edit className="w-4 h-4 text-blue-600" />
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete({ open: true, ids: [ct.id] })}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
 

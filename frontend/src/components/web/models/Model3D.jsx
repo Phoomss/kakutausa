@@ -91,16 +91,19 @@ export default function Model3D() {
         <div className="hidden md:flex flex-col gap-3 md:w-16 justify-start">
           {[{ label: "Grid", icon: Grid3X3, state: showGrid, setter: setShowGrid },
           { label: "Dimensions", icon: Box, state: showDimensions, setter: setShowDimensions },
-          { label: "Annotations", icon: Eye, state: showAnnotations, setter: setShowAnnotations }].map(({ label, icon: Icon, state, setter }) => (
-            <button
-              key={label}
-              onClick={() => setter(!state)}
-              className={`p-3 rounded-xl border transition-all duration-300 ${state ? "bg-gradient-to-br from-red-500 to-orange-500 text-white border-red-400 shadow-md" : "bg-white text-gray-600 border-gray-200 hover:border-red-300"}`}
-              title={label}
-            >
-              <Icon size={20} />
-            </button>
-          ))}
+          { label: "Annotations", icon: Eye, state: showAnnotations, setter: setShowAnnotations }].map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                onClick={() => item.setter(!item.state)}
+                className={`p-3 rounded-xl border transition-all duration-300 ${item.state ? "bg-gradient-to-br from-red-500 to-orange-500 text-white border-red-400 shadow-md" : "bg-white text-gray-600 border-gray-200 hover:border-red-300"}`}
+                title={item.label}
+              >
+                <Icon size={20} />
+              </button>
+            );
+          })}
           <button
             onClick={downloadImage}
             className="p-3 bg-gradient-to-br from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 rounded-xl text-white shadow-md mt-2"
@@ -211,16 +214,19 @@ export default function Model3D() {
         { label: "Dimensions", icon: Box, state: showDimensions, setter: setShowDimensions },
         { label: "Annotations", icon: Eye, state: showAnnotations, setter: setShowAnnotations },
         { label: "Download", icon: Download, action: downloadImage },
-        { label: "Reset", icon: Move3D, action: () => cameraResetFn && cameraResetFn() }].map(({ label, icon: Icon, state, setter, action }) => (
-          <button
-            key={label}
-            onClick={() => setter ? setter(!state) : action()}
-            className={`flex items-center justify-center min-w-[50px] p-3 rounded-xl border transition-all duration-300 ${state ? "bg-gradient-to-br from-red-500 to-orange-500 text-white border-red-400 shadow-md" : "bg-white text-gray-600 border-gray-200 hover:border-red-300"}`}
-            title={label}
-          >
-            <Icon size={20} />
-          </button>
-        ))}
+        { label: "Reset", icon: Move3D, action: () => cameraResetFn && cameraResetFn() }].map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.label}
+              onClick={() => item.setter ? item.setter(!item.state) : item.action()}
+              className={`flex items-center justify-center min-w-[50px] p-3 rounded-xl border transition-all duration-300 ${item.state ? "bg-gradient-to-br from-red-500 to-orange-500 text-white border-red-400 shadow-md" : "bg-white text-gray-600 border-gray-200 hover:border-red-300"}`}
+              title={item.label}
+            >
+              <Icon size={20} />
+            </button>
+          );
+        })}
       </div>
 
       {/* Mobile View Modes */}

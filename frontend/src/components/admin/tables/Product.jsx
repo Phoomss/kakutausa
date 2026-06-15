@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Plus, Edit, Trash2, X, Upload, Eye } from "lucide-react";
 import productService from "../../../services/productService";
 import categoryService from "../../../services/categoryService";
@@ -14,7 +14,6 @@ const ProductsManagement = () => {
   const [alert, setAlert] = useState({ message: '', type: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [selectedIds, setSelectedIds] = useState([]);
   const [formData, setFormData] = useState({
     id: null,
     name: "",
@@ -37,29 +36,11 @@ const ProductsManagement = () => {
   const [imageFiles, setImageFiles] = useState([]);
   const [modelFiles, setModelFiles] = useState({ gltf: null, bin: null, step: null });
   const [viewProduct, setViewProduct] = useState(null);
-  const [existingImages, setExistingImages] = useState([]);
   const [existingModels, setExistingModels] = useState({ gltf: null, bin: null, step: null });
   const [searchName, setSearchName] = useState("");
   const [searchCategory, setSearchCategory] = useState("");
 
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      const updatedProducts = await Promise.all(products.map(async (p) => {
-        const res = await productService.getProductImages(p.id);
-        return { ...p, images: res.data.data };
-      }));
-      setProducts(updatedProducts);
-    };
-
-    fetchImages();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const res = await productService.getAllProducts();
@@ -78,24 +59,15 @@ const ProductsManagement = () => {
       );
 
       setProducts(updatedProducts);
-      // console.log(
-      //   updatedProducts.map(p => ({
-      //     id: p.id,
-      //     name: p.name,
-      //     images: p.images.map(img => img.imageUrl),
-      //     models: p.models.map(m => ({ gltf: m.gltfUrl, bin: m.binUrl }))
-      //   }))
-      // );
-
     } catch (err) {
       console.error(err);
       showAlert("Failed to fetch products: " + (err.response?.data?.message || err.message), 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       const res = await categoryService.getAllCategories();
@@ -106,14 +78,19 @@ const ProductsManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, [fetchProducts, fetchCategories]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSizeChange = (index, e, type) => {
+  const handleSizeChange = (index, e) => {
     const { name, value } = e.target;
     const newSizes = [...formData.sizes];
     newSizes[index][name] = value;
@@ -238,21 +215,15 @@ const ProductsManagement = () => {
         }]
       });
 
-      // Load existing images and models
-      setExistingImages(product.images || []);
+      // Load existing models
       setExistingModels(product.models?.[0] || { gltf: null, bin: null, step: null }); // ถ้า models เป็น array
       setImageFiles([]); // reset new uploads
       setModelFiles({ gltf: null, bin: null, step: null });
     } else {
       resetForm();
-      setExistingImages([]);
       setExistingModels({ gltf: null, bin: null, step: null });
     }
   };
-
-  const getFullImageUrl = (imagePath) => {
-  return imagePath ? `${API_IMAGE_URL}${imagePath}` : null;
-};
 
   return (
     <div className="space-y-6 relative">
@@ -443,11 +414,11 @@ const ProductsManagement = () => {
                     <div>
                       <h6 className="font-medium text-green-600 mb-2">Metric Specifications</h6>
                       <div className="space-y-2">
-                        <input type="text" name="holdingCapacityMetric" placeholder="Holding Capacity (kg)" value={size.holdingCapacityMetric} onChange={e => handleSizeChange(index, e, "metric")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
-                        <input type="text" name="weightMetric" placeholder="Weight (g)" value={size.weightMetric} onChange={e => handleSizeChange(index, e, "metric")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
-                        <input type="text" name="handleMovesMetric" placeholder="Handle Moves" value={size.handleMovesMetric} onChange={e => handleSizeChange(index, e, "metric")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
-                        <input type="text" name="barMovesMetric" placeholder="Bar Moves" value={size.barMovesMetric} onChange={e => handleSizeChange(index, e, "metric")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
-                        <input type="text" name="drawingMovementMetric" placeholder="Drawing Movement" value={size.drawingMovementMetric} onChange={e => handleSizeChange(index, e, "metric")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
+                        <input type="text" name="holdingCapacityMetric" placeholder="Holding Capacity (kg)" value={size.holdingCapacityMetric} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
+                        <input type="text" name="weightMetric" placeholder="Weight (g)" value={size.weightMetric} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
+                        <input type="text" name="handleMovesMetric" placeholder="Handle Moves" value={size.handleMovesMetric} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
+                        <input type="text" name="barMovesMetric" placeholder="Bar Moves" value={size.barMovesMetric} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
+                        <input type="text" name="drawingMovementMetric" placeholder="Drawing Movement" value={size.drawingMovementMetric} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500" disabled={saving} />
                       </div>
                     </div>
 
@@ -455,11 +426,11 @@ const ProductsManagement = () => {
                     <div>
                       <h6 className="font-medium text-blue-600 mb-2">Imperial Specifications</h6>
                       <div className="space-y-2">
-                        <input type="text" name="holdingCapacityInch" placeholder="Holding Capacity (lbs)" value={size.holdingCapacityInch} onChange={e => handleSizeChange(index, e, "imperial")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
-                        <input type="text" name="weightInch" placeholder="Weight (lbs)" value={size.weightInch} onChange={e => handleSizeChange(index, e, "imperial")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
-                        <input type="text" name="handleMovesInch" placeholder="Handle Moves" value={size.handleMovesInch} onChange={e => handleSizeChange(index, e, "imperial")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
-                        <input type="text" name="barMovesInch" placeholder="Bar Moves" value={size.barMovesInch} onChange={e => handleSizeChange(index, e, "imperial")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
-                        <input type="text" name="drawingMovementInch" placeholder="Drawing Movement" value={size.drawingMovementInch} onChange={e => handleSizeChange(index, e, "imperial")} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
+                        <input type="text" name="holdingCapacityInch" placeholder="Holding Capacity (lbs)" value={size.holdingCapacityInch} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
+                        <input type="text" name="weightInch" placeholder="Weight (lbs)" value={size.weightInch} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
+                        <input type="text" name="handleMovesInch" placeholder="Handle Moves" value={size.handleMovesInch} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
+                        <input type="text" name="barMovesInch" placeholder="Bar Moves" value={size.barMovesInch} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
+                        <input type="text" name="drawingMovementInch" placeholder="Drawing Movement" value={size.drawingMovementInch} onChange={e => handleSizeChange(index, e)} className="w-full border border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" disabled={saving} />
                       </div>
                     </div>
                   </div>

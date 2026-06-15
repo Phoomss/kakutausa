@@ -82,33 +82,35 @@ const ProductCategories = () => {
             <NavLink
               key={cat.id}
               to={`${PRODUCTS_PATH}`}
-              className="group block bg-white rounded-lg shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden"
+              className="group block bg-white rounded-2xl border border-slate-100 hover:border-red-500/30 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 p-8 relative overflow-hidden transform hover:-translate-y-1"
             >
-              {/* Background Pattern */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-50 to-transparent rounded-bl-full opacity-50"></div>
+              {/* Background Accent Gradient */}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-red-500/5 to-transparent rounded-bl-full opacity-60 group-hover:scale-110 transition-transform duration-300"></div>
               
               {/* Content */}
-              <div className="relative z-10">
-                {/* Category Number */}
-                <div className="inline-flex items-center justify-center w-8 h-8 bg-red-100 text-red-600 rounded-full text-sm font-semibold mb-4">
-                  {String(index + 1).padStart(2, '0')}
+              <div className="relative z-10 flex flex-col h-full justify-between">
+                <div>
+                  {/* Category Number Badge */}
+                  <div className="inline-flex items-center justify-center w-10 h-10 bg-red-50 text-red-600 rounded-xl text-sm font-bold mb-5 transition-all duration-300 group-hover:bg-red-600 group-hover:text-white shadow-sm">
+                    {String(index + 1).padStart(2, '0')}
+                  </div>
+                  
+                  {/* Category Name */}
+                  <h3 className="text-xl font-bold text-slate-850 mb-3 group-hover:text-red-600 transition-colors duration-300">
+                    {cat.name}
+                  </h3>
+                  
+                  {/* Description */}
+                  <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+                    {cat.description || "Specialized toggle clamps for your specific needs"}
+                  </p>
                 </div>
                 
-                {/* Category Name */}
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-red-600 transition-colors duration-300">
-                  {cat.name}
-                </h3>
-                
-                {/* Description */}
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                  {cat.description || "Specialized toggle clamps for your specific needs"}
-                </p>
-                
-                {/* Arrow Icon */}
-                <div className="flex items-center text-red-600 text-sm font-medium">
+                {/* Action Link */}
+                <div className="flex items-center text-red-600 text-sm font-semibold pt-2">
                   View Products
                   <svg 
-                    className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" 
+                    className="w-4 h-4 ml-2 group-hover:translate-x-1.5 transition-transform duration-300" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
@@ -116,15 +118,12 @@ const ProductCategories = () => {
                     <path 
                       strokeLinecap="round" 
                       strokeLinejoin="round" 
-                      strokeWidth="2" 
+                      strokeWidth="2.5" 
                       d="M9 5l7 7-7 7"
                     />
                   </svg>
                 </div>
               </div>
-
-              {/* Hover Effect Border */}
-              <div className="absolute inset-0 rounded-lg border-2 border-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
             </NavLink>
           ))}
         </div>

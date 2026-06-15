@@ -7,5 +7,19 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   daisyui: {
     themes: ['light']
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('three') || id.includes('@react-three') || id.includes('three-stdlib')) {
+              return 'three-vendor';
+            }
+            return 'vendor';
+          }
+        }
+      }
+    }
   }
 })

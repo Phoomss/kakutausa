@@ -6,6 +6,7 @@ import addressService from "../../services/addressService";
 const AboutPage = () => {
   const [about, setAbout] = useState([]);
   const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchAbout = async () => {
     try {
@@ -26,8 +27,12 @@ const AboutPage = () => {
   };
 
   useEffect(() => {
-    fetchAbout();
-    fetchAddresses();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchAbout(), fetchAddresses()]);
+      setLoading(false);
+    };
+    loadData();
   }, []);
 
   const aboutEN = about.find((item) => item.language === "en");
@@ -50,12 +55,14 @@ const AboutPage = () => {
           </h1>
 
           {/* English Detail */}
-          {aboutEN ? (
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
             <div>
               <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {aboutEN.detail}
+                {aboutEN?.detail || "Originated in Japan, Kakuta was established in 1959 to serve the leading Japanese automobile manufacturing industry. Kakuta toggle clamps have been widely recognized among Japanese automobile assembly plants including Toyota, Nissan, Honda, and Mitsubishi."}
               </p>
-              <p className="text-gray-700 leading-relaxed font-semibold">
+              <p className="text-gray-700 leading-relaxed font-semibold mt-4">
                 For United States customers: please call{" "}
                 <span className="text-red-600">
                   {usOffice?.phone1 || "661-295-2929"}
@@ -70,8 +77,6 @@ const AboutPage = () => {
                 .
               </p>
             </div>
-          ) : (
-            <p>Loading...</p>
           )}
 
           {/* Japanese Detail */}

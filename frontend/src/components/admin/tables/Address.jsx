@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Trash2, ChevronLeft, ChevronRight, Edit, Plus } from 'lucide-react'
 import addressService from '../../../services/addressService'
 import addressTypeService from '../../../services/addressTypeServices'
@@ -27,7 +27,7 @@ const Address = () => {
     setTimeout(() => setAlert({ message: '', type: '' }), duration)
   }
 
-  const fetchAddress = async () => {
+  const fetchAddress = useCallback(async () => {
     try {
       setLoading(true)
       const res = await addressService.getAllAddress()
@@ -38,9 +38,9 @@ const Address = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const fetchAddressTypes = async () => {
+  const fetchAddressTypes = useCallback(async () => {
     try {
       setLoading(true)
       const res = await addressTypeService.getAllAddressTypes()
@@ -51,7 +51,7 @@ const Address = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -106,7 +106,7 @@ const Address = () => {
   useEffect(() => {
     fetchAddress()
     fetchAddressTypes()
-  }, [])
+  }, [fetchAddress, fetchAddressTypes])
 
   // Pagination
   const totalPages = Math.ceil(addresses.length / pageSize)
@@ -282,7 +282,13 @@ const Address = () => {
         <table className="w-full table-auto border-collapse text-left">
           <thead className="bg-gray-50">
             <tr>
-              <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Select</th>
+              <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">
+                <input
+                  type="checkbox"
+                  checked={paginatedData.length > 0 && paginatedData.every((a) => selectedIds.includes(a.id))}
+                  onChange={toggleSelectAll}
+                />
+              </th>
               <th className="w-1/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">#</th>
               <th className="w-2/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Office</th>
               <th className="w-3/12 px-6 py-3 border-b text-sm font-medium text-gray-500 uppercase">Address</th>
@@ -293,37 +299,54 @@ const Address = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {paginatedData.map((a, index) => (
-              <tr key={a.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(a.id)}
-                    onChange={() => toggleSelect(a.id)}
-                  />
-                </td>
-                <td className="px-6 py-4 text-sm">{(currentPage - 1) * pageSize + index + 1}</td>
-                <td className="px-6 py-4 text-sm">{a.addressType?.name || '-'}</td>
-                <td className="px-6 py-4 text-sm">{a.address}</td>
-                <td className="px-6 py-4 text-sm">{a.phone1}</td>
-                <td className="px-6 py-4 text-sm">{a.phone2}</td>
-                <td className="px-6 py-4 text-sm">{a.email}</td>
-                <td className="px-6 py-4 flex gap-2">
-                  <button
-                    onClick={() => handleEdit(a)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <Edit className="w-4 h-4 text-blue-600" />
-                  </button>
-                  <button
-                    onClick={() => setConfirmDelete({ open: true, ids: [a.id] })}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                  </button>
+            {loading ? (
+              <tr>
+                <td colSpan={8} className="px-6 py-10 text-center text-sm text-gray-500">
+                  <div className="flex justify-center items-center gap-2">
+                    <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent text-blue-600 rounded-full"></span>
+                    Loading...
+                  </div>
                 </td>
               </tr>
-            ))}
+            ) : paginatedData.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-6 py-10 text-center text-sm text-gray-500">
+                  No addresses found.
+                </td>
+              </tr>
+            ) : (
+              paginatedData.map((a, index) => (
+                <tr key={a.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(a.id)}
+                      onChange={() => toggleSelect(a.id)}
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-sm">{(currentPage - 1) * pageSize + index + 1}</td>
+                  <td className="px-6 py-4 text-sm">{a.addressType?.name || '-'}</td>
+                  <td className="px-6 py-4 text-sm">{a.address}</td>
+                  <td className="px-6 py-4 text-sm">{a.phone1}</td>
+                  <td className="px-6 py-4 text-sm">{a.phone2}</td>
+                  <td className="px-6 py-4 text-sm">{a.email}</td>
+                  <td className="px-6 py-4 flex gap-2">
+                    <button
+                      onClick={() => handleEdit(a)}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <Edit className="w-4 h-4 text-blue-600" />
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete({ open: true, ids: [a.id] })}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
 

@@ -5,8 +5,6 @@ const login = (loginData) => {
         throw new Error('Email or username is required');
     }
 
-    const isEmail = loginData.emailOrUsername.includes('@');
-
     const payload = {
         login: loginData.emailOrUsername,
         password: loginData.password

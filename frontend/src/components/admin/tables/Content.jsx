@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, Eye, Search, Filter, Calendar } from 'lucide-react';
 import contentService from '../../../services/contentServices';
 
@@ -14,7 +14,6 @@ const Content = () => {
   const [confirmDelete, setConfirmDelete] = useState({ open: false, ids: [] });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [selectedIds, setSelectedIds] = useState([]);
   
   // New features
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,7 +39,7 @@ const Content = () => {
   };
 
   // Fetch data
-  const fetchContents = async (searchParams = {}) => {
+  const fetchContents = useCallback(async (searchParams = {}) => {
     try {
       setLoading(true);
       let res;
@@ -59,21 +58,21 @@ const Content = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchContentTypes = async () => {
+  const fetchContentTypes = useCallback(async () => {
     try {
       const res = await contentService.getAllContentTypes();
       setContentTypes(res.data.data);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchContents();
     fetchContentTypes();
-  }, []);
+  }, [fetchContents, fetchContentTypes]);
 
   // Apply filters and sorting
   const getFilteredAndSortedContents = () => {
@@ -240,7 +239,6 @@ const Content = () => {
       await Promise.all(confirmDelete.ids.map((id) => contentService.deleteContent(id)));
       fetchContents();
       showAlert(`${confirmDelete.ids.length} content deleted successfully!`);
-      setSelectedIds([]);
     } catch (err) {
       console.error(err);
       showAlert('Error deleting content', 'error');
@@ -487,37 +485,56 @@ const Content = () => {
                 </tbody>
               </table>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 p-4 mt-2">
-                  <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-50 flex items-center gap-1"
+              {/* Pagination & Page Size controls */}
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <label className="text-gray-700 text-sm">Rows per page:</label>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="border border-gray-300 rounded-lg px-2 py-1 text-sm bg-white"
                   >
-                    <ChevronLeft className="w-4 h-4" /> Prev
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                      key={i + 1}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 rounded-lg ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
-                        }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-
-                  <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-50 flex items-center gap-1"
-                  >
-                    Next <ChevronRight className="w-4 h-4" />
-                  </button>
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
                 </div>
-              )}
+
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-50 flex items-center gap-1 text-sm"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Prev
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <button
+                        key={i + 1}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`px-3 py-1 rounded-lg text-sm ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                          }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-50 flex items-center gap-1 text-sm"
+                    >
+                      Next <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>

@@ -6,7 +6,7 @@ import {
   Phone,
   ChevronDown
 } from 'lucide-react';
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import logo from "/logo.webp";
 import {
   HOME_PATH,
@@ -28,11 +28,11 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      // Navigate to the search results page with query parameter
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -42,7 +42,7 @@ const Navbar = () => {
       <ContactBanner />
 
       {/* Main Navbar */}
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+      <nav className="bg-white/90 backdrop-blur-md border-b border-gray-100/80 sticky top-0 z-50 shadow-sm transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}

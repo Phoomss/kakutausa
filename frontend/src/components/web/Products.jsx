@@ -93,7 +93,7 @@ const Products = () => {
           <div
             key={product.id}
             className="relative w-full aspect-square overflow-hidden cursor-pointer group"
-            onClick={() => navigate(`/products/${product.id}`)}
+            onClick={() => handleOnClick(product)}
           >
             {/* Product Image */}
             <img

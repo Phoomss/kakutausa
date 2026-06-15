@@ -47,17 +47,17 @@ const ProductsGallery = () => {
   }
 
   return (
-    <section className="bg-gray-100 py-16">
+    <section className="bg-slate-50 py-20">
       <div className="container mx-auto px-4">
         {/* Category Buttons */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
           {categories.map((cat, idx) => (
             <button
               key={idx}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-6 py-2 rounded-full font-semibold transition ${selectedCategory === cat
-                ? "bg-red-600 text-white shadow-lg"
-                : "bg-white text-red-600 border border-red-200 hover:bg-red-50"
+              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-sm border ${selectedCategory === cat
+                ? "bg-red-600 text-white border-red-600 shadow-red-650/20"
+                : "bg-white text-slate-600 border-slate-200 hover:border-red-300 hover:text-red-600"
                 }`}
             >
               {cat}
@@ -66,34 +66,54 @@ const ProductsGallery = () => {
         </div>
 
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {products.map((product) => (
               <div
                 key={product.id}
-                className="relative w-full aspect-square overflow-hidden cursor-pointer group"
+                className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between"
                 onClick={() => navigate(`/products/${product.id}`)}
               >
-                <img
-                  src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
+                {/* Product Image Container */}
+                <div className="relative aspect-square bg-slate-50 flex items-center justify-center p-4 overflow-hidden border-b border-slate-50">
+                  <img
+                    src={`${API_IMAGE_URL}${product.images[0]?.imageUrl || ""}`}
+                    alt={product.name}
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  
+                  {/* Subtle Accent Line */}
+                  <div className="absolute bottom-0 left-0 w-0 h-1 bg-red-600 transition-all duration-300 group-hover:w-full"></div>
+                </div>
 
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-white text-center p-2">
-                  <h3 className="font-semibold text-lg">{product.name}</h3>
-                  <p className="text-sm mt-1">{product.category?.name}</p>
+                {/* Product Info Block */}
+                <div className="p-5 bg-white flex-1 flex flex-col justify-between">
+                  <div>
+                    <span className="text-xs text-red-500 font-bold uppercase tracking-wider mb-1 block">
+                      {product.category?.name || product.category || "Clamp"}
+                    </span>
+                    <h3 className="font-bold text-slate-800 line-clamp-1 group-hover:text-red-600 transition-colors duration-300">
+                      {product.name}
+                    </h3>
+                  </div>
+                  
+                  <div className="flex items-center text-red-600 text-xs font-bold mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    View Details
+                    <svg className="w-3.5 h-3.5 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-center py-20 text-gray-700">
-            No products found in this category.
-          </p>
+          <div className="text-center py-20 bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+            <p className="text-slate-500 font-medium">
+              No products found in this category.
+            </p>
+          </div>
         )}
-
-
       </div>
     </section>
   );
