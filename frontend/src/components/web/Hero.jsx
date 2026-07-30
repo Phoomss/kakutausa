@@ -88,7 +88,7 @@ const Hero = () => {
             ].map((feature, i) => (
               <div key={i} className="space-y-1">
                 <h4 className="text-sm font-semibold">{feature.title}</h4>
-                <p className="text-xs text-gray-400 font-light leading-normal">{feature.desc}</p>
+                <p className="text-xs text-white-400 font-light leading-normal">{feature.desc}</p>
               </div>
             ))}
           </div>
