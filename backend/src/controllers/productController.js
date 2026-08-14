@@ -120,10 +120,18 @@ exports.getProductByCategory = async (req, res) => {
  * @access  Public
  */
 exports.getAllProducts = async (req, res) => {
-    const { page, limit } = req.query;
+    const { page, limit, category } = req.query;
     try {
+        let whereClause = {};
+        if (category && category !== "All") {
+            whereClause = {
+                category: { name: category }
+            };
+        }
+
         let options = {
-            include: { sizes: true, images: true, models: true, category: true },
+            where: whereClause,
+            include: { sizes: true, images: true, category: true },
             orderBy: { id: 'asc' }
         };
 
@@ -139,7 +147,7 @@ exports.getAllProducts = async (req, res) => {
                 options.skip = (parsedPage - 1) * parsedLimit;
                 options.take = parsedLimit;
                 isPaginated = true;
-                totalCount = await prisma.product.count();
+                totalCount = await prisma.product.count({ where: whereClause });
             }
         }
 
