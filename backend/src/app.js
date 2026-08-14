@@ -65,7 +65,8 @@ app.use('/api/auth', authLimiter);
 app.use('/api/send-email', authLimiter);
 app.use('/api', generalLimiter);
 
-app.use('/api', routRouter);
+app.use('/api/v1', routRouter);
+app.use('/api', routRouter); // Backward compatibility
 app.use('/api-docs', swagger.serve, swagger.setup);
 
 // Global error handling middleware (OWASP A05:2021-Security Misconfiguration prevention)

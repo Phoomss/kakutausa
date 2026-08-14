@@ -3,10 +3,12 @@ const productController = require("../controllers/productController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const adminMiddleware = require("../middlewares/adminMiddleware");
 const { upload } = require("../utils/supabaseStorage");
+const validate = require("../middlewares/validateMiddleware");
+const { createProductSchema } = require("../validators/productValidator");
 
 const productRouter = express.Router();
 
-productRouter.post("/", [authMiddleware, adminMiddleware], productController.createProduct);
+productRouter.post("/", [authMiddleware, adminMiddleware, validate(createProductSchema)], productController.createProduct);
 
 productRouter.get("/search", productController.getProductByCategory);
 productRouter.get("/", productController.getAllProducts);
