@@ -68,4 +68,13 @@ app.use('/api', generalLimiter);
 app.use('/api', routRouter);
 app.use('/api-docs', swagger.serve, swagger.setup);
 
+// Global error handling middleware (OWASP A05:2021-Security Misconfiguration prevention)
+app.use((err, req, res, next) => {
+  console.error('Unhandled Error:', err.stack || err);
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.stack : {}
+  });
+});
+
 module.exports = app;

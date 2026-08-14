@@ -3,6 +3,14 @@ const prisma = require('./config/db');
 const { PORT } = require('./utils/constants');
 const { initializeAdminUser } = require('./controllers/authController');
 
+// Validate required environment variables on startup
+const requiredEnv = ['DATABASE_URL', 'JWT_SECRET', 'SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
+const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error(`❌ CRITICAL: Missing required environment variables: ${missingEnv.join(', ')}`);
+  process.exit(1);
+}
+
 async function startServer() {
   try {
     await prisma.$connect();
