@@ -150,7 +150,7 @@ erDiagram
 ## 6. Deployment & Environment Setup
 
 ### Local Enterprise Environment
-Create the backend `.env` configuration mapping the database, storage, and security credentials:
+Create the backend `.env` configuration mapping the database, storage, and security credentials. Note that the server validates required variables on startup (`DATABASE_URL`, `JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`):
 
 ```ini
 # Database Connection
@@ -167,7 +167,8 @@ EMAIL_PASS="your-smtp-password"
 
 # Supabase Storage Credentials
 SUPABASE_URL="https://your-supabase-project.supabase.co"
-SUPABASE_KEY="your-supabase-anon-key"
+SUPABASE_ANON_KEY="your-supabase-anon-key"
+SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
 ```
 
 Start the multi-container stack in development mode:

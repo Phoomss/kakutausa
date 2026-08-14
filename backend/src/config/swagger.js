@@ -9,8 +9,12 @@ const swaggerDocument = {
   },
   servers: [
     {
+      url: '/api/v1',
+      description: 'API Server v1',
+    },
+    {
       url: '/api',
-      description: 'API Server',
+      description: 'API Server (Backward compatible)',
     },
   ],
   components: {
@@ -508,6 +512,20 @@ const swaggerDocument = {
             schema: { type: 'integer', example: 10 },
             description: 'Number of items per page',
           },
+          {
+            name: 'category',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', example: 'Manual Clamps' },
+            description: 'Filter products by category name (use "All" or omit to fetch all)',
+          },
+          {
+            name: 'search',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', example: 'KKT-101' },
+            description: 'Search term to match against product name, details, description, or category name',
+          },
         ],
         responses: {
           200: {
@@ -578,6 +596,29 @@ const swaggerDocument = {
                   properties: {
                     message: { type: 'string', example: 'Product created successfully' },
                     data: { $ref: '#/components/schemas/Product' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Validation failed or invalid categoryId',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Validation failed / Invalid categoryId' },
+                    errors: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          field: { type: 'string', example: 'body.name' },
+                          message: { type: 'string', example: 'Name is required' },
+                        },
+                      },
+                    },
                   },
                 },
               },
