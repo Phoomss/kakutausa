@@ -119,9 +119,15 @@ async function uploadModelFiles(files, productId) {
   return uploadedFiles;
 }
 
-async function deleteFileFromSupabase(filePath, typeFolder = "images") {
-  if (!filePath) return;
+function extractPathFromUrl(url) {
+  if (!url || !url.includes("/storage/v1/object/public/")) return url;
+  return url.split("/storage/v1/object/public/")[1].split("/").slice(1).join("/");
+}
 
+async function deleteFileFromSupabase(fileUrlOrPath, typeFolder = "images") {
+  if (!fileUrlOrPath) return;
+
+  const filePath = extractPathFromUrl(fileUrlOrPath);
   let bucketName;
 
   if (typeFolder === "models") {
@@ -140,5 +146,6 @@ module.exports = {
   upload,
   uploadFileToSupabase,
   uploadModelFiles,
-  deleteFileFromSupabase
+  deleteFileFromSupabase,
+  extractPathFromUrl
 };

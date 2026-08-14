@@ -1,6 +1,6 @@
 const prisma = require("../config/db");
 const InternalServer = require("../utils/internal-server");
-const { deleteFileFromSupabase, uploadModelFiles, uploadFileToSupabase } = require("../utils/supabaseStorage");
+const { deleteFileFromSupabase, uploadModelFiles, uploadFileToSupabase, extractPathFromUrl } = require("../utils/supabaseStorage");
 
 /**
  * Utility to map sizes for database
@@ -18,13 +18,7 @@ const mapSizesForDB = (sizes) => sizes.map((s) => ({
     drawingMovementInch: s.drawingMovementInch || null,
 }));
 
-/**
- * Utility to extract storage path from Supabase public URL
- */
-const extractPathFromUrl = (url) => {
-    if (!url || !url.includes("/storage/v1/object/public/")) return null;
-    return url.split("/storage/v1/object/public/")[1].split("/").slice(1).join("/");
-};
+
 
 /**
  * @desc    Create a new product
