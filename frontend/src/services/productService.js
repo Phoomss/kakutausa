@@ -6,7 +6,7 @@ const searchProductByCategory = (category) => {
   return http.get(`${API_URL}/search`, { params: { category } });
 };
 
-const getAllProducts = () => http.get(API_URL);
+const getAllProducts = (params) => http.get(API_URL, { params });
 const getProductById = (id) => http.get(`${API_URL}/${id}`);
 const createProduct = (data) => http.post(API_URL, data);
 const updateProduct = (id, data) => http.put(`${API_URL}/${id}`, data);

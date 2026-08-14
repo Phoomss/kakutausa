@@ -21,20 +21,8 @@ const SearchResultsPage = () => {
 
       try {
         setLoading(true);
-        // For now, fetch all products and filter on frontend
-        // In the future, this could be enhanced to have a backend search API
-        const response = await productService.getAllProducts();
-        const allProducts = response.data.data;
-
-        // Filter products based on query in name, details, description or category
-        const filtered = allProducts.filter(product =>
-          product.name.toLowerCase().includes(query.toLowerCase()) ||
-          product.details?.toLowerCase().includes(query.toLowerCase()) ||
-          product.description?.toLowerCase().includes(query.toLowerCase()) ||
-          product.category?.name?.toLowerCase().includes(query.toLowerCase())
-        );
-
-        setProducts(filtered);
+        const response = await productService.getAllProducts({ search: query });
+        setProducts(response.data.data);
         setError(null);
       } catch (err) {
         console.error('Search error:', err);

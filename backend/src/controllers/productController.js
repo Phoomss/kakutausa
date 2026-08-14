@@ -120,13 +120,20 @@ exports.getProductByCategory = async (req, res) => {
  * @access  Public
  */
 exports.getAllProducts = async (req, res) => {
-    const { page, limit, category } = req.query;
+    const { page, limit, category, search } = req.query;
     try {
         let whereClause = {};
         if (category && category !== "All") {
-            whereClause = {
-                category: { name: category }
-            };
+            whereClause.category = { name: category };
+        }
+
+        if (search) {
+            whereClause.OR = [
+                { name: { contains: search, mode: 'insensitive' } },
+                { details: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+                { category: { name: { contains: search, mode: 'insensitive' } } }
+            ];
         }
 
         let options = {
